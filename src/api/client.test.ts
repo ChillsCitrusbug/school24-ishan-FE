@@ -126,4 +126,54 @@ describe('apiClient response interceptor (EC-034)', () => {
     expect(authToken.clearAccessToken).not.toHaveBeenCalled()
     expect(assignMock).not.toHaveBeenCalled()
   })
+
+  // FR-002 fix: the original `includes('/auth/login')` check silently
+  // failed to exclude '/api/v1/student-auth/login' (no '/auth/login'
+  // substring — the character before "auth" is "-", not "/"), so a wrong-
+  // Student-ID-or-password attempt was incorrectly treated as a session
+  // expiry. These two tests pin the fixed `endsWith`-based check.
+  it('does NOT redirect on the student login endpoint’s own 401 (wrong credentials)', async () => {
+    const client = await loadClient()
+    const rejected = responseRejectedInterceptor(client)
+
+    await expect(
+      rejected({
+        response: { status: 401 },
+        config: { url: '/api/v1/student-auth/login' },
+      }),
+    ).rejects.toBeDefined()
+
+    expect(authToken.clearAccessToken).not.toHaveBeenCalled()
+    expect(assignMock).not.toHaveBeenCalled()
+  })
+
+  it('does NOT redirect on the student change-password endpoint’s own 401 (expired change_token)', async () => {
+    const client = await loadClient()
+    const rejected = responseRejectedInterceptor(client)
+
+    await expect(
+      rejected({
+        response: { status: 401 },
+        config: { url: '/api/v1/student-auth/change-password' },
+      }),
+    ).rejects.toBeDefined()
+
+    expect(authToken.clearAccessToken).not.toHaveBeenCalled()
+    expect(assignMock).not.toHaveBeenCalled()
+  })
+
+  it('still redirects on a 401 from any other student-auth endpoint (e.g. a dead access token on /me)', async () => {
+    const client = await loadClient()
+    const rejected = responseRejectedInterceptor(client)
+
+    await expect(
+      rejected({
+        response: { status: 401 },
+        config: { url: '/api/v1/student-auth/me' },
+      }),
+    ).rejects.toBeDefined()
+
+    expect(authToken.clearAccessToken).toHaveBeenCalledTimes(1)
+    expect(assignMock).toHaveBeenCalledWith('/session-expired')
+  })
 })

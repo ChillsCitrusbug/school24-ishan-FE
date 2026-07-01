@@ -3,6 +3,7 @@ import { createMemoryRouter, RouterProvider } from 'react-router-dom'
 import { afterEach, describe, expect, it, vi } from 'vitest'
 import { AuthProvider } from '@/features/auth/AuthContext'
 import * as authApi from '@/features/auth/api'
+import { StudentAuthProvider } from '@/features/student-auth/StudentAuthContext'
 import { routes } from './index'
 
 vi.mock('@/features/auth/api')
@@ -11,7 +12,9 @@ function renderAt(path: string) {
   const router = createMemoryRouter(routes, { initialEntries: [path] })
   return render(
     <AuthProvider>
-      <RouterProvider router={router} />
+      <StudentAuthProvider>
+        <RouterProvider router={router} />
+      </StudentAuthProvider>
     </AuthProvider>,
   )
 }

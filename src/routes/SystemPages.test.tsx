@@ -1,8 +1,9 @@
-import { render, screen } from '@testing-library/react'
+import { fireEvent, render, screen } from '@testing-library/react'
 import type { ReactElement } from 'react'
 import { createMemoryRouter, RouterProvider } from 'react-router-dom'
 import { describe, expect, it } from 'vitest'
 import { AuthProvider } from '@/features/auth/AuthContext'
+import { StudentAuthProvider } from '@/features/student-auth/StudentAuthContext'
 import {
   BlockedPage,
   MaintenancePage,
@@ -11,11 +12,15 @@ import {
   SessionExpiredPage,
 } from './SystemPages'
 
-function renderPage(element: ReactElement) {
-  const router = createMemoryRouter([{ path: '/', element }], { initialEntries: ['/'] })
+function renderPage(element: ReactElement, state?: unknown) {
+  const router = createMemoryRouter([{ path: '/', element }, { path: '/login', element: <div>login page</div> }, { path: '/student-login', element: <div>student login page</div> }], {
+    initialEntries: [{ pathname: '/', state }],
+  })
   return render(
     <AuthProvider>
-      <RouterProvider router={router} />
+      <StudentAuthProvider>
+        <RouterProvider router={router} />
+      </StudentAuthProvider>
     </AuthProvider>,
   )
 }
@@ -56,5 +61,21 @@ describe('system pages', () => {
   it('SC-013 renders the suspended state', () => {
     renderPage(<BlockedPage state="suspended" />)
     expect(screen.getByText('School access suspended')).toBeInTheDocument()
+  })
+
+  it('SC-013 sign-out sends a user-flow visitor to /login (default, no identityKind)', () => {
+    renderPage(<BlockedPage />)
+
+    fireEvent.click(screen.getByRole('button', { name: /sign out/i }))
+
+    expect(screen.getByText('login page')).toBeInTheDocument()
+  })
+
+  it('SC-013 sign-out sends a student-flow visitor to /student-login (FR-002)', () => {
+    renderPage(<BlockedPage />, { identityKind: 'student' })
+
+    fireEvent.click(screen.getByRole('button', { name: /sign out/i }))
+
+    expect(screen.getByText('student login page')).toBeInTheDocument()
   })
 })

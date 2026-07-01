@@ -1,6 +1,7 @@
-import { useNavigate } from 'react-router-dom'
+import { useLocation, useNavigate } from 'react-router-dom'
 import { SystemPage, Button } from '@/components'
 import { useAuth } from '@/features/auth/useAuth'
+import { useStudentAuth } from '@/features/student-auth/useStudentAuth'
 
 /** SC-009 · 404 Not Found — All. */
 export function NotFoundPage() {
@@ -72,15 +73,33 @@ export function SessionExpiredPage({ state = 'expired' }: { state?: 'expired' | 
   )
 }
 
-/** SC-013 · Account Deactivated / School Suspended — SA/Staff/Parent/Student (FR-001). */
+/**
+ * SC-013 · Account Deactivated / School Suspended — SA/Staff/Parent/Student
+ * (FR-001, extended by FR-002 for the student identity type).
+ *
+ * Reachable from two entirely different login flows (the main login and
+ * the student login), each with its own identity context and its own
+ * "sign in again" destination — `location.state.identityKind`
+ * (set by whichever `LoginScreen`/`StudentLoginScreen` navigated here)
+ * decides which logout to call and where "Sign out" sends the user back
+ * to, rather than hardcoding the FR-001 case.
+ */
 export function BlockedPage({ state = 'deactivated' }: { state?: 'deactivated' | 'suspended' }) {
   const navigate = useNavigate()
+  const location = useLocation()
   const { logout } = useAuth()
+  const { logout: studentLogout } = useStudentAuth()
   const susp = state === 'suspended'
+  const isStudent = (location.state as { identityKind?: string } | null)?.identityKind === 'student'
 
   function handleSignOut() {
-    logout()
-    navigate('/login', { replace: true })
+    if (isStudent) {
+      studentLogout()
+      navigate('/student-login', { replace: true })
+    } else {
+      logout()
+      navigate('/login', { replace: true })
+    }
   }
 
   return (

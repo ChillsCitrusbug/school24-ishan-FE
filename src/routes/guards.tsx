@@ -1,6 +1,7 @@
 import type { ReactNode } from 'react'
 import { Navigate } from 'react-router-dom'
 import { useAuth } from '@/features/auth/useAuth'
+import { useStudentAuth } from '@/features/student-auth/useStudentAuth'
 import { ROLE_HOME_PATH } from './roleHome'
 
 /**
@@ -34,6 +35,19 @@ export function RequireRole({ allow, children }: RequireRoleProps) {
     // Signed in, but this route belongs to a different role — send them
     // to where they DO belong rather than an error state.
     return <Navigate to={ROLE_HOME_PATH[user.role]} replace />
+  }
+
+  return children
+}
+
+/** Student-only route guard (FR-002) — a separate identity type from
+ * `RequireRole` above (students are not `users` rows), so a separate
+ * context/guard rather than folding a 5th value into `Role`. */
+export function RequireStudent({ children }: { children: ReactNode }) {
+  const { student } = useStudentAuth()
+
+  if (!student) {
+    return <Navigate to="/student-login" replace />
   }
 
   return children

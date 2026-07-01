@@ -43,7 +43,7 @@ export function LoginScreen() {
       // be told "deactivated" (that would be factually wrong); it falls
       // through to the inline banner below instead, same as a 401.
       if (response?.status === 403 && messageText.toLowerCase().includes('deactivated')) {
-        navigate('/blocked', { replace: true })
+        navigate('/blocked', { replace: true, state: { identityKind: 'user' } })
         return
       }
 
