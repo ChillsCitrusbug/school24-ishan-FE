@@ -8,8 +8,14 @@ import type { ReactNode } from 'react'
  * this placeholder is the shape future guards follow ("RequireAuth",
  * "RequireRole") once auth state exists. It currently passes children
  * through unchanged.
+ *
+ * `Role` mirrors DATABASE_SCHEMA.dbml's `user_role` enum exactly (the
+ * canonical 4-value account-type set) — students authenticate separately
+ * (own `students` table, no `users.role` value) and are represented at
+ * the route-guard layer by a distinct student session check once FR-002
+ * exists, not by an entry in this union.
  */
-export type Role = 'admin' | 'staff'
+export type Role = 'platform_admin' | 'school_admin' | 'staff' | 'parent'
 
 interface RequireRoleProps {
   allow: Role[]
