@@ -1,0 +1,18 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* Minimal base resets. Do not add component styles here — reusable UI comes
+   from the shared design-system component library (imported per-task), not
+   from ad hoc global CSS. */
+@layer base {
+  html,
+  body,
+  #root {
+    height: 100%;
+  }
+
+  body {
+    @apply bg-canvas text-ink font-sans antialiased;
+  }
+}
