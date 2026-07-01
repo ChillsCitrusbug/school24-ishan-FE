@@ -1,5 +1,5 @@
 import axios, { type AxiosError } from 'axios'
-import { getAccessToken } from '@/lib/auth-token'
+import { clearAccessToken, getAccessToken } from '@/lib/auth-token'
 
 /**
  * Centralized Axios client.
@@ -25,16 +25,28 @@ apiClient.interceptors.request.use((config) => {
 })
 
 /**
- * Standard error envelope placeholder. The real shape is defined by the
- * backend's response-envelope contract (reconciled per ticket) — this
- * interceptor is wired now so every future call site gets consistent
- * error handling without re-adding boilerplate per feature.
+ * FR-001 / EC-034: a session that expires (or is otherwise invalidated —
+ * deactivated mid-session, etc.) mid-workflow must reject the in-flight
+ * action and redirect to re-authenticate, never leave the user stuck
+ * against a dead token. A 401 on any call OTHER than the login endpoint
+ * itself (login's own 401 is a normal "wrong credentials" form error, not
+ * a session-expiry event) clears the token and sends the user to the
+ * session-expired system page (SC-012).
+ *
+ * A full page navigation (not a router push) is deliberate: this runs
+ * outside the React tree, and a hard reload also guarantees no stale
+ * in-memory state/query cache survives into the re-authenticated session.
  */
 apiClient.interceptors.response.use(
   (response) => response,
   (error: AxiosError) => {
-    // TODO(per-ticket): normalize into the shared error envelope / surface
-    // via a toast, form error, etc. once the backend contract is reconciled.
+    const isLoginRequest = error.config?.url?.includes('/auth/login')
+    if (error.response?.status === 401 && !isLoginRequest) {
+      clearAccessToken()
+      if (typeof window !== 'undefined' && window.location.pathname !== '/session-expired') {
+        window.location.assign('/session-expired')
+      }
+    }
     return Promise.reject(error)
   },
 )
