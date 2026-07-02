@@ -2,6 +2,7 @@ import type { RouteObject } from 'react-router-dom'
 import { RequireRole, RequireStudent } from './guards'
 import { LoginScreen } from './LoginScreen'
 import { PlaceholderDashboard } from './PlaceholderDashboard'
+import { RegisterScreen } from './RegisterScreen'
 import { RootRedirect } from './RootRedirect'
 import { SchoolAdminDashboard } from './SchoolAdminDashboard'
 import { StudentFirstLoginScreen } from './StudentFirstLoginScreen'
@@ -11,12 +12,15 @@ import {
   BlockedPage,
   MaintenancePage,
   NotFoundPage,
+  RegistrationSentPage,
   ServerErrorPage,
   SessionExpiredPage,
 } from './SystemPages'
+import { VerifyEmailScreen } from './VerifyEmailScreen'
 
 /**
- * Route table (FR-001, extended by FR-002 for the student identity type).
+ * Route table (FR-001, extended by FR-002 for the student identity type,
+ * FR-004 for parent self-registration + email verification).
  * Public routes (login + system pages) are always reachable; every
  * role-home route is wrapped in `RequireRole`/`RequireStudent` — see
  * `./guards.tsx`. `/` never renders content itself, only redirects
@@ -25,6 +29,9 @@ import {
 export const routes: RouteObject[] = [
   { path: '/', element: <RootRedirect /> },
   { path: '/login', element: <LoginScreen /> },
+  { path: '/register', element: <RegisterScreen /> },
+  { path: '/registration-sent', element: <RegistrationSentPage /> },
+  { path: '/verify-email', element: <VerifyEmailScreen /> },
   { path: '/student-login', element: <StudentLoginScreen /> },
   { path: '/student-first-login', element: <StudentFirstLoginScreen /> },
   { path: '/session-expired', element: <SessionExpiredPage state="expired" /> },

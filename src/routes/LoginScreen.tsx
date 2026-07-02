@@ -1,7 +1,8 @@
 import { useState, type FormEvent } from 'react'
-import { useNavigate } from 'react-router-dom'
+import { Link, useNavigate } from 'react-router-dom'
 import { AuthLayout, Field, Input, Button, Banner } from '@/components'
 import { useAuth } from '@/features/auth/useAuth'
+import { extractErrorMessage } from '@/lib/api-error'
 import { ROLE_HOME_PATH } from './roleHome'
 
 /**
@@ -47,10 +48,11 @@ export function LoginScreen() {
         return
       }
 
-      // EC-001 (401) and the unverified-403 case above: show whatever
-      // message the backend actually returned, never this form's own
-      // interpretation of it.
-      setError(messageText || 'The email or password is incorrect. Please try again.')
+      // Bug report: a CORS/network failure (no response at all) was
+      // showing "The email or password is incorrect" regardless of the
+      // real cause — extractErrorMessage only shows that specific text
+      // when the server actually said it.
+      setError(extractErrorMessage(err, 'The email or password is incorrect. Please try again.'))
     }
   }
 
@@ -59,9 +61,9 @@ export function LoginScreen() {
       footer={
         <>
           New parent?{' '}
-          <a href="#" className="font-semibold text-brand-deep hover:text-brand">
+          <Link to="/register" className="font-semibold text-brand-deep hover:text-brand">
             Create an account
-          </a>
+          </Link>
         </>
       }
     >

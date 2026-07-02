@@ -2,6 +2,7 @@ import { useState, type FormEvent } from 'react'
 import { useLocation, useNavigate } from 'react-router-dom'
 import { AuthLayout, Field, Input, Button, Banner } from '@/components'
 import { useStudentAuth } from '@/features/student-auth/useStudentAuth'
+import { extractErrorMessage } from '@/lib/api-error'
 
 /**
  * SC-002 · Student Login (Student ID & Password) — Student (FR-002).
@@ -34,9 +35,7 @@ export function StudentLoginScreen() {
         navigate('/student', { replace: true })
       }
     } catch (err) {
-      const response = (err as { response?: { status?: number; data?: { errors?: unknown } } })
-        ?.response
-      const message = response?.data?.errors
+      const response = (err as { response?: { status?: number } })?.response
 
       // SC-013 (Blocked) explicitly covers Student, matching FR-001's
       // deactivated-account handling — a distinct outcome from "wrong
@@ -46,9 +45,11 @@ export function StudentLoginScreen() {
         return
       }
 
-      setError(
-        typeof message === 'string' ? message : "That Student ID or password isn't right. Try again.",
-      )
+      // Bug report: a CORS/network failure (no response at all) was
+      // showing "That Student ID or password isn't right" regardless of
+      // the real cause — extractErrorMessage only shows that specific
+      // text when the server actually said it.
+      setError(extractErrorMessage(err, "That Student ID or password isn't right. Try again."))
     }
   }
 

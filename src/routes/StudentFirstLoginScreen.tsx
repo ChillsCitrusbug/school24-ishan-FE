@@ -2,6 +2,7 @@ import { useState, type FormEvent } from 'react'
 import { Navigate, useNavigate } from 'react-router-dom'
 import { AuthLayout, Field, Input, Button, Banner } from '@/components'
 import { useStudentAuth } from '@/features/student-auth/useStudentAuth'
+import { extractErrorMessage } from '@/lib/api-error'
 
 // Mirrors src/application/student_auth/services.py's
 // _PASSWORD_MIN_LENGTH/_PASSWORD_DIGIT_RE/_PASSWORD_SYMBOL_RE exactly —
@@ -61,9 +62,7 @@ export function StudentFirstLoginScreen() {
       await completePasswordChange(newPassword, confirmPassword)
       navigate('/student', { replace: true })
     } catch (err) {
-      const response = (err as { response?: { status?: number; data?: { errors?: unknown } } })
-        ?.response
-      const message = response?.data?.errors
+      const response = (err as { response?: { status?: number } })?.response
 
       // Review finding, FR-002: a genuinely expired/invalid change_token
       // (401 — the student sat on this screen past the 15-minute window)
@@ -79,7 +78,7 @@ export function StudentFirstLoginScreen() {
         return
       }
 
-      setError(typeof message === 'string' ? message : 'Something went wrong. Please try again.')
+      setError(extractErrorMessage(err, 'Something went wrong. Please try again.'))
     }
   }
 

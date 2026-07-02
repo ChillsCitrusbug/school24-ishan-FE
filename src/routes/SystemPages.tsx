@@ -51,6 +51,28 @@ export function MaintenancePage() {
 }
 
 /**
+ * Post-registration confirmation — Parent (FR-004).
+ *
+ * No approved SC-006 "sent" state exists (unlike SC-007's own "sent"
+ * state) — reuses the same generic system-page pattern already
+ * established for SC-012/SC-013, per
+ * docs/design/field-reconciliation/FR-004.md item 4, rather than
+ * inventing new screen content.
+ */
+export function RegistrationSentPage() {
+  const navigate = useNavigate()
+  return (
+    <SystemPage
+      icon="check"
+      tone="brand"
+      title="Check your email"
+      message="We’ve sent a verification link to your email address. Click it to activate your account."
+      actions={<Button onClick={() => navigate('/login')}>Back to sign in</Button>}
+    />
+  )
+}
+
+/**
  * SC-012 · Session Expired / Logout — All (FR-001 / EC-034).
  * Reached automatically by the API client's response interceptor on a 401
  * from any authenticated call — see src/api/client.ts.

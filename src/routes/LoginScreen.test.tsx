@@ -91,6 +91,24 @@ describe('LoginScreen', () => {
     expect(screen.getByRole('button', { name: /sign in/i })).toBeInTheDocument()
   })
 
+  // Bug report: a CORS/network failure was incorrectly showing "The
+  // email or password is incorrect" — a real network-level failure
+  // (axios never gets a `response` at all) must show a generic message
+  // instead, never a domain-specific guess about the credentials.
+  it('shows a generic connectivity message (not "email or password incorrect") on a network/CORS failure', async () => {
+    vi.mocked(authApi.login).mockRejectedValue(new Error('Network Error'))
+
+    renderAt('/login')
+    fillAndSubmit('someone@example.com', 'whatever')
+
+    expect(
+      await screen.findByText('Something went wrong. Please check your connection and try again.'),
+    ).toBeInTheDocument()
+    expect(
+      screen.queryByText('The email or password is incorrect. Please try again.'),
+    ).not.toBeInTheDocument()
+  })
+
   it('navigates to the Blocked screen on a 403 (deactivated account)', async () => {
     vi.mocked(authApi.login).mockRejectedValue({
       response: {
@@ -122,5 +140,15 @@ describe('LoginScreen', () => {
     // Never claims the account was deactivated, and never navigates away.
     expect(screen.queryByText('Account deactivated')).not.toBeInTheDocument()
     expect(screen.getByRole('button', { name: /sign in/i })).toBeInTheDocument()
+  })
+
+  it('the "Create an account" link now navigates to /register (FR-004)', () => {
+    // Review-driven fix, FR-004: this link had href="#" since FR-001 shipped
+    // before FR-004 existed — closing that loop, not inventing new UI.
+    renderAt('/login')
+
+    fireEvent.click(screen.getByRole('link', { name: /create an account/i }))
+
+    expect(screen.getByText('Create your account')).toBeInTheDocument()
   })
 })
