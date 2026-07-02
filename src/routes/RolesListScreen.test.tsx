@@ -1,3 +1,4 @@
+import { StrictMode } from 'react'
 import { act, render, screen, waitFor, fireEvent } from '@testing-library/react'
 import { createMemoryRouter, RouterProvider } from 'react-router-dom'
 import { afterEach, describe, expect, it, vi } from 'vitest'
@@ -26,20 +27,21 @@ const SCHOOL_ADMIN_USER = {
  * no href, since a raw `<a href>` would full-page-reload and wipe the
  * in-memory-only access token), so tests reach it the same way a typed
  * URL bar would. */
-async function renderAuthenticatedAt(path: string) {
+async function renderAuthenticatedAt(path: string, options: { strict?: boolean } = {}) {
   vi.mocked(authApi.login).mockResolvedValue({
     access_token: 'a-real-jwt',
     token_type: 'bearer',
     user: SCHOOL_ADMIN_USER,
   })
   const router = createMemoryRouter(routes, { initialEntries: ['/login'] })
-  const result = render(
+  const tree = (
     <AuthProvider>
       <StudentAuthProvider>
         <RouterProvider router={router} />
       </StudentAuthProvider>
-    </AuthProvider>,
+    </AuthProvider>
   )
+  const result = render(options.strict ? <StrictMode>{tree}</StrictMode> : tree)
   fireEvent.change(screen.getByLabelText('Email'), { target: { value: 'priya@example.com' } })
   fireEvent.change(screen.getByLabelText('Password'), { target: { value: 'whatever' } })
   fireEvent.click(screen.getByRole('button', { name: /sign in/i }))
@@ -182,5 +184,23 @@ describe('RolesListScreen', () => {
     fireEvent.click(screen.getByRole('button', { name: /^delete$/i }))
 
     expect(await screen.findByText('Delete the “Order Handler” role?')).toBeInTheDocument()
+  })
+
+  // Bug found while visual-checking FR-006 (a sibling screen sharing this
+  // exact pattern): mountedRef used to be set to false only in the
+  // effect's cleanup, never reset to true on mount — React StrictMode's
+  // dev-only double-invoke fired that cleanup once before the "real"
+  // mount settled, permanently zeroing the ref, so the eventual API
+  // response was silently dropped and the screen hung on its loading
+  // spinner forever. Reproduced here by actually rendering under
+  // <StrictMode>.
+  it('still renders role data under StrictMode double-invoke (regression)', async () => {
+    vi.mocked(rolesApi.listRoles).mockResolvedValue([
+      { id: 'r1', name: 'Order Handler', staff_count: 0, permissions: [] },
+    ])
+
+    await renderAuthenticatedAt('/school-admin/roles', { strict: true })
+
+    expect(await screen.findByText('Order Handler')).toBeInTheDocument()
   })
 })

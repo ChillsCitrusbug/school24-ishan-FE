@@ -40,12 +40,18 @@ export function StaffPortalScreen() {
   const [error, setError] = useState<string | null>(null)
   const mountedRef = useRef(true)
 
-  useEffect(
-    () => () => {
+  // Bug: React StrictMode (dev-only) double-invokes this effect — the
+  // first invocation's cleanup used to permanently flip mountedRef to
+  // false, since it was never reset to true on (re-)mount. Any async
+  // state update landing after that point was then silently dropped
+  // forever, hanging the screen on its loading state. Resetting at the
+  // top of the effect body (not just the cleanup) closes the gap.
+  useEffect(() => {
+    mountedRef.current = true
+    return () => {
       mountedRef.current = false
-    },
-    [],
-  )
+    }
+  }, [])
 
   const load = useCallback(() => {
     setError(null)

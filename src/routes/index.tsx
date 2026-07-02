@@ -3,6 +3,7 @@ import { ActivateAccountScreen } from './ActivateAccountScreen'
 import { AssignRoleScreen } from './AssignRoleScreen'
 import { RequireRole, RequireStudent } from './guards'
 import { LoginScreen } from './LoginScreen'
+import { OnboardSchoolScreen } from './OnboardSchoolScreen'
 import { PlaceholderDashboard } from './PlaceholderDashboard'
 import { RegisterScreen } from './RegisterScreen'
 import { RoleBuilderScreen } from './RoleBuilderScreen'
@@ -10,6 +11,7 @@ import { RoleDeleteScreen } from './RoleDeleteScreen'
 import { RolesListScreen } from './RolesListScreen'
 import { RootRedirect } from './RootRedirect'
 import { SchoolAdminDashboard } from './SchoolAdminDashboard'
+import { SchoolsListScreen } from './SchoolsListScreen'
 import { StaffPortalScreen } from './StaffPortalScreen'
 import { StudentFirstLoginScreen } from './StudentFirstLoginScreen'
 import { StudentLoginScreen } from './StudentLoginScreen'
@@ -60,6 +62,22 @@ export const routes: RouteObject[] = [
     element: (
       <RequireRole allow={['platform_admin']}>
         <PlaceholderDashboard />
+      </RequireRole>
+    ),
+  },
+  {
+    path: '/platform-admin/schools',
+    element: (
+      <RequireRole allow={['platform_admin']}>
+        <SchoolsListScreen />
+      </RequireRole>
+    ),
+  },
+  {
+    path: '/platform-admin/schools/new',
+    element: (
+      <RequireRole allow={['platform_admin']}>
+        <OnboardSchoolScreen />
       </RequireRole>
     ),
   },
