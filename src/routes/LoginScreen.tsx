@@ -105,9 +105,9 @@ export function LoginScreen() {
           <label className="flex items-center gap-2 text-muted">
             <input type="checkbox" className="h-4 w-4 accent-brand" /> Remember me
           </label>
-          <a href="#" className="font-semibold text-brand-deep hover:text-brand">
+          <Link to="/forgot-password" className="font-semibold text-brand-deep hover:text-brand">
             Forgot password?
-          </a>
+          </Link>
         </div>
         <Button type="submit" fullWidth disabled={isAuthenticating}>
           {isAuthenticating ? 'Signing in…' : 'Sign in'}

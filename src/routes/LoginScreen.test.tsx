@@ -151,4 +151,14 @@ describe('LoginScreen', () => {
 
     expect(screen.getByText('Create your account')).toBeInTheDocument()
   })
+
+  it('the "Forgot password?" link now navigates to /forgot-password (FR-005)', () => {
+    // Same class of fix as "Create an account" above — this link had
+    // href="#" since FR-001 shipped before FR-005 existed.
+    renderAt('/login')
+
+    fireEvent.click(screen.getByRole('link', { name: /forgot password/i }))
+
+    expect(screen.getByText('Forgot your password?')).toBeInTheDocument()
+  })
 })

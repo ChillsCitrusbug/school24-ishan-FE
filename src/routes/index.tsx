@@ -1,11 +1,13 @@
 import type { RouteObject } from 'react-router-dom'
 import { ActivateAccountScreen } from './ActivateAccountScreen'
 import { AssignRoleScreen } from './AssignRoleScreen'
+import { ForgotPasswordScreen } from './ForgotPasswordScreen'
 import { RequireRole, RequireStudent } from './guards'
 import { LoginScreen } from './LoginScreen'
 import { OnboardSchoolScreen } from './OnboardSchoolScreen'
 import { PlaceholderDashboard } from './PlaceholderDashboard'
 import { RegisterScreen } from './RegisterScreen'
+import { ResetPasswordScreen } from './ResetPasswordScreen'
 import { RoleBuilderScreen } from './RoleBuilderScreen'
 import { RoleDeleteScreen } from './RoleDeleteScreen'
 import { RolesListScreen } from './RolesListScreen'
@@ -42,6 +44,8 @@ export const routes: RouteObject[] = [
   { path: '/registration-sent', element: <RegistrationSentPage /> },
   { path: '/verify-email', element: <VerifyEmailScreen /> },
   { path: '/activate', element: <ActivateAccountScreen /> },
+  { path: '/forgot-password', element: <ForgotPasswordScreen /> },
+  { path: '/reset-password', element: <ResetPasswordScreen /> },
   { path: '/student-login', element: <StudentLoginScreen /> },
   { path: '/student-first-login', element: <StudentFirstLoginScreen /> },
   { path: '/session-expired', element: <SessionExpiredPage state="expired" /> },
