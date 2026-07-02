@@ -1,4 +1,5 @@
 import type { RouteObject } from 'react-router-dom'
+import { ActivateAccountScreen } from './ActivateAccountScreen'
 import { RequireRole, RequireStudent } from './guards'
 import { LoginScreen } from './LoginScreen'
 import { PlaceholderDashboard } from './PlaceholderDashboard'
@@ -20,7 +21,8 @@ import { VerifyEmailScreen } from './VerifyEmailScreen'
 
 /**
  * Route table (FR-001, extended by FR-002 for the student identity type,
- * FR-004 for parent self-registration + email verification).
+ * FR-004 for parent self-registration + email verification, FR-003 for
+ * SA/Staff account activation via invitation link).
  * Public routes (login + system pages) are always reachable; every
  * role-home route is wrapped in `RequireRole`/`RequireStudent` — see
  * `./guards.tsx`. `/` never renders content itself, only redirects
@@ -32,6 +34,7 @@ export const routes: RouteObject[] = [
   { path: '/register', element: <RegisterScreen /> },
   { path: '/registration-sent', element: <RegistrationSentPage /> },
   { path: '/verify-email', element: <VerifyEmailScreen /> },
+  { path: '/activate', element: <ActivateAccountScreen /> },
   { path: '/student-login', element: <StudentLoginScreen /> },
   { path: '/student-first-login', element: <StudentFirstLoginScreen /> },
   { path: '/session-expired', element: <SessionExpiredPage state="expired" /> },

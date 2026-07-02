@@ -27,13 +27,18 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     }
   }, [])
 
+  const setSession = useCallback((accessToken: string, sessionUser: UserSummary) => {
+    setAccessToken(accessToken)
+    setUser(sessionUser)
+  }, [])
+
   const logout = useCallback(() => {
     clearAccessToken()
     setUser(null)
   }, [])
 
   return (
-    <AuthContext.Provider value={{ user, isAuthenticating, login, logout }}>
+    <AuthContext.Provider value={{ user, isAuthenticating, login, setSession, logout }}>
       {children}
     </AuthContext.Provider>
   )
