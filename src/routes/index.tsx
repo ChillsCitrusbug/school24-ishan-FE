@@ -4,6 +4,8 @@ import { RequireRole, RequireStudent } from './guards'
 import { LoginScreen } from './LoginScreen'
 import { PlaceholderDashboard } from './PlaceholderDashboard'
 import { RegisterScreen } from './RegisterScreen'
+import { RoleBuilderScreen } from './RoleBuilderScreen'
+import { RolesListScreen } from './RolesListScreen'
 import { RootRedirect } from './RootRedirect'
 import { SchoolAdminDashboard } from './SchoolAdminDashboard'
 import { StudentFirstLoginScreen } from './StudentFirstLoginScreen'
@@ -63,6 +65,22 @@ export const routes: RouteObject[] = [
     element: (
       <RequireRole allow={['school_admin']}>
         <SchoolAdminDashboard />
+      </RequireRole>
+    ),
+  },
+  {
+    path: '/school-admin/roles',
+    element: (
+      <RequireRole allow={['school_admin']}>
+        <RolesListScreen />
+      </RequireRole>
+    ),
+  },
+  {
+    path: '/school-admin/roles/new',
+    element: (
+      <RequireRole allow={['school_admin']}>
+        <RoleBuilderScreen />
       </RequireRole>
     ),
   },
