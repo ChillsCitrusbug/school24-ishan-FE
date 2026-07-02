@@ -24,6 +24,8 @@ import { StudentFirstLoginScreen } from './StudentFirstLoginScreen'
 import { StudentLoginScreen } from './StudentLoginScreen'
 import { StudentPlaceholderHome } from './StudentPlaceholderHome'
 import { StudentProfileScreen } from './StudentProfileScreen'
+import { TwoFactorChallengeScreen } from './TwoFactorChallengeScreen'
+import { TwoFactorSetupScreen } from './TwoFactorSetupScreen'
 import {
   BlockedPage,
   MaintenancePage,
@@ -53,6 +55,7 @@ export const routes: RouteObject[] = [
   { path: '/forgot-password', element: <ForgotPasswordScreen /> },
   { path: '/reset-password', element: <ResetPasswordScreen /> },
   { path: '/confirm-email-change', element: <ConfirmEmailChangeScreen /> },
+  { path: '/two-factor-challenge', element: <TwoFactorChallengeScreen /> },
   { path: '/student-login', element: <StudentLoginScreen /> },
   { path: '/student-first-login', element: <StudentFirstLoginScreen /> },
   { path: '/session-expired', element: <SessionExpiredPage state="expired" /> },
@@ -193,6 +196,14 @@ export const routes: RouteObject[] = [
     element: (
       <RequireRole allow={['parent']}>
         <ParentProfileScreen />
+      </RequireRole>
+    ),
+  },
+  {
+    path: '/two-factor-setup',
+    element: (
+      <RequireRole allow={['platform_admin', 'school_admin', 'staff', 'parent']}>
+        <TwoFactorSetupScreen />
       </RequireRole>
     ),
   },

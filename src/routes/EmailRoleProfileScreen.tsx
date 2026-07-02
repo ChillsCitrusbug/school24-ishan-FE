@@ -44,9 +44,9 @@ function initialsOf(fullName: string): string {
  * Notification toggles are local-only, non-persisted UI state (field-
  * reconciliation decision, docs/design/field-reconciliation/FR-048.md
  * "Matched" section — no backend concept exists yet; matches the design
- * mock's own useState-only implementation). The 2FA "Set up" row is inert
- * (FR-050, later in this same batch) — same "render per design, stay
- * inert until the target exists" precedent as every prior ticket.
+ * mock's own useState-only implementation). The 2FA row now links to
+ * /two-factor-setup for real (FR-050) — it was inert at FR-048's own
+ * build time, wired up once its own ticket landed later in this batch.
  */
 export function EmailRoleProfileScreen({
   roleLabel,
@@ -245,10 +245,18 @@ export function EmailRoleProfileScreen({
                 <SettingRow
                   icon="shield"
                   title="Two-factor authentication"
-                  desc="Add an extra layer of security"
+                  desc={
+                    user?.two_factor_enabled
+                      ? 'On — a code is required each time you sign in'
+                      : 'Add an extra layer of security'
+                  }
                   action={
-                    <Button variant="secondary" size="sm" disabled>
-                      Set up
+                    <Button
+                      variant="secondary"
+                      size="sm"
+                      onClick={() => navigate('/two-factor-setup')}
+                    >
+                      {user?.two_factor_enabled ? 'Manage' : 'Set up'}
                     </Button>
                   }
                 />

@@ -161,4 +161,17 @@ describe('LoginScreen', () => {
 
     expect(screen.getByText('Forgot your password?')).toBeInTheDocument()
   })
+
+  it('routes to the two-factor challenge screen instead of a role home when 2FA is required (FR-050)', async () => {
+    vi.mocked(authApi.login).mockResolvedValue({
+      must_provide_2fa: true,
+      challenge_token: 'a-real-challenge-token',
+    })
+
+    renderAt('/login')
+    fillAndSubmit('priya@example.com', 'CorrectHorseBattery9!')
+
+    expect(await screen.findByText('Two-factor authentication')).toBeInTheDocument()
+    expect(screen.queryByText('Dashboard coming soon')).not.toBeInTheDocument()
+  })
 })

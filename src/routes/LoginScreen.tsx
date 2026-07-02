@@ -24,11 +24,20 @@ export function LoginScreen() {
     event.preventDefault()
     setError(null)
     try {
-      const user = await login(email, password)
+      const result = await login(email, password)
+      // FR-050: a 2FA-enabled account gets a challenge, not a session —
+      // route to the second-factor screen instead of a role home. Same
+      // "check the return value, not context state" reasoning as
+      // Scenario 1 below (the context hasn't re-rendered yet inside
+      // this same handler).
+      if ('must_provide_2fa' in result) {
+        navigate('/two-factor-challenge', { replace: true })
+        return
+      }
       // Scenario 1: route to the role-specific home immediately — using
       // the function's return value, not context state, since the
       // context hasn't re-rendered yet inside this same handler.
-      navigate(ROLE_HOME_PATH[user.role], { replace: true })
+      navigate(ROLE_HOME_PATH[result.user.role], { replace: true })
     } catch (err) {
       const response = (err as { response?: { status?: number; data?: { errors?: unknown } } })
         ?.response
