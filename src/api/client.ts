@@ -41,6 +41,15 @@ apiClient.interceptors.request.use((config) => {
  * or-password attempt was incorrectly treated as a session expiry and
  * redirected away instead of showing FR-002's own inline error banner.
  *
+ * FR-048: its own voluntary change-password endpoints (both the 4-role
+ * `/profile/change-password` and the student
+ * `/student-profile/change-password`) return the identical kind of
+ * "wrong current password" 401 as the other credential-entry endpoints
+ * above — a normal form error the Change Password form shows inline,
+ * not a session-expiry event. Without this, a user who mistypes their
+ * *current* password while voluntarily changing it (a fully valid,
+ * still-live session) would be incorrectly logged out and redirected.
+ *
  * A full page navigation (not a router push) is deliberate: this runs
  * outside the React tree, and a hard reload also guarantees no stale
  * in-memory state/query cache survives into the re-authenticated session.
@@ -49,6 +58,8 @@ const CREDENTIAL_FLOW_PATHS = [
   '/auth/login',
   '/student-auth/login',
   '/student-auth/change-password',
+  '/profile/change-password',
+  '/student-profile/change-password',
 ]
 
 apiClient.interceptors.response.use(

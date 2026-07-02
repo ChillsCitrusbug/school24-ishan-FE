@@ -1,10 +1,13 @@
 import type { RouteObject } from 'react-router-dom'
 import { ActivateAccountScreen } from './ActivateAccountScreen'
 import { AssignRoleScreen } from './AssignRoleScreen'
+import { ConfirmEmailChangeScreen } from './ConfirmEmailChangeScreen'
 import { ForgotPasswordScreen } from './ForgotPasswordScreen'
 import { RequireRole, RequireStudent } from './guards'
 import { LoginScreen } from './LoginScreen'
 import { OnboardSchoolScreen } from './OnboardSchoolScreen'
+import { PaProfileScreen } from './PaProfileScreen'
+import { ParentProfileScreen } from './ParentProfileScreen'
 import { PlaceholderDashboard } from './PlaceholderDashboard'
 import { RegisterScreen } from './RegisterScreen'
 import { ResetPasswordScreen } from './ResetPasswordScreen'
@@ -12,12 +15,15 @@ import { RoleBuilderScreen } from './RoleBuilderScreen'
 import { RoleDeleteScreen } from './RoleDeleteScreen'
 import { RolesListScreen } from './RolesListScreen'
 import { RootRedirect } from './RootRedirect'
+import { SaProfileScreen } from './SaProfileScreen'
 import { SchoolAdminDashboard } from './SchoolAdminDashboard'
 import { SchoolsListScreen } from './SchoolsListScreen'
 import { StaffPortalScreen } from './StaffPortalScreen'
+import { StaffProfileScreen } from './StaffProfileScreen'
 import { StudentFirstLoginScreen } from './StudentFirstLoginScreen'
 import { StudentLoginScreen } from './StudentLoginScreen'
 import { StudentPlaceholderHome } from './StudentPlaceholderHome'
+import { StudentProfileScreen } from './StudentProfileScreen'
 import {
   BlockedPage,
   MaintenancePage,
@@ -46,6 +52,7 @@ export const routes: RouteObject[] = [
   { path: '/activate', element: <ActivateAccountScreen /> },
   { path: '/forgot-password', element: <ForgotPasswordScreen /> },
   { path: '/reset-password', element: <ResetPasswordScreen /> },
+  { path: '/confirm-email-change', element: <ConfirmEmailChangeScreen /> },
   { path: '/student-login', element: <StudentLoginScreen /> },
   { path: '/student-first-login', element: <StudentFirstLoginScreen /> },
   { path: '/session-expired', element: <SessionExpiredPage state="expired" /> },
@@ -62,10 +69,26 @@ export const routes: RouteObject[] = [
     ),
   },
   {
+    path: '/student/profile',
+    element: (
+      <RequireStudent>
+        <StudentProfileScreen />
+      </RequireStudent>
+    ),
+  },
+  {
     path: '/platform-admin',
     element: (
       <RequireRole allow={['platform_admin']}>
         <PlaceholderDashboard />
+      </RequireRole>
+    ),
+  },
+  {
+    path: '/platform-admin/profile',
+    element: (
+      <RequireRole allow={['platform_admin']}>
+        <PaProfileScreen />
       </RequireRole>
     ),
   },
@@ -90,6 +113,14 @@ export const routes: RouteObject[] = [
     element: (
       <RequireRole allow={['school_admin']}>
         <SchoolAdminDashboard />
+      </RequireRole>
+    ),
+  },
+  {
+    path: '/school-admin/profile',
+    element: (
+      <RequireRole allow={['school_admin']}>
+        <SaProfileScreen />
       </RequireRole>
     ),
   },
@@ -142,10 +173,26 @@ export const routes: RouteObject[] = [
     ),
   },
   {
+    path: '/staff/profile',
+    element: (
+      <RequireRole allow={['staff']}>
+        <StaffProfileScreen />
+      </RequireRole>
+    ),
+  },
+  {
     path: '/parent',
     element: (
       <RequireRole allow={['parent']}>
         <PlaceholderDashboard />
+      </RequireRole>
+    ),
+  },
+  {
+    path: '/parent/profile',
+    element: (
+      <RequireRole allow={['parent']}>
+        <ParentProfileScreen />
       </RequireRole>
     ),
   },
