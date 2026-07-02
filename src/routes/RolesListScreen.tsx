@@ -16,14 +16,11 @@ function initialsOf(fullName: string): string {
 }
 
 /**
- * SC-037 · Roles & Permissions List — SA (FR-017).
+ * SC-037 · Roles & Permissions List — SA (FR-017, edit/delete wired by FR-018).
  *
  * Reuses the approved Sc037Roles.tsx structure/components as-is (Step
- * 16). "Create role" is wired to the real create flow; the per-row
- * "Edit"/"Delete" buttons are rendered per the approved design (never
- * redesigned) but stay inert — editing/deleting a role is FR-018's
- * scope, not this ticket's, matching the precedent already established
- * for other not-yet-built actions (e.g. FR-001's "Forgot password?").
+ * 16). "Create role", "Edit", and "Delete" are all wired to their real
+ * flows.
  *
  * Review finding, FR-017 (Major): the initial fetch had no `.catch` and
  * no error state — any non-401 failure left the screen silently
@@ -138,10 +135,18 @@ export function RolesListScreen() {
                   <div className="text-xs text-muted">{summarizePermissions(r.permissions)}</div>
                 </div>
                 <div className="ml-auto flex gap-2">
-                  <Button variant="secondary" size="sm" disabled>
+                  <Button
+                    variant="secondary"
+                    size="sm"
+                    onClick={() => navigate(`/school-admin/roles/${r.id}/edit`)}
+                  >
                     Edit
                   </Button>
-                  <Button variant="ghost" size="sm" disabled>
+                  <Button
+                    variant="ghost"
+                    size="sm"
+                    onClick={() => navigate(`/school-admin/roles/${r.id}/delete`)}
+                  >
                     Delete
                   </Button>
                 </div>

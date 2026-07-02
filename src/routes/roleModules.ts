@@ -1,3 +1,4 @@
+import type { IconName } from '@/components'
 import type { ModulePermission, PermissionModuleValue } from '@/features/roles/api'
 
 /**
@@ -24,6 +25,48 @@ export const OPERATIONS: { key: keyof Omit<ModulePermission, 'module'>; label: s
   { key: 'can_add', label: 'Add' },
   { key: 'can_edit', label: 'Edit' },
   { key: 'can_delete', label: 'Delete' },
+]
+
+/**
+ * SC-041 (Staff Portal) module cards — icon/label/description per
+ * module. The design mock's own list (`school24-DESIGN/src/data/staff.ts`)
+ * has a different 4-module set (includes a fake "Reports", omits
+ * "Approval") — the real 4x4 set is used here instead, same resolution
+ * as the MODULES constant above (see
+ * docs/design/field-reconciliation/FR-018.md item 7). No `badge` field
+ * (e.g. live order counts) — no real data source exists yet (orders
+ * aren't built), omitted rather than fabricated.
+ */
+export const STAFF_MODULES: {
+  module: PermissionModuleValue
+  icon: IconName
+  label: string
+  desc: string
+}[] = [
+  {
+    module: 'order_management',
+    icon: 'order',
+    label: 'Order fulfilment',
+    desc: 'Work the live order queue and advance statuses.',
+  },
+  {
+    module: 'menu_management',
+    icon: 'list',
+    label: 'Menu management',
+    desc: 'Add products and combos, set availability.',
+  },
+  {
+    module: 'notification',
+    icon: 'bell',
+    label: 'Notifications',
+    desc: 'Send updates to families and staff.',
+  },
+  {
+    module: 'approval',
+    icon: 'check',
+    label: 'Approvals',
+    desc: 'Review and approve parent-student link requests.',
+  },
 ]
 
 export function summarizePermissions(permissions: ModulePermission[]): string {

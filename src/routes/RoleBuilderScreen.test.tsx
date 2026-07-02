@@ -123,4 +123,114 @@ describe('RoleBuilderScreen', () => {
     ).toBeInTheDocument()
     expect(screen.getByLabelText('Role name')).toBeInTheDocument()
   })
+
+  // --- FR-018: edit mode (same shared component, loaded via :roleId) ---
+
+  it('loads an existing role and pre-fills its name and permission matrix', async () => {
+    vi.mocked(rolesApi.getRole).mockResolvedValue({
+      id: 'r1',
+      name: 'Order Handler',
+      staff_count: 2,
+      permissions: [
+        {
+          module: 'order_management',
+          can_add: true,
+          can_edit: false,
+          can_delete: false,
+          can_list: true,
+        },
+        { module: 'approval', can_add: false, can_edit: false, can_delete: false, can_list: false },
+        {
+          module: 'menu_management',
+          can_add: false,
+          can_edit: false,
+          can_delete: false,
+          can_list: false,
+        },
+        { module: 'notification', can_add: false, can_edit: false, can_delete: false, can_list: false },
+      ],
+    })
+
+    await renderAuthenticatedAt('/school-admin/roles/r1/edit')
+
+    expect(await screen.findByText('Edit role')).toBeInTheDocument()
+    expect(screen.getByLabelText('Role name')).toHaveValue('Order Handler')
+    expect(screen.getByRole('checkbox', { name: 'Order Management: Add' })).toHaveAttribute(
+      'aria-checked',
+      'true',
+    )
+    expect(screen.getByRole('checkbox', { name: 'Order Management: Listing' })).toHaveAttribute(
+      'aria-checked',
+      'true',
+    )
+    expect(screen.getByRole('checkbox', { name: 'Approval: Add' })).toHaveAttribute(
+      'aria-checked',
+      'false',
+    )
+  })
+
+  it('submits an edit via updateRole, not createRole', async () => {
+    vi.mocked(rolesApi.getRole).mockResolvedValue({
+      id: 'r1',
+      name: 'Cashier',
+      staff_count: 0,
+      permissions: [],
+    })
+    vi.mocked(rolesApi.updateRole).mockResolvedValue({
+      id: 'r1',
+      name: 'Senior Cashier',
+      staff_count: 0,
+      permissions: [],
+    })
+    vi.mocked(rolesApi.listRoles).mockResolvedValue([])
+
+    await renderAuthenticatedAt('/school-admin/roles/r1/edit')
+    await screen.findByDisplayValue('Cashier')
+    fireEvent.change(screen.getByLabelText('Role name'), { target: { value: 'Senior Cashier' } })
+    fireEvent.click(screen.getByRole('button', { name: /save role/i }))
+
+    await waitFor(() => expect(rolesApi.updateRole).toHaveBeenCalledWith('r1', 'Senior Cashier', expect.any(Array)))
+    expect(rolesApi.createRole).not.toHaveBeenCalled()
+  })
+
+  it('shows an error and never renders the form when the role fails to load', async () => {
+    vi.mocked(rolesApi.getRole).mockRejectedValue(new Error('Network Error'))
+
+    await renderAuthenticatedAt('/school-admin/roles/r1/edit')
+
+    expect(
+      await screen.findByText('Something went wrong. Please check your connection and try again.'),
+    ).toBeInTheDocument()
+    expect(screen.queryByLabelText('Role name')).not.toBeInTheDocument()
+  })
+
+  // Review finding, FR-018 (Minor): only the load-failure case and the
+  // create-mode submit-failure case were directly tested — a failed
+  // *edit* submit specifically (as opposed to a failed load, or a failed
+  // create) was only inferred from shared code, not proven. This proves
+  // it: the form (and the user's edited data) must survive a failed
+  // save, distinct from a load failure which correctly hides the form.
+  it('keeps the form visible with the user’s edited data when an edit submit fails', async () => {
+    vi.mocked(rolesApi.getRole).mockResolvedValue({
+      id: 'r1',
+      name: 'Cashier',
+      staff_count: 0,
+      permissions: [],
+    })
+    vi.mocked(rolesApi.updateRole).mockRejectedValue({
+      response: { status: 409, data: { errors: 'A role with this name already exists.' } },
+    })
+
+    await renderAuthenticatedAt('/school-admin/roles/r1/edit')
+    await screen.findByDisplayValue('Cashier')
+    fireEvent.change(screen.getByLabelText('Role name'), { target: { value: 'Manager' } })
+    fireEvent.click(screen.getByRole('button', { name: /save role/i }))
+
+    expect(
+      await screen.findByText('A role with this name already exists.'),
+    ).toBeInTheDocument()
+    // The form is still there, with the user's own edit intact — not
+    // reset, not hidden, unlike the load-failure case above.
+    expect(screen.getByLabelText('Role name')).toHaveValue('Manager')
+  })
 })

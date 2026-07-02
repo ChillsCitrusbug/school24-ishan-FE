@@ -48,3 +48,24 @@ export async function createRole(
   const response = await apiClient.post<Envelope<Role>>('/api/v1/roles', { name, permissions })
   return response.data.data
 }
+
+export async function getRole(roleId: string): Promise<Role> {
+  const response = await apiClient.get<Envelope<Role>>(`/api/v1/roles/${roleId}`)
+  return response.data.data
+}
+
+export async function updateRole(
+  roleId: string,
+  name: string,
+  permissions: ModulePermissionInput[],
+): Promise<Role> {
+  const response = await apiClient.put<Envelope<Role>>(`/api/v1/roles/${roleId}`, {
+    name,
+    permissions,
+  })
+  return response.data.data
+}
+
+export async function deleteRole(roleId: string): Promise<void> {
+  await apiClient.delete(`/api/v1/roles/${roleId}`)
+}

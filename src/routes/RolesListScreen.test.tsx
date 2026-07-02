@@ -145,4 +145,42 @@ describe('RolesListScreen', () => {
     })
     expect(await screen.findByText('No roles yet')).toBeInTheDocument()
   })
+
+  // FR-018: Edit/Delete are wired to their real flows (were inert,
+  // disabled placeholders under FR-017's own scope).
+  it('navigates to the role builder in edit mode when "Edit" is clicked', async () => {
+    vi.mocked(rolesApi.listRoles).mockResolvedValue([
+      { id: 'r1', name: 'Order Handler', staff_count: 0, permissions: [] },
+    ])
+    vi.mocked(rolesApi.getRole).mockResolvedValue({
+      id: 'r1',
+      name: 'Order Handler',
+      staff_count: 0,
+      permissions: [],
+    })
+
+    await renderAuthenticatedAt('/school-admin/roles')
+    await screen.findByText('Order Handler')
+    fireEvent.click(screen.getByRole('button', { name: /^edit$/i }))
+
+    expect(await screen.findByText('Edit role')).toBeInTheDocument()
+  })
+
+  it('navigates to the delete confirmation when "Delete" is clicked', async () => {
+    vi.mocked(rolesApi.listRoles).mockResolvedValue([
+      { id: 'r1', name: 'Order Handler', staff_count: 0, permissions: [] },
+    ])
+    vi.mocked(rolesApi.getRole).mockResolvedValue({
+      id: 'r1',
+      name: 'Order Handler',
+      staff_count: 0,
+      permissions: [],
+    })
+
+    await renderAuthenticatedAt('/school-admin/roles')
+    await screen.findByText('Order Handler')
+    fireEvent.click(screen.getByRole('button', { name: /^delete$/i }))
+
+    expect(await screen.findByText('Delete the “Order Handler” role?')).toBeInTheDocument()
+  })
 })

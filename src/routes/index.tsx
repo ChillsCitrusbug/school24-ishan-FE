@@ -1,13 +1,16 @@
 import type { RouteObject } from 'react-router-dom'
 import { ActivateAccountScreen } from './ActivateAccountScreen'
+import { AssignRoleScreen } from './AssignRoleScreen'
 import { RequireRole, RequireStudent } from './guards'
 import { LoginScreen } from './LoginScreen'
 import { PlaceholderDashboard } from './PlaceholderDashboard'
 import { RegisterScreen } from './RegisterScreen'
 import { RoleBuilderScreen } from './RoleBuilderScreen'
+import { RoleDeleteScreen } from './RoleDeleteScreen'
 import { RolesListScreen } from './RolesListScreen'
 import { RootRedirect } from './RootRedirect'
 import { SchoolAdminDashboard } from './SchoolAdminDashboard'
+import { StaffPortalScreen } from './StaffPortalScreen'
 import { StudentFirstLoginScreen } from './StudentFirstLoginScreen'
 import { StudentLoginScreen } from './StudentLoginScreen'
 import { StudentPlaceholderHome } from './StudentPlaceholderHome'
@@ -85,10 +88,34 @@ export const routes: RouteObject[] = [
     ),
   },
   {
+    path: '/school-admin/roles/:roleId/edit',
+    element: (
+      <RequireRole allow={['school_admin']}>
+        <RoleBuilderScreen />
+      </RequireRole>
+    ),
+  },
+  {
+    path: '/school-admin/roles/:roleId/delete',
+    element: (
+      <RequireRole allow={['school_admin']}>
+        <RoleDeleteScreen />
+      </RequireRole>
+    ),
+  },
+  {
+    path: '/school-admin/staff/:staffId/assign-role',
+    element: (
+      <RequireRole allow={['school_admin']}>
+        <AssignRoleScreen />
+      </RequireRole>
+    ),
+  },
+  {
     path: '/staff',
     element: (
       <RequireRole allow={['staff']}>
-        <PlaceholderDashboard />
+        <StaffPortalScreen />
       </RequireRole>
     ),
   },
