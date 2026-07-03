@@ -18,6 +18,7 @@ import { RolesListScreen } from './RolesListScreen'
 import { RootRedirect } from './RootRedirect'
 import { SaProfileScreen } from './SaProfileScreen'
 import { SchoolAdminDashboard } from './SchoolAdminDashboard'
+import { SchoolDetailScreen } from './SchoolDetailScreen'
 import { SchoolsListScreen } from './SchoolsListScreen'
 import { StaffPortalScreen } from './StaffPortalScreen'
 import { StaffProfileScreen } from './StaffProfileScreen'
@@ -118,6 +119,14 @@ export const routes: RouteObject[] = [
     element: (
       <RequireRole allow={['platform_admin']}>
         <OnboardSchoolScreen />
+      </RequireRole>
+    ),
+  },
+  {
+    path: '/platform-admin/schools/:schoolId',
+    element: (
+      <RequireRole allow={['platform_admin']}>
+        <SchoolDetailScreen />
       </RequireRole>
     ),
   },

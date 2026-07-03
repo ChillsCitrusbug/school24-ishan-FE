@@ -120,4 +120,16 @@ describe('SchoolsListScreen', () => {
 
     expect(await screen.findByText('Hilltop Public')).toBeInTheDocument()
   })
+
+  it('opening a row navigates to that school\'s detail screen (FR-007)', async () => {
+    vi.mocked(schoolsApi.listSchools).mockResolvedValue([SCHOOL])
+    vi.mocked(schoolsApi.getSchool).mockResolvedValue(SCHOOL)
+
+    await renderAuthenticatedAt('/platform-admin/schools')
+    await screen.findByText('Hilltop Public')
+    fireEvent.click(screen.getByRole('button', { name: 'Open Hilltop Public' }))
+
+    expect(await screen.findByText('School details')).toBeInTheDocument()
+    expect(schoolsApi.getSchool).toHaveBeenCalledWith('sch1')
+  })
 })

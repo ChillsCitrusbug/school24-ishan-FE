@@ -36,11 +36,10 @@ function formatOnboarded(createdAt: string): string {
 }
 
 /**
- * SC-017 · Schools List (cross-school) — Platform Admin (FR-006-008; this
- * ticket only wires "Onboard school" — row-level open/edit is FR-007's
- * scope, so rows stay non-interactive for now, same "render per design,
- * stay inert until the target exists" precedent as FR-001/017's own
- * unwired affordances).
+ * SC-017 · Schools List (cross-school) — Platform Admin (FR-006-008).
+ * The "open" column's own chevron now navigates to SchoolDetailScreen
+ * (FR-007's own row-level open/edit, wired here since it was deferred
+ * at FR-006's own build time).
  *
  * Review-learned pattern applied from the start (FR-017's own review
  * finding): an explicit loading/error state, not a silent
@@ -112,7 +111,16 @@ export function SchoolsListScreen() {
       key: 'open',
       header: <span className="sr-only">Open</span>,
       align: 'right',
-      cell: () => <Icon name="chevronRight" className="h-4 w-4 text-muted" strokeWidth={2} />,
+      cell: (s) => (
+        <button
+          type="button"
+          aria-label={`Open ${s.school_name}`}
+          onClick={() => navigate(`/platform-admin/schools/${s.id}`)}
+          className="rounded p-1 hover:bg-canvas"
+        >
+          <Icon name="chevronRight" className="h-4 w-4 text-muted" strokeWidth={2} />
+        </button>
+      ),
     },
   ]
 
