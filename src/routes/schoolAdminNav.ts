@@ -1,6 +1,6 @@
 import type { NavGroup, TabItem } from '@/components'
 
-type SchoolAdminSection = 'dashboard' | 'classes'
+type SchoolAdminSection = 'dashboard' | 'classes' | 'staff'
 
 /**
  * School Admin sidebar/tab nav — ported structurally from the approved
@@ -28,7 +28,7 @@ export function schoolAdminNavGroups(active: SchoolAdminSection = 'dashboard'): 
         { icon: 'home', label: 'Dashboard', active: active === 'dashboard', href: '/school-admin' },
         { icon: 'children', label: 'Students' },
         { icon: 'grid', label: 'Classes', active: active === 'classes', href: '/school-admin/classes' },
-        { icon: 'user', label: 'Staff' },
+        { icon: 'user', label: 'Staff', active: active === 'staff', href: '/school-admin/staff' },
         { icon: 'check', label: 'Approvals' },
       ],
     },

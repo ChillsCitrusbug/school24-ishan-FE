@@ -24,6 +24,9 @@ import { SaProfileScreen } from './SaProfileScreen'
 import { SchoolAdminDashboard } from './SchoolAdminDashboard'
 import { SchoolDetailScreen } from './SchoolDetailScreen'
 import { SchoolsListScreen } from './SchoolsListScreen'
+import { StaffDetailScreen } from './StaffDetailScreen'
+import { StaffFormScreen } from './StaffFormScreen'
+import { StaffListScreen } from './StaffListScreen'
 import { StaffPortalScreen } from './StaffPortalScreen'
 import { StaffProfileScreen } from './StaffProfileScreen'
 import { StudentFirstLoginScreen } from './StudentFirstLoginScreen'
@@ -237,6 +240,38 @@ export const routes: RouteObject[] = [
     element: (
       <RequireRole allow={['school_admin']}>
         <ClassDeleteScreen />
+      </RequireRole>
+    ),
+  },
+  {
+    path: '/school-admin/staff',
+    element: (
+      <RequireRole allow={['school_admin']}>
+        <StaffListScreen />
+      </RequireRole>
+    ),
+  },
+  {
+    path: '/school-admin/staff/new',
+    element: (
+      <RequireRole allow={['school_admin']}>
+        <StaffFormScreen />
+      </RequireRole>
+    ),
+  },
+  {
+    path: '/school-admin/staff/:staffId',
+    element: (
+      <RequireRole allow={['school_admin']}>
+        <StaffDetailScreen />
+      </RequireRole>
+    ),
+  },
+  {
+    path: '/school-admin/staff/:staffId/edit',
+    element: (
+      <RequireRole allow={['school_admin']}>
+        <StaffFormScreen />
       </RequireRole>
     ),
   },
