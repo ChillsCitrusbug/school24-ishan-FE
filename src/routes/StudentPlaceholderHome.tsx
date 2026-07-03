@@ -1,3 +1,4 @@
+import { Link } from 'react-router-dom'
 import { AppShell, Sidebar, Topbar, MobileTabBar, Card, EmptyState } from '@/components'
 import { useStudentAuth } from '@/features/student-auth/useStudentAuth'
 
@@ -23,13 +24,27 @@ export function StudentPlaceholderHome() {
       topbar={<Topbar />}
       mobileNav={<MobileTabBar items={[]} />}
     >
-      <div className="mx-auto max-w-6xl">
+      <div className="mx-auto max-w-6xl space-y-4">
         <Card>
           <EmptyState
             icon="clock"
             title="Canteen home coming soon"
             message="Menu browsing and ordering are being built. You're signed in — this is just a placeholder home."
           />
+        </Card>
+        <Card className="p-5">
+          <div className="flex items-center justify-between gap-3">
+            <div>
+              <div className="font-semibold text-ink">Your wallet</div>
+              <div className="text-sm text-muted">Add funds to top up your own wallet.</div>
+            </div>
+            <Link
+              to="/student/wallet/top-up"
+              className="rounded-control bg-brand px-4 py-2 text-sm font-semibold text-white hover:bg-brand-deep"
+            >
+              Top up wallet
+            </Link>
+          </div>
         </Card>
       </div>
     </AppShell>

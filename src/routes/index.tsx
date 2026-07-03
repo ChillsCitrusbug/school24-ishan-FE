@@ -8,6 +8,7 @@ import { LoginScreen } from './LoginScreen'
 import { OnboardSchoolScreen } from './OnboardSchoolScreen'
 import { PaProfileScreen } from './PaProfileScreen'
 import { ParentProfileScreen } from './ParentProfileScreen'
+import { ParentWalletTopUpScreen } from './ParentWalletTopUpScreen'
 import { PlaceholderDashboard } from './PlaceholderDashboard'
 import { RegisterScreen } from './RegisterScreen'
 import { ResetPasswordScreen } from './ResetPasswordScreen'
@@ -24,6 +25,7 @@ import { StudentFirstLoginScreen } from './StudentFirstLoginScreen'
 import { StudentLoginScreen } from './StudentLoginScreen'
 import { StudentPlaceholderHome } from './StudentPlaceholderHome'
 import { StudentProfileScreen } from './StudentProfileScreen'
+import { StudentWalletTopUpScreen } from './StudentWalletTopUpScreen'
 import { TwoFactorChallengeScreen } from './TwoFactorChallengeScreen'
 import { TwoFactorSetupScreen } from './TwoFactorSetupScreen'
 import {
@@ -76,6 +78,14 @@ export const routes: RouteObject[] = [
     element: (
       <RequireStudent>
         <StudentProfileScreen />
+      </RequireStudent>
+    ),
+  },
+  {
+    path: '/student/wallet/top-up',
+    element: (
+      <RequireStudent>
+        <StudentWalletTopUpScreen />
       </RequireStudent>
     ),
   },
@@ -196,6 +206,14 @@ export const routes: RouteObject[] = [
     element: (
       <RequireRole allow={['parent']}>
         <ParentProfileScreen />
+      </RequireRole>
+    ),
+  },
+  {
+    path: '/parent/wallet/top-up',
+    element: (
+      <RequireRole allow={['parent']}>
+        <ParentWalletTopUpScreen />
       </RequireRole>
     ),
   },
