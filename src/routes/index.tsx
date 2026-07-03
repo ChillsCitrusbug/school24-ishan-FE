@@ -29,6 +29,8 @@ import { StudentProfileScreen } from './StudentProfileScreen'
 import { StudentWalletTopUpScreen } from './StudentWalletTopUpScreen'
 import { TwoFactorChallengeScreen } from './TwoFactorChallengeScreen'
 import { TwoFactorSetupScreen } from './TwoFactorSetupScreen'
+import { UserDetailScreen } from './UserDetailScreen'
+import { UsersListScreen } from './UsersListScreen'
 import {
   BlockedPage,
   MaintenancePage,
@@ -127,6 +129,22 @@ export const routes: RouteObject[] = [
     element: (
       <RequireRole allow={['platform_admin']}>
         <SchoolDetailScreen />
+      </RequireRole>
+    ),
+  },
+  {
+    path: '/platform-admin/users',
+    element: (
+      <RequireRole allow={['platform_admin']}>
+        <UsersListScreen />
+      </RequireRole>
+    ),
+  },
+  {
+    path: '/platform-admin/users/:userId',
+    element: (
+      <RequireRole allow={['platform_admin']}>
+        <UserDetailScreen />
       </RequireRole>
     ),
   },
