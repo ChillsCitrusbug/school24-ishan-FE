@@ -1,3 +1,4 @@
+import { Link } from 'react-router-dom'
 import { cn } from '@/lib/cn'
 import { Icon, type IconName } from '../atoms/Icon'
 import { Avatar } from '../atoms/Avatar'
@@ -52,23 +53,40 @@ export function Sidebar({
                 {group.label}
               </div>
             )}
-            {group.items.map((item) => (
-              <a
-                key={item.label}
-                href={item.href ?? '#'}
-                aria-current={item.active ? 'page' : undefined}
-                className={cn(
-                  'relative flex items-center gap-3 rounded-control px-3 py-2 transition',
-                  item.active
-                    ? 'bg-brand/8 font-semibold text-brand-deep'
-                    : 'text-muted hover:bg-canvas hover:text-ink',
-                )}
-              >
-                {item.active && <span className="absolute bottom-1.5 left-0 top-1.5 w-1 rounded-full bg-brand" />}
-                <Icon name={item.icon} strokeWidth={item.active ? 1.8 : 1.6} />
-                {item.label}
-              </a>
-            ))}
+            {group.items.map((item) => {
+              const className = cn(
+                'relative flex items-center gap-3 rounded-control px-3 py-2 transition',
+                item.active
+                  ? 'bg-brand/8 font-semibold text-brand-deep'
+                  : 'text-muted hover:bg-canvas hover:text-ink',
+              )
+              const content = (
+                <>
+                  {item.active && <span className="absolute bottom-1.5 left-0 top-1.5 w-1 rounded-full bg-brand" />}
+                  <Icon name={item.icon} strokeWidth={item.active ? 1.8 : 1.6} />
+                  {item.label}
+                </>
+              )
+              // A real `href` uses client-side routing (Link) so the
+              // in-memory-only JWT survives navigation — a plain `<a
+              // href>` triggers a full page reload and signs the user
+              // out (same reasoning documented in api/client.ts). An
+              // item with no route built yet stays an inert `href="#"`.
+              return item.href ? (
+                <Link
+                  key={item.label}
+                  to={item.href}
+                  aria-current={item.active ? 'page' : undefined}
+                  className={className}
+                >
+                  {content}
+                </Link>
+              ) : (
+                <a key={item.label} href="#" aria-current={item.active ? 'page' : undefined} className={className}>
+                  {content}
+                </a>
+              )
+            })}
           </div>
         ))}
       </nav>

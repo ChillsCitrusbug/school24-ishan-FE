@@ -1,6 +1,10 @@
 import type { RouteObject } from 'react-router-dom'
 import { ActivateAccountScreen } from './ActivateAccountScreen'
 import { AssignRoleScreen } from './AssignRoleScreen'
+import { ClassDeleteScreen } from './ClassDeleteScreen'
+import { ClassDetailScreen } from './ClassDetailScreen'
+import { ClassFormScreen } from './ClassFormScreen'
+import { ClassesListScreen } from './ClassesListScreen'
 import { ConfirmEmailChangeScreen } from './ConfirmEmailChangeScreen'
 import { ForgotPasswordScreen } from './ForgotPasswordScreen'
 import { RequireRole, RequireStudent } from './guards'
@@ -193,6 +197,46 @@ export const routes: RouteObject[] = [
     element: (
       <RequireRole allow={['school_admin']}>
         <RoleDeleteScreen />
+      </RequireRole>
+    ),
+  },
+  {
+    path: '/school-admin/classes',
+    element: (
+      <RequireRole allow={['school_admin']}>
+        <ClassesListScreen />
+      </RequireRole>
+    ),
+  },
+  {
+    path: '/school-admin/classes/new',
+    element: (
+      <RequireRole allow={['school_admin']}>
+        <ClassFormScreen />
+      </RequireRole>
+    ),
+  },
+  {
+    path: '/school-admin/classes/:classId',
+    element: (
+      <RequireRole allow={['school_admin']}>
+        <ClassDetailScreen />
+      </RequireRole>
+    ),
+  },
+  {
+    path: '/school-admin/classes/:classId/edit',
+    element: (
+      <RequireRole allow={['school_admin']}>
+        <ClassFormScreen />
+      </RequireRole>
+    ),
+  },
+  {
+    path: '/school-admin/classes/:classId/delete',
+    element: (
+      <RequireRole allow={['school_admin']}>
+        <ClassDeleteScreen />
       </RequireRole>
     ),
   },
