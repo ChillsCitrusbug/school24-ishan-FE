@@ -1,4 +1,4 @@
-import { act, fireEvent, render, screen, waitFor } from '@testing-library/react'
+import { act, fireEvent, render, screen, waitFor, within } from '@testing-library/react'
 import { createMemoryRouter, RouterProvider } from 'react-router-dom'
 import { afterEach, describe, expect, it, vi } from 'vitest'
 import { AuthProvider } from '@/features/auth/AuthContext'
@@ -166,5 +166,93 @@ describe('SchoolDetailScreen', () => {
     expect(
       await screen.findByText('A school admin with this email already exists.'),
     ).toBeInTheDocument()
+  })
+
+  it('deactivates the school after confirming the dialog (FR-008 Scenario 1)', async () => {
+    vi.mocked(schoolsApi.getSchool).mockResolvedValue(SCHOOL)
+    vi.mocked(schoolsApi.setSchoolStatus).mockResolvedValue({ ...SCHOOL, is_active: false })
+
+    await renderAt('/platform-admin/schools/sch1')
+    await screen.findByRole('heading', { name: 'Hilltop Public' })
+
+    fireEvent.click(screen.getByRole('button', { name: 'Deactivate school' }))
+    expect(
+      await screen.findByText(/immediately blocks sign-in for all staff, parents and students/),
+    ).toBeInTheDocument()
+    fireEvent.click(screen.getAllByRole('button', { name: 'Deactivate school' })[1])
+
+    await waitFor(() => expect(schoolsApi.setSchoolStatus).toHaveBeenCalledWith('sch1', false))
+    expect(await screen.findByText('Inactive')).toBeInTheDocument()
+    expect(screen.getByRole('button', { name: 'Activate school' })).toBeInTheDocument()
+  })
+
+  it('cancelling the deactivate dialog does not call the API', async () => {
+    vi.mocked(schoolsApi.getSchool).mockResolvedValue(SCHOOL)
+
+    await renderAt('/platform-admin/schools/sch1')
+    await screen.findByRole('heading', { name: 'Hilltop Public' })
+
+    fireEvent.click(screen.getByRole('button', { name: 'Deactivate school' }))
+    fireEvent.click(screen.getByRole('button', { name: 'Cancel' }))
+
+    expect(schoolsApi.setSchoolStatus).not.toHaveBeenCalled()
+  })
+
+  it('reactivates an inactive school directly, no dialog (FR-008 Scenario 2)', async () => {
+    vi.mocked(schoolsApi.getSchool).mockResolvedValue({ ...SCHOOL, is_active: false })
+    vi.mocked(schoolsApi.setSchoolStatus).mockResolvedValue({ ...SCHOOL, is_active: true })
+
+    await renderAt('/platform-admin/schools/sch1')
+    await screen.findByRole('heading', { name: 'Hilltop Public' })
+
+    fireEvent.click(screen.getByRole('button', { name: 'Activate school' }))
+
+    await waitFor(() => expect(schoolsApi.setSchoolStatus).toHaveBeenCalledWith('sch1', true))
+    expect(await screen.findByText('Active')).toBeInTheDocument()
+  })
+
+  it('shows the error INSIDE the still-open dialog when deactivation fails (already inactive, 409)', async () => {
+    // Review round 1, Major finding: the error must render inside the
+    // confirm dialog (which must stay open), not just be present
+    // somewhere on the page — the dialog's own overlay makes anything
+    // rendered behind it unreadable in the real UI.
+    vi.mocked(schoolsApi.getSchool).mockResolvedValue(SCHOOL)
+    vi.mocked(schoolsApi.setSchoolStatus).mockRejectedValue({
+      response: { data: { errors: 'This school is already in that status.' } },
+    })
+
+    await renderAt('/platform-admin/schools/sch1')
+    await screen.findByRole('heading', { name: 'Hilltop Public' })
+
+    fireEvent.click(screen.getByRole('button', { name: 'Deactivate school' }))
+    fireEvent.click(screen.getAllByRole('button', { name: 'Deactivate school' })[1])
+
+    const dialog = await screen.findByRole('dialog')
+    expect(
+      await within(dialog).findByText('This school is already in that status.'),
+    ).toBeInTheDocument()
+    // The dialog itself is still open, not dismissed on failure.
+    expect(screen.getByRole('dialog')).toBeInTheDocument()
+  })
+
+  it('clears the error when the dialog is cancelled after a failed deactivation', async () => {
+    vi.mocked(schoolsApi.getSchool).mockResolvedValue(SCHOOL)
+    vi.mocked(schoolsApi.setSchoolStatus).mockRejectedValue({
+      response: { data: { errors: 'This school is already in that status.' } },
+    })
+
+    await renderAt('/platform-admin/schools/sch1')
+    await screen.findByRole('heading', { name: 'Hilltop Public' })
+
+    fireEvent.click(screen.getByRole('button', { name: 'Deactivate school' }))
+    fireEvent.click(screen.getAllByRole('button', { name: 'Deactivate school' })[1])
+    await screen.findByText('This school is already in that status.')
+
+    fireEvent.click(screen.getByRole('button', { name: 'Cancel' }))
+
+    expect(screen.queryByRole('dialog')).not.toBeInTheDocument()
+    expect(
+      screen.queryByText('This school is already in that status.'),
+    ).not.toBeInTheDocument()
   })
 })

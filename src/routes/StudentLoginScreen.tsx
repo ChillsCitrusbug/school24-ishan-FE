@@ -35,13 +35,20 @@ export function StudentLoginScreen() {
         navigate('/student', { replace: true })
       }
     } catch (err) {
-      const response = (err as { response?: { status?: number } })?.response
+      const response = (err as { response?: { status?: number; data?: { errors?: unknown } } })
+        ?.response
 
       // SC-013 (Blocked) explicitly covers Student, matching FR-001's
       // deactivated-account handling — a distinct outcome from "wrong
       // credentials", not squeezed into the login form's inline banner.
+      // FR-008 EC-028: a suspended school gets the same screen's
+      // distinct "suspended" copy (matched on message content, same
+      // discipline as LoginScreen.tsx's own equivalent check).
       if (response?.status === 403) {
-        navigate('/blocked', { replace: true, state: { identityKind: 'student' } })
+        const messageText =
+          typeof response.data?.errors === 'string' ? response.data.errors : ''
+        const reason = messageText.toLowerCase().includes('suspended') ? 'suspended' : undefined
+        navigate('/blocked', { replace: true, state: { identityKind: 'student', reason } })
         return
       }
 

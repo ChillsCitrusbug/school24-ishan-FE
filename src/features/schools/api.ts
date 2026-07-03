@@ -73,3 +73,10 @@ export async function reassignAdmin(
   )
   return response.data.data
 }
+
+export async function setSchoolStatus(schoolId: string, isActive: boolean): Promise<School> {
+  const response = await apiClient.patch<Envelope<School>>(`/api/v1/schools/${schoolId}/status`, {
+    is_active: isActive,
+  })
+  return response.data.data
+}

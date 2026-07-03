@@ -111,8 +111,14 @@ export function BlockedPage({ state = 'deactivated' }: { state?: 'deactivated' |
   const location = useLocation()
   const { logout } = useAuth()
   const { logout: studentLogout } = useStudentAuth()
-  const susp = state === 'suspended'
-  const isStudent = (location.state as { identityKind?: string } | null)?.identityKind === 'student'
+  const navState = location.state as { identityKind?: string; reason?: string } | null
+  // FR-008 EC-028: LoginScreen.tsx/StudentLoginScreen.tsx navigate here
+  // with `state: {reason: 'suspended'}` for a whole-school suspension —
+  // same pattern as the existing `identityKind` navigation state. Falls
+  // back to the route's own static prop (the pre-existing "deactivated"
+  // default) when no reason was passed.
+  const susp = navState?.reason === 'suspended' || (!navState?.reason && state === 'suspended')
+  const isStudent = navState?.identityKind === 'student'
 
   function handleSignOut() {
     if (isStudent) {
@@ -131,7 +137,7 @@ export function BlockedPage({ state = 'deactivated' }: { state?: 'deactivated' |
       title={susp ? 'School access suspended' : 'Account deactivated'}
       message={
         susp
-          ? 'Greenvale Primary’s access to School24 is currently suspended. Please contact the platform operator.'
+          ? "This school's access to School24 is currently suspended. Please contact the platform operator."
           : 'Your account has been deactivated. Contact your school office if you think this is a mistake.'
       }
       actions={

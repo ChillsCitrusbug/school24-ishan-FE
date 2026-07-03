@@ -5,6 +5,7 @@ import {
   Banner,
   Button,
   Card,
+  Dialog,
   Field,
   Input,
   InfoRow,
@@ -36,9 +37,10 @@ function formatOnboarded(createdAt: string): string {
 type Mode = 'view' | 'edit' | 'reassign'
 
 /**
- * Sc019SchoolDetail.tsx — School Detail & Edit (FR-007; reassign admin).
- * "Deactivate school" (also on this same mock) is FR-008's own scope —
- * not built here, see field-reconciliation decision #9.
+ * Sc019SchoolDetail.tsx — School Detail & Edit (FR-007: edit + reassign
+ * admin; FR-008: activate/deactivate — this ticket extends the same
+ * screen FR-007 built, adding the deactivate-confirm Dialog state the
+ * mock's own name references but FR-007 deliberately left out of scope).
  *
  * The mock's own "School details" card has no visible Edit affordance —
  * reuses the same view/edit-mode toggle already approved and shipped
@@ -67,6 +69,10 @@ export function SchoolDetailScreen() {
   const [reassignError, setReassignError] = useState<string | null>(null)
   const [reassignSaving, setReassignSaving] = useState(false)
   const [reassignSent, setReassignSent] = useState(false)
+
+  const [statusDialogOpen, setStatusDialogOpen] = useState(false)
+  const [statusError, setStatusError] = useState<string | null>(null)
+  const [statusSaving, setStatusSaving] = useState(false)
 
   useEffect(() => {
     if (!schoolId) return
@@ -150,6 +156,35 @@ export function SchoolDetailScreen() {
     }
   }
 
+  async function handleDeactivate() {
+    if (!schoolId) return
+    setStatusError(null)
+    setStatusSaving(true)
+    try {
+      const updated = await schoolsApi.setSchoolStatus(schoolId, false)
+      setSchool(updated)
+      setStatusDialogOpen(false)
+    } catch (err) {
+      setStatusError(extractErrorMessage(err, 'Unable to deactivate this school.'))
+    } finally {
+      setStatusSaving(false)
+    }
+  }
+
+  async function handleReactivate() {
+    if (!schoolId) return
+    setStatusError(null)
+    setStatusSaving(true)
+    try {
+      const updated = await schoolsApi.setSchoolStatus(schoolId, true)
+      setSchool(updated)
+    } catch (err) {
+      setStatusError(extractErrorMessage(err, 'Unable to reactivate this school.'))
+    } finally {
+      setStatusSaving(false)
+    }
+  }
+
   return (
     <AppShell
       sidebar={
@@ -201,6 +236,16 @@ export function SchoolDetailScreen() {
               />
             </div>
 
+            {/* Only shown for the reactivate flow (no dialog) — a
+                deactivate-flow error renders inside the still-open
+                dialog itself instead (see the Dialog's own children
+                below), never both at once. */}
+            {statusError && !statusDialogOpen && (
+              <div className="mt-3">
+                <Banner tone="danger">{statusError}</Banner>
+              </div>
+            )}
+
             <Card className="mt-4">
               <div className="flex items-center justify-between border-b border-line px-5 py-3">
                 <span className="text-sm font-semibold text-ink">School details</span>
@@ -224,6 +269,22 @@ export function SchoolDetailScreen() {
               <Button variant="secondary" fullWidth onClick={startReassign}>
                 Reassign admin
               </Button>
+              {school.is_active ? (
+                <Button
+                  variant="danger"
+                  fullWidth
+                  onClick={() => {
+                    setStatusError(null)
+                    setStatusDialogOpen(true)
+                  }}
+                >
+                  Deactivate school
+                </Button>
+              ) : (
+                <Button variant="secondary" fullWidth loading={statusSaving} onClick={handleReactivate}>
+                  Activate school
+                </Button>
+              )}
             </div>
           </>
         )}
@@ -320,6 +381,46 @@ export function SchoolDetailScreen() {
           </Card>
         )}
       </div>
+
+      {school && (
+        <Dialog
+          open={statusDialogOpen}
+          onClose={() => {
+            setStatusDialogOpen(false)
+            setStatusError(null)
+          }}
+          tone="danger"
+          title={`Deactivate ${school.school_name}?`}
+          footer={
+            <>
+              <Button
+                variant="secondary"
+                onClick={() => {
+                  setStatusDialogOpen(false)
+                  setStatusError(null)
+                }}
+              >
+                Cancel
+              </Button>
+              <Button variant="danger" loading={statusSaving} onClick={handleDeactivate}>
+                Deactivate school
+              </Button>
+            </>
+          }
+        >
+          {/* Review round 1, Major finding: an error on confirm (e.g. the
+              ticket's own named 409 must-not) must render INSIDE the
+              dialog, not in the view-mode banner behind it — the modal's
+              own overlay makes anything behind it unreadable. */}
+          {statusError && (
+            <div className="mb-3">
+              <Banner tone="danger">{statusError}</Banner>
+            </div>
+          )}
+          This immediately blocks sign-in for all staff, parents and students at this school. You
+          can reactivate it later.
+        </Dialog>
+      )}
     </AppShell>
   )
 }

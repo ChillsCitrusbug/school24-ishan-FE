@@ -57,6 +57,15 @@ export function LoginScreen() {
         return
       }
 
+      // FR-008 EC-028: the whole school is suspended, not this one
+      // account — same SC-013 screen, distinct copy (matched the same
+      // way as the account-deactivated case above, on the word
+      // "suspended" rather than "deactivated").
+      if (response?.status === 403 && messageText.toLowerCase().includes('suspended')) {
+        navigate('/blocked', { replace: true, state: { identityKind: 'user', reason: 'suspended' } })
+        return
+      }
+
       // Bug report: a CORS/network failure (no response at all) was
       // showing "The email or password is incorrect" regardless of the
       // real cause — extractErrorMessage only shows that specific text

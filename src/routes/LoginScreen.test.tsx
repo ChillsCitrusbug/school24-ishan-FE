@@ -123,6 +123,22 @@ describe('LoginScreen', () => {
     expect(await screen.findByText('Account deactivated')).toBeInTheDocument()
   })
 
+  it('navigates to the Blocked screen with the suspended variant on a 403 (school deactivated, FR-008)', async () => {
+    vi.mocked(authApi.login).mockRejectedValue({
+      response: {
+        status: 403,
+        data: {
+          errors: "This school's access to School24 has been suspended. Please contact the platform operator.",
+        },
+      },
+    })
+
+    renderAt('/login')
+    fillAndSubmit('sa@example.com', 'whatever')
+
+    expect(await screen.findByText('School access suspended')).toBeInTheDocument()
+  })
+
   it('shows an inline banner (not the Blocked/"deactivated" screen) for the unverified-email 403 case', async () => {
     // Review finding, FR-001: a 403 for pending-verification is a
     // DIFFERENT case from deactivation and must never say "deactivated".

@@ -87,4 +87,20 @@ describe('StudentLoginScreen', () => {
 
     expect(await screen.findByText('Account deactivated')).toBeInTheDocument()
   })
+
+  it('navigates to the Blocked screen with the suspended variant on a 403 (school deactivated, FR-008)', async () => {
+    vi.mocked(studentAuthApi.login).mockRejectedValue({
+      response: {
+        status: 403,
+        data: {
+          errors: "This school's access to School24 has been suspended. Please contact the platform operator.",
+        },
+      },
+    })
+
+    renderAt('/student-login')
+    fillAndSubmit('S-41880', 'whatever')
+
+    expect(await screen.findByText('School access suspended')).toBeInTheDocument()
+  })
 })
