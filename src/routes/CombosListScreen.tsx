@@ -9,7 +9,6 @@ import {
   Button,
   Card,
   DataTable,
-  Badge,
   Toggle,
   EmptyState,
   ErrorState,
@@ -17,25 +16,11 @@ import {
   Spinner,
   type Column,
 } from '@/components'
-import { listProducts, type Product } from '@/features/products/api'
+import { listCombos, type Combo } from '@/features/combos/api'
 import { useAuth } from '@/features/auth/useAuth'
 import { extractErrorMessage } from '@/lib/api-error'
 import { schoolAdminNavGroups, schoolAdminTabs } from './schoolAdminNav'
 import { staffNavGroups, staffTabs } from './staffNav'
-
-const CATEGORY_TONES: Array<'brand' | 'accent' | 'success' | 'info'> = [
-  'brand',
-  'accent',
-  'success',
-  'info',
-]
-
-function toneForCategory(name: string | null): 'brand' | 'accent' | 'success' | 'info' | 'neutral' {
-  if (!name) return 'neutral'
-  let hash = 0
-  for (const char of name) hash = (hash * 31 + char.charCodeAt(0)) >>> 0
-  return CATEGORY_TONES[hash % CATEGORY_TONES.length]
-}
 
 function initialsOf(fullName: string): string {
   const parts = fullName.trim().split(/\s+/)
@@ -46,26 +31,21 @@ function initialsOf(fullName: string): string {
 }
 
 /**
- * SC-046 · Menu — Products List — School Admin / Staff with Menu
- * Management access (FR-024). Reuses the approved Sc046Products.tsx
- * structure/components as-is.
+ * SC-048 · Menu — Combos List (+ availability toggle) — School Admin /
+ * Staff with Menu Management access (FR-025). Reuses the approved
+ * Sc048Combos.tsx structure/components as-is.
  *
- * Field-reconciliation decision #10: the mock hardcodes the School
- * Admin's own nav context even though the ticket covers Staff too —
- * the nav shell here is picked at render time from `user.role`.
- * Decision #11: the availability Toggle and "Arrange" button are
- * FR-026/FR-027's own scope — rendered per the approved design but
- * inert (disabled) until those tickets ship.
- *
- * A "Combos" cross-link button (not in the approved mock, which has no
- * navigation between Sc046/Sc048) was added once FR-025 shipped —
- * without it there would be no in-app way to reach the new combos
- * screen at all.
+ * Field-reconciliation decision #6: the availability Toggle is FR-026's
+ * own scope — rendered per the approved design but inert (disabled)
+ * until that ticket ships, same "inert until that ticket ships"
+ * convention FR-024 already established for its own Toggle/Arrange
+ * controls. Decision #7: the "Includes" column joins bundled product
+ * names with " + ", matching the mock's own literal display.
  */
-export function ProductsListScreen() {
+export function CombosListScreen() {
   const { user } = useAuth()
   const navigate = useNavigate()
-  const [products, setProducts] = useState<Product[] | null>(null)
+  const [combos, setCombos] = useState<Combo[] | null>(null)
   const [error, setError] = useState<string | null>(null)
   const mountedRef = useRef(true)
   const isStaff = user?.role === 'staff'
@@ -79,9 +59,9 @@ export function ProductsListScreen() {
 
   const load = useCallback(() => {
     setError(null)
-    listProducts()
+    listCombos()
       .then((result) => {
-        if (mountedRef.current) setProducts(result)
+        if (mountedRef.current) setCombos(result)
       })
       .catch((err: unknown) => {
         if (mountedRef.current) setError(extractErrorMessage(err, 'Something went wrong.'))
@@ -92,34 +72,31 @@ export function ProductsListScreen() {
     load()
   }, [load])
 
-  const columns: Column<Product>[] = [
+  const columns: Column<Combo>[] = [
     {
       key: 'name',
-      header: 'Product',
-      cell: (p) => <span className="font-medium text-ink">{p.name}</span>,
+      header: 'Combo',
+      cell: (c) => <span className="font-medium text-ink">{c.name}</span>,
     },
     {
-      key: 'category',
-      header: 'Category',
-      cell: (p) => <Badge tone={toneForCategory(p.category_name)}>{p.category_name ?? '—'}</Badge>,
+      key: 'items',
+      header: 'Includes',
+      cell: (c) => <span className="text-muted">{c.products.map((p) => p.name).join(' + ')}</span>,
     },
     {
       key: 'price',
       header: 'Price',
       align: 'right',
-      cell: (p) => <span className="font-medium text-ink">${p.base_price}</span>,
+      cell: (c) => <span className="font-medium text-ink">${c.combo_price}</span>,
     },
     {
       key: 'available',
       header: 'Available',
-      cell: (p) => (
+      cell: (c) => (
         <span className="inline-flex items-center gap-2">
-          <Toggle
-            label={`${p.name} available`}
-            checked={p.availability_status === 'available'}
-          />
+          <Toggle label={`${c.name} available`} checked={c.availability_status === 'available'} />
           <span className="text-xs text-muted">
-            {p.availability_status === 'available' ? 'On menu' : 'Hidden'}
+            {c.availability_status === 'available' ? 'On menu' : 'Hidden'}
           </span>
         </span>
       ),
@@ -128,11 +105,11 @@ export function ProductsListScreen() {
       key: 'open',
       header: <span className="sr-only">Edit</span>,
       align: 'right',
-      cell: (p) => (
+      cell: (c) => (
         <button
           type="button"
-          aria-label={`Edit ${p.name}`}
-          onClick={() => navigate(`/school-admin/products/${p.id}/edit`)}
+          aria-label={`Edit ${c.name}`}
+          onClick={() => navigate(`/school-admin/combos/${c.id}/edit`)}
           className="rounded p-1 hover:bg-canvas"
         >
           <Icon name="chevronRight" className="h-4 w-4 text-muted" strokeWidth={2} />
@@ -166,33 +143,34 @@ export function ProductsListScreen() {
       }
       topbar={
         <Topbar
-          searchPlaceholder="Search the menu…"
+          searchPlaceholder="Search combos…"
           right={<IconButton icon="bell" label="Notifications" />}
         />
       }
       mobileNav={<MobileTabBar items={isStaff ? staffTabs('menu') : schoolAdminTabs('menu')} />}
     >
       <div className="mx-auto max-w-5xl">
+        <Button
+          variant="ghost"
+          size="sm"
+          leadingIcon="chevronLeft"
+          className="mb-3"
+          onClick={() => navigate('/school-admin/products')}
+        >
+          Products
+        </Button>
         <div className="flex flex-wrap items-end justify-between gap-3">
           <div>
-            <h1 className="text-2xl font-bold text-ink">Menu — products</h1>
-            <p className="mt-0.5 text-sm text-muted">Toggle availability or edit any item.</p>
+            <h1 className="text-2xl font-bold text-ink">Menu — combos</h1>
+            <p className="mt-0.5 text-sm text-muted">Bundle products at a combo price.</p>
           </div>
-          <div className="flex gap-2">
-            <Button variant="secondary" leadingIcon="drag" disabled>
-              Arrange
-            </Button>
-            <Button variant="secondary" onClick={() => navigate('/school-admin/combos')}>
-              Combos
-            </Button>
-            <Button leadingIcon="plus" onClick={() => navigate('/school-admin/products/new')}>
-              Add product
-            </Button>
-          </div>
+          <Button leadingIcon="plus" onClick={() => navigate('/school-admin/combos/new')}>
+            Add combo
+          </Button>
         </div>
 
-        {products === null && !error ? (
-          <div role="status" aria-label="Loading products" className="mt-10 flex justify-center text-muted">
+        {combos === null && !error ? (
+          <div role="status" aria-label="Loading combos" className="mt-10 flex justify-center text-muted">
             <Spinner className="h-6 w-6" />
           </div>
         ) : error ? (
@@ -206,22 +184,22 @@ export function ProductsListScreen() {
               }
             />
           </Card>
-        ) : products && products.length === 0 ? (
+        ) : combos && combos.length === 0 ? (
           <Card className="mt-6">
             <EmptyState
               icon="order"
-              title="No products yet"
-              message="Add your first product, then build combos from it."
+              title="No combos yet"
+              message="Bundle a few products together at a special price."
               action={
-                <Button leadingIcon="plus" onClick={() => navigate('/school-admin/products/new')}>
-                  Add product
+                <Button leadingIcon="plus" onClick={() => navigate('/school-admin/combos/new')}>
+                  Add combo
                 </Button>
               }
             />
           </Card>
         ) : (
           <Card className="mt-5">
-            <DataTable columns={columns} rows={products ?? []} rowKey={(p) => p.id} />
+            <DataTable columns={columns} rows={combos ?? []} rowKey={(c) => c.id} />
           </Card>
         )}
       </div>
