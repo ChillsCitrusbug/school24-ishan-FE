@@ -34,13 +34,17 @@ import { StaffFormScreen } from './StaffFormScreen'
 import { StaffListScreen } from './StaffListScreen'
 import { StaffPortalScreen } from './StaffPortalScreen'
 import { StaffProfileScreen } from './StaffProfileScreen'
+import { StudentDeleteScreen } from './StudentDeleteScreen'
+import { StudentDetailScreen } from './StudentDetailScreen'
 import { StudentFirstLoginScreen } from './StudentFirstLoginScreen'
+import { StudentFormScreen } from './StudentFormScreen'
 import { StudentLoginScreen } from './StudentLoginScreen'
 import { StudentPlaceholderHome } from './StudentPlaceholderHome'
 import { StudentProfileScreen } from './StudentProfileScreen'
 import { StudentTxnHistoryScreen } from './StudentTxnHistoryScreen'
 import { StudentWalletScreen } from './StudentWalletScreen'
 import { StudentWalletTopUpScreen } from './StudentWalletTopUpScreen'
+import { StudentsListScreen } from './StudentsListScreen'
 import { TwoFactorChallengeScreen } from './TwoFactorChallengeScreen'
 import { TwoFactorSetupScreen } from './TwoFactorSetupScreen'
 import { UserDetailScreen } from './UserDetailScreen'
@@ -263,6 +267,46 @@ export const routes: RouteObject[] = [
     element: (
       <RequireRole allow={['school_admin']}>
         <ClassDeleteScreen />
+      </RequireRole>
+    ),
+  },
+  {
+    path: '/school-admin/students',
+    element: (
+      <RequireRole allow={['school_admin']}>
+        <StudentsListScreen />
+      </RequireRole>
+    ),
+  },
+  {
+    path: '/school-admin/students/new',
+    element: (
+      <RequireRole allow={['school_admin']}>
+        <StudentFormScreen />
+      </RequireRole>
+    ),
+  },
+  {
+    path: '/school-admin/students/:studentId',
+    element: (
+      <RequireRole allow={['school_admin']}>
+        <StudentDetailScreen />
+      </RequireRole>
+    ),
+  },
+  {
+    path: '/school-admin/students/:studentId/edit',
+    element: (
+      <RequireRole allow={['school_admin']}>
+        <StudentFormScreen />
+      </RequireRole>
+    ),
+  },
+  {
+    path: '/school-admin/students/:studentId/delete',
+    element: (
+      <RequireRole allow={['school_admin']}>
+        <StudentDeleteScreen />
       </RequireRole>
     ),
   },

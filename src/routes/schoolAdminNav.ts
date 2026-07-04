@@ -1,6 +1,6 @@
 import type { NavGroup, TabItem } from '@/components'
 
-type SchoolAdminSection = 'dashboard' | 'classes' | 'staff' | 'menu'
+type SchoolAdminSection = 'dashboard' | 'students' | 'classes' | 'staff' | 'menu'
 
 /**
  * School Admin sidebar/tab nav — ported structurally from the approved
@@ -26,7 +26,7 @@ export function schoolAdminNavGroups(active: SchoolAdminSection = 'dashboard'): 
       label: 'School',
       items: [
         { icon: 'home', label: 'Dashboard', active: active === 'dashboard', href: '/school-admin' },
-        { icon: 'children', label: 'Students' },
+        { icon: 'children', label: 'Students', active: active === 'students', href: '/school-admin/students' },
         { icon: 'grid', label: 'Classes', active: active === 'classes', href: '/school-admin/classes' },
         { icon: 'user', label: 'Staff', active: active === 'staff', href: '/school-admin/staff' },
         { icon: 'check', label: 'Approvals' },
@@ -49,7 +49,7 @@ export function schoolAdminNavGroups(active: SchoolAdminSection = 'dashboard'): 
 export function schoolAdminTabs(active: SchoolAdminSection = 'dashboard'): TabItem[] {
   return [
     { icon: 'home', label: 'Home', active: active === 'dashboard', href: '/school-admin' },
-    { icon: 'children', label: 'Students' },
+    { icon: 'children', label: 'Students', active: active === 'students', href: '/school-admin/students' },
     { icon: 'check', label: 'Approvals' },
     { icon: 'order', label: 'Orders' },
     { icon: 'chart', label: 'Reports' },
