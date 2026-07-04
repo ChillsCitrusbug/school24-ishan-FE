@@ -87,3 +87,14 @@ export async function updateStaff(
   )
   return response.data.data
 }
+
+export async function setStaffStatus(
+  staffProfileId: string,
+  isActive: boolean,
+): Promise<StaffDetail> {
+  const response = await apiClient.patch<Envelope<StaffDetail>>(
+    `/api/v1/staff/${staffProfileId}/status`,
+    { is_active: isActive },
+  )
+  return response.data.data
+}

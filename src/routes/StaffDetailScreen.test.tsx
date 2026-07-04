@@ -84,13 +84,18 @@ describe('StaffDetailScreen', () => {
     expect(screen.getByRole('button', { name: 'Resend invite' })).toBeDisabled()
   })
 
-  it('shows a deactivated banner and a disabled reactivate button for a deactivated staff member', async () => {
+  it('shows a deactivated banner and a real, enabled reactivate button for a deactivated staff member (FR-016)', async () => {
     vi.mocked(staffApi.getStaffDetail).mockResolvedValue({ ...ACTIVE_STAFF, status: 'deactivated' })
 
     await renderAuthenticatedAt('/school-admin/staff/sp1')
 
     expect(await screen.findByText(/is deactivated and has no access/)).toBeInTheDocument()
-    expect(screen.getByRole('button', { name: 'Reactivate' })).toBeDisabled()
+    const reactivateButton = screen.getByRole('button', { name: 'Reactivate' })
+    expect(reactivateButton).not.toBeDisabled()
+
+    fireEvent.click(reactivateButton)
+
+    expect(await screen.findByText('Reactivate Sam Staff?')).toBeInTheDocument()
   })
 
   it('shows an error state when the load fails', async () => {

@@ -38,11 +38,12 @@ function initialsOf(fullName: string): string {
  * (FR-015). Reuses the approved Sc095StaffDetail.tsx structure.
  *
  * Field-reconciliation decision #4: "Resend invite" (no DoD line
- * anywhere in this ticket) and "Deactivate/Reactivate" (explicitly
- * FR-016's own separate ticket) are both out of scope — their buttons
- * render but do nothing yet, same "inert until that ticket ships"
- * convention already used for sidebar nav items pointing at unbuilt
- * routes.
+ * anywhere in this ticket) stays out of scope — its button renders but
+ * does nothing yet. "Deactivate/Reactivate" was the same kind of
+ * placeholder until FR-016 shipped and wired it to the new
+ * StaffStatusScreen.tsx (a separate routed confirm screen, not an
+ * inline Dialog — see docs/design/field-reconciliation/FR-016.md
+ * decision #1).
  */
 export function StaffDetailScreen() {
   const { user } = useAuth()
@@ -175,7 +176,11 @@ export function StaffDetailScreen() {
                     Resend invite
                   </Button>
                 ) : (
-                  <Button variant="secondary" size="sm" disabled>
+                  <Button
+                    variant="secondary"
+                    size="sm"
+                    onClick={() => navigate(`/school-admin/staff/${staff.staff_profile_id}/status`)}
+                  >
                     {staff.status === 'deactivated' ? 'Reactivate' : 'Deactivate'}
                   </Button>
                 )}
