@@ -14,6 +14,8 @@ import { PaProfileScreen } from './PaProfileScreen'
 import { ParentProfileScreen } from './ParentProfileScreen'
 import { ParentWalletTopUpScreen } from './ParentWalletTopUpScreen'
 import { PlaceholderDashboard } from './PlaceholderDashboard'
+import { ProductFormScreen } from './ProductFormScreen'
+import { ProductsListScreen } from './ProductsListScreen'
 import { RegisterScreen } from './RegisterScreen'
 import { ResetPasswordScreen } from './ResetPasswordScreen'
 import { RoleBuilderScreen } from './RoleBuilderScreen'
@@ -240,6 +242,30 @@ export const routes: RouteObject[] = [
     element: (
       <RequireRole allow={['school_admin']}>
         <ClassDeleteScreen />
+      </RequireRole>
+    ),
+  },
+  {
+    path: '/school-admin/products',
+    element: (
+      <RequireRole allow={['school_admin', 'staff']}>
+        <ProductsListScreen />
+      </RequireRole>
+    ),
+  },
+  {
+    path: '/school-admin/products/new',
+    element: (
+      <RequireRole allow={['school_admin', 'staff']}>
+        <ProductFormScreen />
+      </RequireRole>
+    ),
+  },
+  {
+    path: '/school-admin/products/:productId/edit',
+    element: (
+      <RequireRole allow={['school_admin', 'staff']}>
+        <ProductFormScreen />
       </RequireRole>
     ),
   },
