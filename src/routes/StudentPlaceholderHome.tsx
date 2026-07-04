@@ -36,13 +36,13 @@ export function StudentPlaceholderHome() {
           <div className="flex items-center justify-between gap-3">
             <div>
               <div className="font-semibold text-ink">Your wallet</div>
-              <div className="text-sm text-muted">Add funds to top up your own wallet.</div>
+              <div className="text-sm text-muted">Check your balance and top up your own wallet.</div>
             </div>
             <Link
-              to="/student/wallet/top-up"
+              to="/student/wallet"
               className="rounded-control bg-brand px-4 py-2 text-sm font-semibold text-white hover:bg-brand-deep"
             >
-              Top up wallet
+              View wallet
             </Link>
           </div>
         </Card>

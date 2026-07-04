@@ -12,6 +12,8 @@ import { LoginScreen } from './LoginScreen'
 import { OnboardSchoolScreen } from './OnboardSchoolScreen'
 import { PaProfileScreen } from './PaProfileScreen'
 import { ParentProfileScreen } from './ParentProfileScreen'
+import { ParentTxnHistoryScreen } from './ParentTxnHistoryScreen'
+import { ParentWalletScreen } from './ParentWalletScreen'
 import { ParentWalletTopUpScreen } from './ParentWalletTopUpScreen'
 import { PlaceholderDashboard } from './PlaceholderDashboard'
 import { ProductFormScreen } from './ProductFormScreen'
@@ -35,6 +37,8 @@ import { StudentFirstLoginScreen } from './StudentFirstLoginScreen'
 import { StudentLoginScreen } from './StudentLoginScreen'
 import { StudentPlaceholderHome } from './StudentPlaceholderHome'
 import { StudentProfileScreen } from './StudentProfileScreen'
+import { StudentTxnHistoryScreen } from './StudentTxnHistoryScreen'
+import { StudentWalletScreen } from './StudentWalletScreen'
 import { StudentWalletTopUpScreen } from './StudentWalletTopUpScreen'
 import { TwoFactorChallengeScreen } from './TwoFactorChallengeScreen'
 import { TwoFactorSetupScreen } from './TwoFactorSetupScreen'
@@ -98,6 +102,22 @@ export const routes: RouteObject[] = [
     element: (
       <RequireStudent>
         <StudentWalletTopUpScreen />
+      </RequireStudent>
+    ),
+  },
+  {
+    path: '/student/wallet',
+    element: (
+      <RequireStudent>
+        <StudentWalletScreen />
+      </RequireStudent>
+    ),
+  },
+  {
+    path: '/student/wallet/history',
+    element: (
+      <RequireStudent>
+        <StudentTxnHistoryScreen />
       </RequireStudent>
     ),
   },
@@ -346,6 +366,22 @@ export const routes: RouteObject[] = [
     element: (
       <RequireRole allow={['parent']}>
         <ParentWalletTopUpScreen />
+      </RequireRole>
+    ),
+  },
+  {
+    path: '/parent/wallet',
+    element: (
+      <RequireRole allow={['parent']}>
+        <ParentWalletScreen />
+      </RequireRole>
+    ),
+  },
+  {
+    path: '/parent/wallet/history',
+    element: (
+      <RequireRole allow={['parent']}>
+        <ParentTxnHistoryScreen />
       </RequireRole>
     ),
   },
