@@ -1,6 +1,6 @@
 import type { NavGroup, TabItem } from '@/components'
 
-type PlatformAdminSection = 'schools' | 'users'
+type PlatformAdminSection = 'home' | 'schools' | 'users'
 
 /**
  * Platform Admin sidebar/tab nav — ported structurally from the approved
@@ -20,7 +20,7 @@ export function platformAdminNavGroups(active: PlatformAdminSection = 'schools')
   return [
     {
       items: [
-        { icon: 'home', label: 'Dashboard', href: '/platform-admin' },
+        { icon: 'home', label: 'Dashboard', active: active === 'home', href: '/platform-admin' },
         { icon: 'list', label: 'Schools', active: active === 'schools', href: '/platform-admin/schools' },
         { icon: 'children', label: 'Users', active: active === 'users', href: '/platform-admin/users' },
       ],

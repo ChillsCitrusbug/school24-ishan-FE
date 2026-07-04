@@ -3,21 +3,20 @@ import { AppShell, Sidebar, Topbar, MobileTabBar, Card, EmptyState } from '@/com
 import { useAuth } from '@/features/auth/useAuth'
 
 const ROLE_LABEL: Record<string, string> = {
-  platform_admin: 'Platform Admin',
-  staff: 'Staff',
   parent: 'Parent',
 }
 
 /**
- * Generic authenticated landing for the 3 roles whose real dashboard isn't
- * built yet (platform_admin -> FR-010/SC-016, staff -> FR-018/SC-041,
- * parent -> FR-046/SC-063) — see docs/design/field-reconciliation/FR-001.md
- * for the recorded decision. Reuses the same AppShell wiring as every
- * other authenticated screen (proves the shell/session/tenant-scoping
- * plumbing works for these roles too) with a minimal placeholder in place
- * of business content this ticket does not own. Each owning ticket
- * replaces this route's content with its real screen — the route itself
- * does not change.
+ * Generic authenticated landing for the roles whose real dashboard
+ * isn't built yet — originally covered platform_admin/staff/parent
+ * (see docs/design/field-reconciliation/FR-001.md for the recorded
+ * decision); platform_admin's own real dashboard shipped with FR-010
+ * (`PlatformDashboardScreen`) and staff's with FR-018
+ * (`StaffPortalScreen`), each replacing this route's content per that
+ * same decision — only `parent` (FR-046/SC-063) still uses this
+ * placeholder. Reuses the same AppShell wiring as every other
+ * authenticated screen with a minimal placeholder in place of business
+ * content this ticket does not own.
  */
 export function PlaceholderDashboard() {
   const { user } = useAuth()

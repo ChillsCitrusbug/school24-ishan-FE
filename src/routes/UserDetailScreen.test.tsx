@@ -2,6 +2,7 @@ import { fireEvent, render, screen, waitFor, within, act } from '@testing-librar
 import { createMemoryRouter, RouterProvider } from 'react-router-dom'
 import { afterEach, describe, expect, it, vi } from 'vitest'
 import { AuthProvider } from '@/features/auth/AuthContext'
+import * as analyticsApi from '@/features/analytics/api'
 import * as authApi from '@/features/auth/api'
 import * as usersApi from '@/features/users/api'
 import { StudentAuthProvider } from '@/features/student-auth/StudentAuthContext'
@@ -9,6 +10,7 @@ import { routes } from './index'
 
 vi.mock('@/features/auth/api')
 vi.mock('@/features/users/api')
+vi.mock('@/features/analytics/api')
 
 const PLATFORM_ADMIN_USER = {
   id: 'u1',
@@ -35,6 +37,16 @@ async function renderAt(path: string) {
     token_type: 'bearer',
     user: PLATFORM_ADMIN_USER,
   })
+  vi.mocked(analyticsApi.getPlatformDashboard).mockResolvedValue({
+    is_empty: true,
+    schools: { active: 0, inactive: 0 },
+    active_students: 0,
+    users_by_role: { platform_admin: 0, school_admin: 0, staff: 0, parent: 0 },
+    total_orders: 0,
+    total_revenue: '0',
+    orders_this_week: [],
+    top_schools: [],
+  })
   const router = createMemoryRouter(routes, { initialEntries: ['/login'] })
   render(
     <AuthProvider>
@@ -46,7 +58,7 @@ async function renderAt(path: string) {
   fireEvent.change(screen.getByLabelText('Email'), { target: { value: 'alex@example.com' } })
   fireEvent.change(screen.getByLabelText('Password'), { target: { value: 'whatever' } })
   fireEvent.click(screen.getByRole('button', { name: /sign in/i }))
-  await waitFor(() => expect(screen.getByText(/Dashboard coming soon/)).toBeInTheDocument())
+  await waitFor(() => expect(screen.getByText('Platform overview')).toBeInTheDocument())
   await act(async () => {
     await router.navigate(path)
   })

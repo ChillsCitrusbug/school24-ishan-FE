@@ -16,6 +16,7 @@ import { ParentTxnHistoryScreen } from './ParentTxnHistoryScreen'
 import { ParentWalletScreen } from './ParentWalletScreen'
 import { ParentWalletTopUpScreen } from './ParentWalletTopUpScreen'
 import { PlaceholderDashboard } from './PlaceholderDashboard'
+import { PlatformDashboardScreen } from './PlatformDashboardScreen'
 import { ProductFormScreen } from './ProductFormScreen'
 import { ProductsListScreen } from './ProductsListScreen'
 import { RegisterScreen } from './RegisterScreen'
@@ -125,7 +126,7 @@ export const routes: RouteObject[] = [
     path: '/platform-admin',
     element: (
       <RequireRole allow={['platform_admin']}>
-        <PlaceholderDashboard />
+        <PlatformDashboardScreen />
       </RequireRole>
     ),
   },
