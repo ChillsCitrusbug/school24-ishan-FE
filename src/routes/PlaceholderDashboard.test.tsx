@@ -53,10 +53,21 @@ describe('PlaceholderDashboard (FR-022 additions)', () => {
     await renderAuthenticatedAt('/parent')
 
     expect(screen.getByText('Order for a child')).toBeInTheDocument()
-    expect(screen.getByRole('link', { name: /choose a child/i })).toHaveAttribute(
+    expect(screen.getAllByRole('link', { name: /choose a child/i })[0]).toHaveAttribute(
       'href',
       '/parent/select-child',
     )
+  })
+
+  it('shows a "Top up a child\'s wallet" card linking to the selection screen with the top-up destination (FR-029)', async () => {
+    await renderAuthenticatedAt('/parent')
+
+    expect(screen.getByText("Top up a child's wallet")).toBeInTheDocument()
+    const links = screen.getAllByRole('link', { name: /choose a child/i })
+    const topUpLink = links.find(
+      (link) => link.getAttribute('href') === '/parent/select-child?next=/parent/wallet/top-up-child',
+    )
+    expect(topUpLink).toBeDefined()
   })
 
   it('shows a "My children" card linking to the status list (FR-023)', async () => {

@@ -51,6 +51,13 @@ interface WalletTopUpScreenProps {
  *
  * No saved-payment-method UI (field-reconciliation decision #7) — every
  * top-up is a fresh PaymentIntent with fresh Elements.
+ *
+ * FR-029 reuses this screen's own `PaymentStep`/`ResultStep` (exported
+ * below) from `ChildWalletTopUpScreen.tsx` — a Parent topping up a
+ * linked child's wallet needs its own `amount` step (child-aware copy,
+ * no in-screen child-picker — that's `ChildSelectScreen.tsx`'s own
+ * job) but the identical Stripe confirm + result-polling mechanism,
+ * never re-implemented a third time.
  */
 export function WalletTopUpScreen({
   role,
@@ -222,11 +229,18 @@ export function WalletTopUpScreen({
   )
 }
 
-function PaymentStep({
+/**
+ * Exported for reuse by `ChildWalletTopUpScreen.tsx` (FR-029) — the
+ * same Stripe Elements confirm flow, never duplicated, per that
+ * ticket's own explicit "reuse FR-028's integration" instruction.
+ */
+export function PaymentStep({
   amount,
+  subtitle,
   onOutcome,
 }: {
   amount: number
+  subtitle?: string
   onOutcome: (status: walletTopUpApi.TopUpStatus | null) => void
 }) {
   const stripe = useStripe()
@@ -267,7 +281,9 @@ function PaymentStep({
           <Icon name="lock" className="h-3.5 w-3.5" /> Secured by Stripe
         </span>
       </div>
-      <p className="mt-1 text-sm text-muted">Topping up ${amount}.00 to your wallet.</p>
+      <p className="mt-1 text-sm text-muted">
+        {subtitle ?? `Topping up $${amount}.00 to your wallet.`}
+      </p>
 
       {declined && (
         <div className="mt-4">
@@ -289,11 +305,14 @@ function PaymentStep({
   )
 }
 
-function ResultStep({
+/** Exported for reuse by `ChildWalletTopUpScreen.tsx` (FR-029) — see
+ * `PaymentStep`'s own docstring above for the reasoning. */
+export function ResultStep({
   amount,
   result,
   stillProcessing,
   checkingStatus,
+  successMessage,
   onCheckStatus,
   onDone,
   onTryAgain,
@@ -302,6 +321,7 @@ function ResultStep({
   result: walletTopUpApi.TopUpStatus | null
   stillProcessing: boolean
   checkingStatus: boolean
+  successMessage?: string
   onCheckStatus: () => void
   onDone: () => void
   onTryAgain: () => void
@@ -340,7 +360,7 @@ function ResultStep({
         title={ok ? 'Top-up successful' : 'Top-up failed'}
         message={
           ok
-            ? `$${amount}.00 has been added to your wallet.`
+            ? (successMessage ?? `$${amount}.00 has been added to your wallet.`)
             : 'Your card was declined, so no charge was made. Please try a different card.'
         }
       >

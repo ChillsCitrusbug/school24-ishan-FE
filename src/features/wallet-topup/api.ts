@@ -47,3 +47,26 @@ export async function getStudentTopUpStatus(transactionId: string): Promise<TopU
   )
   return response.data.data
 }
+
+/** FR-029 — a Parent topping up a specific linked child's wallet. The
+ * backend 403s if the caller's link to `studentId` isn't APPROVED. */
+export async function startChildTopUp(
+  studentId: string,
+  amount: number,
+): Promise<StartTopUpResult> {
+  const response = await apiClient.post<Envelope<StartTopUpResult>>(
+    `/api/v1/students/${studentId}/wallet/top-ups`,
+    { amount },
+  )
+  return response.data.data
+}
+
+export async function getChildTopUpStatus(
+  studentId: string,
+  transactionId: string,
+): Promise<TopUpStatus> {
+  const response = await apiClient.get<Envelope<TopUpStatus>>(
+    `/api/v1/students/${studentId}/wallet/top-ups/${transactionId}`,
+  )
+  return response.data.data
+}

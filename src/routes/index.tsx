@@ -4,6 +4,7 @@ import { AddChildScreen } from './AddChildScreen'
 import { ApprovalQueueScreen } from './ApprovalQueueScreen'
 import { AssignRoleScreen } from './AssignRoleScreen'
 import { ChildSelectScreen } from './ChildSelectScreen'
+import { ChildWalletTopUpScreen } from './ChildWalletTopUpScreen'
 import { ClassDeleteScreen } from './ClassDeleteScreen'
 import { ClassDetailScreen } from './ClassDetailScreen'
 import { ClassFormScreen } from './ClassFormScreen'
@@ -545,6 +546,14 @@ export const routes: RouteObject[] = [
     element: (
       <RequireRole allow={['parent']}>
         <ParentWalletTopUpScreen />
+      </RequireRole>
+    ),
+  },
+  {
+    path: '/parent/wallet/top-up-child',
+    element: (
+      <RequireRole allow={['parent']}>
+        <ChildWalletTopUpScreen />
       </RequireRole>
     ),
   },

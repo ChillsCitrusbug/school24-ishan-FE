@@ -53,6 +53,12 @@ function initialsOf(name: string): string {
  * wallet, same as `Sc064ChildSelect.tsx`'s identical topbar button —
  * unlike the per-child action tiles, this destination already exists,
  * so there was no "doesn't exist yet" justification for omitting it).
+ *
+ * FR-029 addition: the per-child "Top up" action tile — deliberately
+ * left inert when this screen first shipped (its destination didn't
+ * exist yet) — now navigates straight to `ChildWalletTopUpScreen.tsx`
+ * with the child already known, skipping `ChildSelectScreen`'s own
+ * picker entirely.
  */
 export function MyChildrenScreen() {
   const { user } = useAuth()
@@ -158,6 +164,9 @@ export function MyChildrenScreen() {
                       name={c.full_name}
                       meta={c.class_name ?? ''}
                       balance={`$${(c.wallet_balance ?? 0).toFixed(2)}`}
+                      onTopUp={() =>
+                        navigate(`/parent/wallet/top-up-child?childId=${c.student_id}`)
+                      }
                     />
                   ))}
                 </div>

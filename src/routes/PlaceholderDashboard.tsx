@@ -125,6 +125,24 @@ export function PlaceholderDashboard() {
             </div>
           </Card>
         )}
+        {user?.role === 'parent' && (
+          <Card className="p-5">
+            <div className="flex items-center justify-between gap-3">
+              <div>
+                <div className="font-semibold text-ink">Top up a child's wallet</div>
+                <div className="text-sm text-muted">
+                  Add funds directly to a linked child's own wallet.
+                </div>
+              </div>
+              <Link
+                to="/parent/select-child?next=/parent/wallet/top-up-child"
+                className="rounded-control bg-brand px-4 py-2 text-sm font-semibold text-white hover:bg-brand-deep"
+              >
+                Choose a child
+              </Link>
+            </div>
+          </Card>
+        )}
       </div>
     </AppShell>
   )

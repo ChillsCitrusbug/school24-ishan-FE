@@ -3,6 +3,7 @@ import { createMemoryRouter, RouterProvider } from 'react-router-dom'
 import { afterEach, describe, expect, it, vi } from 'vitest'
 import { AuthProvider } from '@/features/auth/AuthContext'
 import * as authApi from '@/features/auth/api'
+import * as childSelectionApi from '@/features/child-selection/api'
 import * as myChildrenApi from '@/features/my-children/api'
 import * as permissionsApi from '@/features/permissions/api'
 import { StudentAuthProvider } from '@/features/student-auth/StudentAuthContext'
@@ -11,6 +12,7 @@ import { routes } from './index'
 vi.mock('@/features/auth/api')
 vi.mock('@/features/my-children/api')
 vi.mock('@/features/permissions/api')
+vi.mock('@/features/child-selection/api')
 
 const PARENT_USER = {
   id: 'u1',
@@ -92,6 +94,27 @@ describe('MyChildrenScreen (Sc061MyChildren)', () => {
 
     expect(screen.queryByText('Top up')).not.toBeInTheDocument()
     expect(screen.queryByText('Order')).not.toBeInTheDocument()
+  })
+
+  it('an approved child\'s "Top up" tile navigates straight to the child top-up screen with the child already known (FR-029)', async () => {
+    vi.mocked(myChildrenApi.listMyChildren).mockResolvedValue([NOAH_APPROVED])
+    vi.mocked(childSelectionApi.getActiveContext).mockResolvedValue([
+      {
+        student_id: 'st1',
+        student_id_code: 'S-41880',
+        full_name: 'Noah Thompson',
+        class_name: 'Year 1 · 1A',
+        school_name: 'Greenvale Primary',
+        wallet_balance: 23.5,
+      },
+    ])
+
+    await renderAuthenticatedAt('/parent/children')
+    await screen.findByText('Noah Thompson')
+
+    fireEvent.click(screen.getByText('Top up', { exact: true }))
+
+    expect(await screen.findByRole('heading', { name: "Top up Noah Thompson's wallet" })).toBeInTheDocument()
   })
 
   it('shows the empty state with an "Add a child" action when there are no linked children', async () => {
