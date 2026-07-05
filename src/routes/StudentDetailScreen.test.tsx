@@ -4,6 +4,7 @@ import { afterEach, describe, expect, it, vi } from 'vitest'
 import { AuthProvider } from '@/features/auth/AuthContext'
 import * as authApi from '@/features/auth/api'
 import * as classesApi from '@/features/classes/api'
+import * as guardiansApi from '@/features/guardians/api'
 import * as studentsApi from '@/features/students/api'
 import { StudentAuthProvider } from '@/features/student-auth/StudentAuthContext'
 import { routes } from './index'
@@ -11,6 +12,7 @@ import { routes } from './index'
 vi.mock('@/features/auth/api')
 vi.mock('@/features/classes/api')
 vi.mock('@/features/students/api')
+vi.mock('@/features/guardians/api')
 
 const SCHOOL_ADMIN_USER = {
   id: 'u1',
@@ -71,7 +73,7 @@ describe('StudentDetailScreen', () => {
     expect(screen.getAllByText('Room 4B').length).toBeGreaterThan(0)
   })
 
-  it('shows Edit details, Deactivate, Reset credential, and Remove student actions', async () => {
+  it('shows Edit details, Deactivate, Reset credential, Manage guardians, and Remove student actions', async () => {
     vi.mocked(studentsApi.getStudent).mockResolvedValue(STUDENT)
     vi.mocked(classesApi.listClasses).mockResolvedValue([CLASS_A])
 
@@ -81,8 +83,21 @@ describe('StudentDetailScreen', () => {
     expect(screen.getByRole('button', { name: /edit details/i })).toBeInTheDocument()
     expect(screen.getByRole('button', { name: /^deactivate$/i })).toBeInTheDocument()
     expect(screen.getByRole('button', { name: /reset credential/i })).toBeInTheDocument()
+    expect(screen.getByRole('button', { name: /manage guardians/i })).toBeInTheDocument()
     expect(screen.getByRole('button', { name: /remove student/i })).toBeInTheDocument()
-    expect(screen.queryByRole('button', { name: /manage guardians/i })).not.toBeInTheDocument()
+  })
+
+  it('"Manage guardians" navigates to the guardians screen (FR-021)', async () => {
+    vi.mocked(studentsApi.getStudent).mockResolvedValue(STUDENT)
+    vi.mocked(classesApi.listClasses).mockResolvedValue([CLASS_A])
+    vi.mocked(guardiansApi.listGuardians).mockResolvedValue([])
+
+    await renderAuthenticatedAt('/school-admin/students/s1')
+    await screen.findByText('Liam Carter')
+
+    fireEvent.click(screen.getByRole('button', { name: /manage guardians/i }))
+
+    expect(await screen.findByText(/^Guardians — /)).toBeInTheDocument()
   })
 
   it('"Reset credential" navigates to the reset-credential confirmation screen (FR-051)', async () => {

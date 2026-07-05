@@ -33,10 +33,11 @@ function initialsOf(fullName: string): string {
  * Admin (FR-012). Reuses the approved Sc096StudentDetail.tsx structure.
  *
  * Field-reconciliation decision #10 (FR-012): this ticket only wired
- * "Edit details" and "Remove student" — "Manage guardians" (FR-019/021,
- * not yet built) remains omitted; "Deactivate/Reactivate" (FR-014) and
- * "Reset credential" (FR-051) are now wired for real, each once its own
- * routed confirm screen existed to navigate to.
+ * "Edit details" and "Remove student" — "Manage guardians" remained
+ * omitted until its own screen existed; "Deactivate/Reactivate"
+ * (FR-014), "Reset credential" (FR-051), and now "Manage guardians"
+ * (FR-021) are wired for real, each once its own routed screen existed
+ * to navigate to.
  *
  * Round 1 review finding (Major, FR-014): FR-014 deliberately widened
  * this screen's own read access to inactive students (previously a
@@ -160,6 +161,19 @@ export function StudentDetailScreen() {
                   onClick={() => navigate(`/school-admin/students/${student.id}/status`)}
                 >
                   {student.is_active ? 'Deactivate' : 'Reactivate'}
+                </Button>
+                {/* Round-1 review finding (Nit), resolved as intentional:
+                    unlike Edit/Reset/Remove, this stays visible even for
+                    an inactive student — viewing or removing a guardian's
+                    access is still meaningful after deactivation (data
+                    hygiene), it's not a dead-end form the way editing an
+                    inactive record would be. */}
+                <Button
+                  variant="secondary"
+                  size="sm"
+                  onClick={() => navigate(`/school-admin/students/${student.id}/guardians`)}
+                >
+                  Manage guardians
                 </Button>
                 {student.is_active && (
                   <Button

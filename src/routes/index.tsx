@@ -12,6 +12,7 @@ import { CombosListScreen } from './CombosListScreen'
 import { ComposeNotificationScreen } from './ComposeNotificationScreen'
 import { ConfirmEmailChangeScreen } from './ConfirmEmailChangeScreen'
 import { ForgotPasswordScreen } from './ForgotPasswordScreen'
+import { GuardiansScreen } from './GuardiansScreen'
 import { RequireRole, RequireStudent } from './guards'
 import { LinkRequestReviewScreen } from './LinkRequestReviewScreen'
 import { LoginScreen } from './LoginScreen'
@@ -342,6 +343,14 @@ export const routes: RouteObject[] = [
     element: (
       <RequireRole allow={['school_admin']}>
         <StudentStatusScreen />
+      </RequireRole>
+    ),
+  },
+  {
+    path: '/school-admin/students/:studentId/guardians',
+    element: (
+      <RequireRole allow={['school_admin']}>
+        <GuardiansScreen />
       </RequireRole>
     ),
   },
