@@ -46,3 +46,14 @@ export async function updateCombo(comboId: string, input: ComboInput): Promise<C
   const response = await apiClient.put<Envelope<Combo>>(`/api/v1/combos/${comboId}`, input)
   return response.data.data
 }
+
+export async function setComboAvailability(
+  comboId: string,
+  availabilityStatus: AvailabilityStatus,
+): Promise<Combo> {
+  const response = await apiClient.patch<Envelope<Combo>>(
+    `/api/v1/combos/${comboId}/availability`,
+    { availability_status: availabilityStatus },
+  )
+  return response.data.data
+}

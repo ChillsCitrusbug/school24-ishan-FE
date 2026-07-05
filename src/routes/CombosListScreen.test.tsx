@@ -129,4 +129,39 @@ describe('CombosListScreen', () => {
       await screen.findByText('Something went wrong. Please check your connection and try again.'),
     ).toBeInTheDocument()
   })
+
+  it('toggling availability calls the API and flips the row (FR-026)', async () => {
+    vi.mocked(combosApi.listCombos).mockResolvedValue([COMBO])
+    vi.mocked(combosApi.setComboAvailability).mockResolvedValue({
+      ...COMBO,
+      availability_status: 'unavailable',
+    })
+
+    await renderAuthenticatedAt('/school-admin/combos')
+    await screen.findByText('Burger Meal')
+    expect(screen.getByText('On menu')).toBeInTheDocument()
+
+    fireEvent.click(screen.getByRole('switch', { name: /burger meal available/i }))
+
+    await waitFor(() =>
+      expect(vi.mocked(combosApi.setComboAvailability)).toHaveBeenCalledWith('c1', 'unavailable'),
+    )
+    expect(await screen.findByText('Hidden')).toBeInTheDocument()
+  })
+
+  it('a failed toggle reverts the row and shows an error banner, without clearing the list (FR-026)', async () => {
+    vi.mocked(combosApi.listCombos).mockResolvedValue([COMBO])
+    vi.mocked(combosApi.setComboAvailability).mockRejectedValue(new Error('Network Error'))
+
+    await renderAuthenticatedAt('/school-admin/combos')
+    await screen.findByText('Burger Meal')
+
+    fireEvent.click(screen.getByRole('switch', { name: /burger meal available/i }))
+
+    expect(
+      await screen.findByText('Could not update availability. Please try again.'),
+    ).toBeInTheDocument()
+    await waitFor(() => expect(screen.getByText('On menu')).toBeInTheDocument())
+    expect(screen.getByText('Burger Meal')).toBeInTheDocument()
+  })
 })

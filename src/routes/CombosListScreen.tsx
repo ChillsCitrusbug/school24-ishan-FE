@@ -7,6 +7,7 @@ import {
   MobileTabBar,
   IconButton,
   Button,
+  Banner,
   Card,
   DataTable,
   Toggle,
@@ -16,7 +17,7 @@ import {
   Spinner,
   type Column,
 } from '@/components'
-import { listCombos, type Combo } from '@/features/combos/api'
+import { listCombos, setComboAvailability, type Combo } from '@/features/combos/api'
 import { useAuth } from '@/features/auth/useAuth'
 import { extractErrorMessage } from '@/lib/api-error'
 import { schoolAdminNavGroups, schoolAdminTabs } from './schoolAdminNav'
@@ -35,18 +36,19 @@ function initialsOf(fullName: string): string {
  * Staff with Menu Management access (FR-025). Reuses the approved
  * Sc048Combos.tsx structure/components as-is.
  *
- * Field-reconciliation decision #6: the availability Toggle is FR-026's
- * own scope — rendered per the approved design but inert (disabled)
- * until that ticket ships, same "inert until that ticket ships"
- * convention FR-024 already established for its own Toggle/Arrange
- * controls. Decision #7: the "Includes" column joins bundled product
- * names with " + ", matching the mock's own literal display.
+ * Field-reconciliation decision #6: the availability Toggle, previously
+ * inert pending FR-026, is now wired for real — same optimistic-flip-
+ * with-revert-on-failure pattern as `ProductsListScreen.tsx`'s own
+ * FR-026 wiring. Decision #7: the "Includes" column joins bundled
+ * product names with " + ", matching the mock's own literal display.
  */
 export function CombosListScreen() {
   const { user } = useAuth()
   const navigate = useNavigate()
   const [combos, setCombos] = useState<Combo[] | null>(null)
   const [error, setError] = useState<string | null>(null)
+  const [toggleError, setToggleError] = useState<string | null>(null)
+  const [pendingIds, setPendingIds] = useState<Set<string>>(new Set())
   const mountedRef = useRef(true)
   const isStaff = user?.role === 'staff'
 
@@ -72,6 +74,33 @@ export function CombosListScreen() {
     load()
   }, [load])
 
+  async function handleToggleAvailability(combo: Combo, nextAvailable: boolean) {
+    if (pendingIds.has(combo.id)) return
+    const nextStatus = nextAvailable ? 'available' : 'unavailable'
+    const previousStatus = combo.availability_status
+
+    setToggleError(null)
+    setPendingIds((prev) => new Set(prev).add(combo.id))
+    setCombos((prev) =>
+      prev?.map((c) => (c.id === combo.id ? { ...c, availability_status: nextStatus } : c)) ?? prev,
+    )
+    try {
+      await setComboAvailability(combo.id, nextStatus)
+    } catch {
+      setCombos((prev) =>
+        prev?.map((c) => (c.id === combo.id ? { ...c, availability_status: previousStatus } : c)) ??
+        prev,
+      )
+      setToggleError('Could not update availability. Please try again.')
+    } finally {
+      setPendingIds((prev) => {
+        const next = new Set(prev)
+        next.delete(combo.id)
+        return next
+      })
+    }
+  }
+
   const columns: Column<Combo>[] = [
     {
       key: 'name',
@@ -94,9 +123,18 @@ export function CombosListScreen() {
       header: 'Available',
       cell: (c) => (
         <span className="inline-flex items-center gap-2">
-          <Toggle label={`${c.name} available`} checked={c.availability_status === 'available'} />
+          <Toggle
+            label={`${c.name} available`}
+            checked={c.availability_status === 'available'}
+            onChange={(value) => handleToggleAvailability(c, value)}
+            disabled={pendingIds.has(c.id)}
+          />
           <span className="text-xs text-muted">
-            {c.availability_status === 'available' ? 'On menu' : 'Hidden'}
+            {pendingIds.has(c.id)
+              ? 'Updating…'
+              : c.availability_status === 'available'
+                ? 'On menu'
+                : 'Hidden'}
           </span>
         </span>
       ),
@@ -168,6 +206,12 @@ export function CombosListScreen() {
             Add combo
           </Button>
         </div>
+
+        {toggleError && (
+          <div className="mt-4">
+            <Banner tone="danger">{toggleError}</Banner>
+          </div>
+        )}
 
         {combos === null && !error ? (
           <div role="status" aria-label="Loading combos" className="mt-10 flex justify-center text-muted">

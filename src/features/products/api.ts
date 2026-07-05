@@ -65,6 +65,17 @@ export async function updateProduct(productId: string, input: ProductInput): Pro
   return response.data.data
 }
 
+export async function setProductAvailability(
+  productId: string,
+  availabilityStatus: AvailabilityStatus,
+): Promise<Product> {
+  const response = await apiClient.patch<Envelope<Product>>(
+    `/api/v1/products/${productId}/availability`,
+    { availability_status: availabilityStatus },
+  )
+  return response.data.data
+}
+
 export async function uploadProductImage(productId: string, file: File): Promise<ProductImage> {
   const formData = new FormData()
   formData.append('file', file)

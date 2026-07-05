@@ -138,4 +138,66 @@ describe('ProductsListScreen', () => {
 
     expect(screen.queryByText('Chicken Wrap')).not.toBeInTheDocument()
   })
+
+  it('toggling availability calls the API and flips the row (FR-026)', async () => {
+    vi.mocked(productsApi.listProducts).mockResolvedValue([PRODUCT])
+    vi.mocked(productsApi.setProductAvailability).mockResolvedValue({
+      ...PRODUCT,
+      availability_status: 'unavailable',
+    })
+
+    await renderAuthenticatedAt('/school-admin/products')
+    await screen.findByText('Chicken Wrap')
+    expect(screen.getByText('On menu')).toBeInTheDocument()
+
+    fireEvent.click(screen.getByRole('switch', { name: /chicken wrap available/i }))
+
+    await waitFor(() =>
+      expect(vi.mocked(productsApi.setProductAvailability)).toHaveBeenCalledWith(
+        'p1',
+        'unavailable',
+      ),
+    )
+    expect(await screen.findByText('Hidden')).toBeInTheDocument()
+  })
+
+  it('disables the toggle while a request is in flight, and re-enables once it settles (FR-026)', async () => {
+    vi.mocked(productsApi.listProducts).mockResolvedValue([PRODUCT])
+    let resolveToggle: (value: productsApi.Product) => void = () => {}
+    vi.mocked(productsApi.setProductAvailability).mockReturnValue(
+      new Promise((resolve) => {
+        resolveToggle = resolve
+      }),
+    )
+
+    await renderAuthenticatedAt('/school-admin/products')
+    await screen.findByText('Chicken Wrap')
+    const toggle = screen.getByRole('switch', { name: /chicken wrap available/i })
+
+    fireEvent.click(toggle)
+
+    await waitFor(() => expect(toggle).toBeDisabled())
+    expect(screen.getByText('Updating…')).toBeInTheDocument()
+
+    resolveToggle({ ...PRODUCT, availability_status: 'unavailable' })
+
+    await waitFor(() => expect(toggle).not.toBeDisabled())
+    expect(await screen.findByText('Hidden')).toBeInTheDocument()
+  })
+
+  it('a failed toggle reverts the row and shows an error banner, without clearing the list (FR-026)', async () => {
+    vi.mocked(productsApi.listProducts).mockResolvedValue([PRODUCT])
+    vi.mocked(productsApi.setProductAvailability).mockRejectedValue(new Error('Network Error'))
+
+    await renderAuthenticatedAt('/school-admin/products')
+    await screen.findByText('Chicken Wrap')
+
+    fireEvent.click(screen.getByRole('switch', { name: /chicken wrap available/i }))
+
+    expect(
+      await screen.findByText('Could not update availability. Please try again.'),
+    ).toBeInTheDocument()
+    await waitFor(() => expect(screen.getByText('On menu')).toBeInTheDocument())
+    expect(screen.getByText('Chicken Wrap')).toBeInTheDocument()
+  })
 })

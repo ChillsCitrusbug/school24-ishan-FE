@@ -7,6 +7,7 @@ import {
   MobileTabBar,
   IconButton,
   Button,
+  Banner,
   Card,
   DataTable,
   Badge,
@@ -17,7 +18,7 @@ import {
   Spinner,
   type Column,
 } from '@/components'
-import { listProducts, type Product } from '@/features/products/api'
+import { listProducts, setProductAvailability, type Product } from '@/features/products/api'
 import { useAuth } from '@/features/auth/useAuth'
 import { extractErrorMessage } from '@/lib/api-error'
 import { schoolAdminNavGroups, schoolAdminTabs } from './schoolAdminNav'
@@ -53,10 +54,14 @@ function initialsOf(fullName: string): string {
  * Field-reconciliation decision #10: the mock hardcodes the School
  * Admin's own nav context even though the ticket covers Staff too —
  * the nav shell here is picked at render time from `user.role`.
- * Decision #11: the availability Toggle is FR-026's own scope —
- * rendered per the approved design but inert (disabled) until that
- * ticket ships. "Arrange" was the same kind of placeholder until
- * FR-027 shipped and wired it to the new MenuDisplayOrderScreen.tsx.
+ * Decision #11: the availability Toggle, previously inert pending
+ * FR-026, is now wired for real — optimistic flip on click, reverted
+ * on a failed request (the approved mock's own `Sc046Products.tsx`
+ * models no distinct "in progress" visual beyond a plain optimistic
+ * `useState` toggle; this adds a per-row in-flight guard so a second
+ * click can't race the first while its request is still outstanding).
+ * "Arrange" was the same kind of placeholder until FR-027 shipped and
+ * wired it to the new MenuDisplayOrderScreen.tsx.
  *
  * A "Combos" cross-link button (not in the approved mock, which has no
  * navigation between Sc046/Sc048) was added once FR-025 shipped —
@@ -68,6 +73,8 @@ export function ProductsListScreen() {
   const navigate = useNavigate()
   const [products, setProducts] = useState<Product[] | null>(null)
   const [error, setError] = useState<string | null>(null)
+  const [toggleError, setToggleError] = useState<string | null>(null)
+  const [pendingIds, setPendingIds] = useState<Set<string>>(new Set())
   const mountedRef = useRef(true)
   const isStaff = user?.role === 'staff'
 
@@ -92,6 +99,33 @@ export function ProductsListScreen() {
   useEffect(() => {
     load()
   }, [load])
+
+  async function handleToggleAvailability(product: Product, nextAvailable: boolean) {
+    if (pendingIds.has(product.id)) return
+    const nextStatus = nextAvailable ? 'available' : 'unavailable'
+    const previousStatus = product.availability_status
+
+    setToggleError(null)
+    setPendingIds((prev) => new Set(prev).add(product.id))
+    setProducts((prev) =>
+      prev?.map((p) => (p.id === product.id ? { ...p, availability_status: nextStatus } : p)) ?? prev,
+    )
+    try {
+      await setProductAvailability(product.id, nextStatus)
+    } catch {
+      setProducts((prev) =>
+        prev?.map((p) => (p.id === product.id ? { ...p, availability_status: previousStatus } : p)) ??
+        prev,
+      )
+      setToggleError('Could not update availability. Please try again.')
+    } finally {
+      setPendingIds((prev) => {
+        const next = new Set(prev)
+        next.delete(product.id)
+        return next
+      })
+    }
+  }
 
   const columns: Column<Product>[] = [
     {
@@ -118,9 +152,15 @@ export function ProductsListScreen() {
           <Toggle
             label={`${p.name} available`}
             checked={p.availability_status === 'available'}
+            onChange={(value) => handleToggleAvailability(p, value)}
+            disabled={pendingIds.has(p.id)}
           />
           <span className="text-xs text-muted">
-            {p.availability_status === 'available' ? 'On menu' : 'Hidden'}
+            {pendingIds.has(p.id)
+              ? 'Updating…'
+              : p.availability_status === 'available'
+                ? 'On menu'
+                : 'Hidden'}
           </span>
         </span>
       ),
@@ -195,6 +235,12 @@ export function ProductsListScreen() {
             </Button>
           </div>
         </div>
+
+        {toggleError && (
+          <div className="mt-4">
+            <Banner tone="danger">{toggleError}</Banner>
+          </div>
+        )}
 
         {products === null && !error ? (
           <div role="status" aria-label="Loading products" className="mt-10 flex justify-center text-muted">
