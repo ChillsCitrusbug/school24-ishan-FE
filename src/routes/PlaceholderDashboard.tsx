@@ -52,6 +52,24 @@ export function PlaceholderDashboard() {
             </div>
           </Card>
         )}
+        {user?.role === 'parent' && (
+          <Card className="p-5">
+            <div className="flex items-center justify-between gap-3">
+              <div>
+                <div className="font-semibold text-ink">Add a child</div>
+                <div className="text-sm text-muted">
+                  Link a child by their Student ID. Your school approves the request.
+                </div>
+              </div>
+              <Link
+                to="/parent/children/add"
+                className="rounded-control bg-brand px-4 py-2 text-sm font-semibold text-white hover:bg-brand-deep"
+              >
+                Add child
+              </Link>
+            </div>
+          </Card>
+        )}
       </div>
     </AppShell>
   )

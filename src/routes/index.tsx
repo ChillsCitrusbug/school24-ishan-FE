@@ -1,5 +1,6 @@
 import type { RouteObject } from 'react-router-dom'
 import { ActivateAccountScreen } from './ActivateAccountScreen'
+import { AddChildScreen } from './AddChildScreen'
 import { AssignRoleScreen } from './AssignRoleScreen'
 import { ClassDeleteScreen } from './ClassDeleteScreen'
 import { ClassDetailScreen } from './ClassDetailScreen'
@@ -475,6 +476,14 @@ export const routes: RouteObject[] = [
     element: (
       <RequireRole allow={['parent']}>
         <PlaceholderDashboard />
+      </RequireRole>
+    ),
+  },
+  {
+    path: '/parent/children/add',
+    element: (
+      <RequireRole allow={['parent']}>
+        <AddChildScreen />
       </RequireRole>
     ),
   },
