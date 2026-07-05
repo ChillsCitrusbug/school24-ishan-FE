@@ -4,6 +4,7 @@ import { afterEach, describe, expect, it, vi } from 'vitest'
 import { AuthProvider } from '@/features/auth/AuthContext'
 import * as authApi from '@/features/auth/api'
 import * as childSelectionApi from '@/features/child-selection/api'
+import * as myChildrenApi from '@/features/my-children/api'
 import * as permissionsApi from '@/features/permissions/api'
 import { StudentAuthProvider } from '@/features/student-auth/StudentAuthContext'
 import { routes } from './index'
@@ -11,6 +12,7 @@ import { routes } from './index'
 vi.mock('@/features/auth/api')
 vi.mock('@/features/child-selection/api')
 vi.mock('@/features/permissions/api')
+vi.mock('@/features/my-children/api')
 
 const PARENT_USER = {
   id: 'u1',
@@ -109,6 +111,18 @@ describe('ChildSelectScreen (Sc064ChildSelect)', () => {
     await renderAuthenticatedAt('/parent/select-child')
 
     expect(await screen.findByText('No approved children yet')).toBeInTheDocument()
+  })
+
+  it('"View requests" navigates to the real My Children status screen (round-1 review finding, Major)', async () => {
+    vi.mocked(childSelectionApi.getActiveContext).mockResolvedValue([])
+    vi.mocked(myChildrenApi.listMyChildren).mockResolvedValue([])
+
+    await renderAuthenticatedAt('/parent/select-child')
+    await screen.findByText('No approved children yet')
+
+    fireEvent.click(screen.getByRole('button', { name: /view requests/i }))
+
+    expect(await screen.findByRole('heading', { name: 'My children' })).toBeInTheDocument()
   })
 
   it('shows an error state when the children cannot be loaded', async () => {

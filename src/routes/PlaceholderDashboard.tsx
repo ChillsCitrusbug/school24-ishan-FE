@@ -24,6 +24,10 @@ const ROLE_LABEL: Record<string, string> = {
  * here is rendered as a minimal "context loaded" confirmation banner,
  * honestly proving the selection mechanism resolved a child rather
  * than pretending to be the real order/top-up flow.
+ *
+ * FR-023 addition: "My children" card links to the real
+ * `MyChildrenScreen.tsx` (Sc061) — the canonical status home the
+ * ticket's own field-reconciliation doc names.
  */
 export function PlaceholderDashboard() {
   const { user } = useAuth()
@@ -51,6 +55,24 @@ export function PlaceholderDashboard() {
             message={`The ${roleLabel} dashboard is being built. You're signed in — this is just a placeholder home.`}
           />
         </Card>
+        {user?.role === 'parent' && (
+          <Card className="p-5">
+            <div className="flex items-center justify-between gap-3">
+              <div>
+                <div className="font-semibold text-ink">My children</div>
+                <div className="text-sm text-muted">
+                  See every linked child and their Approved/Pending status.
+                </div>
+              </div>
+              <Link
+                to="/parent/children"
+                className="rounded-control bg-brand px-4 py-2 text-sm font-semibold text-white hover:bg-brand-deep"
+              >
+                View children
+              </Link>
+            </div>
+          </Card>
+        )}
         {user?.role === 'parent' && (
           <Card className="p-5">
             <div className="flex items-center justify-between gap-3">

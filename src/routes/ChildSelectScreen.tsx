@@ -45,6 +45,14 @@ function formatBalance(balance: number): string {
  * "the real destination doesn't exist yet") — FR-029 (topping up a
  * child's wallet, the very next ticket in this batch) will be this
  * mechanism's first real consumer, passing its own `next`.
+ *
+ * FR-023 review finding (Major): the zero-approved-children empty
+ * state's own "View requests" button used to point at `/parent` too —
+ * a stale forward-reference of the exact same kind FR-019's own
+ * "Back to my children" already had, just missed when FR-023 shipped
+ * the real destination. Now points at `/parent/children`
+ * (`MyChildrenScreen.tsx`), the real place a parent can see their
+ * pending request's status.
  */
 export function ChildSelectScreen() {
   const { user } = useAuth()
@@ -109,7 +117,7 @@ export function ChildSelectScreen() {
               title="No approved children yet"
               message="Your child's link is still pending school approval. You can order once it's approved."
               action={
-                <Button onClick={() => navigate('/parent')}>View requests</Button>
+                <Button onClick={() => navigate('/parent/children')}>View requests</Button>
               }
             />
           </Card>

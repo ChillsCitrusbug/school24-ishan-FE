@@ -59,6 +59,16 @@ describe('PlaceholderDashboard (FR-022 additions)', () => {
     )
   })
 
+  it('shows a "My children" card linking to the status list (FR-023)', async () => {
+    await renderAuthenticatedAt('/parent')
+
+    expect(screen.getByText('My children')).toBeInTheDocument()
+    expect(screen.getByRole('link', { name: /view children/i })).toHaveAttribute(
+      'href',
+      '/parent/children',
+    )
+  })
+
   it('shows a confirmation banner when returning with a resolved ?childId=', async () => {
     await renderAuthenticatedAt('/parent?childId=st1')
 

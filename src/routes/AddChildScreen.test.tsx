@@ -3,6 +3,7 @@ import { createMemoryRouter, RouterProvider } from 'react-router-dom'
 import { afterEach, describe, expect, it, vi } from 'vitest'
 import { AuthProvider } from '@/features/auth/AuthContext'
 import * as authApi from '@/features/auth/api'
+import * as myChildrenApi from '@/features/my-children/api'
 import * as parentLinksApi from '@/features/parent-links/api'
 import * as permissionsApi from '@/features/permissions/api'
 import { StudentAuthProvider } from '@/features/student-auth/StudentAuthContext'
@@ -11,6 +12,7 @@ import { routes } from './index'
 vi.mock('@/features/auth/api')
 vi.mock('@/features/parent-links/api')
 vi.mock('@/features/permissions/api')
+vi.mock('@/features/my-children/api')
 
 const PARENT_USER = {
   id: 'u1',
@@ -54,6 +56,37 @@ describe('AddChildScreen (Sc059AddChild)', () => {
     await renderAuthenticatedAt('/parent')
 
     expect(screen.getByRole('link', { name: /add child/i })).toBeInTheDocument()
+  })
+
+  it('"My children" (back button) navigates to the real My Children screen (FR-023)', async () => {
+    vi.mocked(myChildrenApi.listMyChildren).mockResolvedValue([])
+
+    await renderAuthenticatedAt('/parent/children/add')
+    fireEvent.click(screen.getByRole('button', { name: /^my children$/i }))
+
+    expect(await screen.findByRole('heading', { name: 'My children' })).toBeInTheDocument()
+  })
+
+  it('"Back to my children" after a successful request navigates to the real screen (FR-023)', async () => {
+    vi.mocked(parentLinksApi.requestChildLink).mockResolvedValue({
+      id: 'l1',
+      student_id: 's1',
+      status: 'pending',
+      student_full_name: 'Liam Thompson',
+      student_id_code: 'S-40231',
+    })
+    vi.mocked(myChildrenApi.listMyChildren).mockResolvedValue([])
+
+    await renderAuthenticatedAt('/parent/children/add')
+    fireEvent.change(screen.getByPlaceholderText(/e\.g\. S-40231/i), {
+      target: { value: 'S-40231' },
+    })
+    fireEvent.click(screen.getByRole('button', { name: /send link request/i }))
+    await screen.findByText('Request sent')
+
+    fireEvent.click(screen.getByRole('button', { name: /back to my children/i }))
+
+    expect(await screen.findByRole('heading', { name: 'My children' })).toBeInTheDocument()
   })
 
   it('submits a Student ID and shows the pending-request success state', async () => {

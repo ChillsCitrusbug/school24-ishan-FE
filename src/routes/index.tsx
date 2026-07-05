@@ -18,6 +18,7 @@ import { RequireRole, RequireStudent } from './guards'
 import { LinkRequestReviewScreen } from './LinkRequestReviewScreen'
 import { LoginScreen } from './LoginScreen'
 import { MenuDisplayOrderScreen } from './MenuDisplayOrderScreen'
+import { MyChildrenScreen } from './MyChildrenScreen'
 import { OnboardSchoolScreen } from './OnboardSchoolScreen'
 import { PaProfileScreen } from './PaProfileScreen'
 import { ParentProfileScreen } from './ParentProfileScreen'
@@ -520,6 +521,14 @@ export const routes: RouteObject[] = [
     element: (
       <RequireRole allow={['parent']}>
         <ChildSelectScreen />
+      </RequireRole>
+    ),
+  },
+  {
+    path: '/parent/children',
+    element: (
+      <RequireRole allow={['parent']}>
+        <MyChildrenScreen />
       </RequireRole>
     ),
   },

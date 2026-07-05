@@ -73,7 +73,7 @@ export function AddChildScreen() {
           size="sm"
           leadingIcon="chevronLeft"
           className="mb-3"
-          onClick={() => navigate('/parent')}
+          onClick={() => navigate('/parent/children')}
         >
           My children
         </Button>
@@ -93,7 +93,7 @@ export function AddChildScreen() {
                   <Badge tone="warning">Pending school approval</Badge>
                 </div>
               </div>
-              <Button fullWidth className="mt-5" onClick={() => navigate('/parent')}>
+              <Button fullWidth className="mt-5" onClick={() => navigate('/parent/children')}>
                 Back to my children
               </Button>
             </ResultHero>
