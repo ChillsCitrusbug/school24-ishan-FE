@@ -90,6 +90,13 @@ export async function removeStudent(studentId: string): Promise<void> {
   await apiClient.delete<Envelope<null>>(`/api/v1/students/${studentId}`)
 }
 
+export async function resetCredential(studentId: string): Promise<EnrolledStudent> {
+  const response = await apiClient.post<Envelope<EnrolledStudent>>(
+    `/api/v1/students/${studentId}/reset-credential`,
+  )
+  return response.data.data
+}
+
 export async function listCredentials(): Promise<StudentCredential[]> {
   const response = await apiClient.get<Envelope<StudentCredential[]>>('/api/v1/students/credentials')
   return response.data.data

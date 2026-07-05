@@ -33,11 +33,10 @@ function initialsOf(fullName: string): string {
  * Admin (FR-012). Reuses the approved Sc096StudentDetail.tsx structure.
  *
  * Field-reconciliation decision #10 (FR-012): this ticket only wired
- * "Edit details" and "Remove student" — "Reset credential" (FR-051,
- * not in this batch) and "Manage guardians" (FR-019/021, not in this
- * batch) remain omitted; "Deactivate/Reactivate" is now wired for
- * real, FR-014's own addition, once its own routed confirm screen
- * (StudentStatusScreen.tsx) existed to navigate to.
+ * "Edit details" and "Remove student" — "Manage guardians" (FR-019/021,
+ * not yet built) remains omitted; "Deactivate/Reactivate" (FR-014) and
+ * "Reset credential" (FR-051) are now wired for real, each once its own
+ * routed confirm screen existed to navigate to.
  *
  * Round 1 review finding (Major, FR-014): FR-014 deliberately widened
  * this screen's own read access to inactive students (previously a
@@ -162,6 +161,16 @@ export function StudentDetailScreen() {
                 >
                   {student.is_active ? 'Deactivate' : 'Reactivate'}
                 </Button>
+                {student.is_active && (
+                  <Button
+                    variant="secondary"
+                    size="sm"
+                    leadingIcon="lock"
+                    onClick={() => navigate(`/school-admin/students/${student.id}/reset-credential`)}
+                  >
+                    Reset credential
+                  </Button>
+                )}
                 {student.is_active && (
                   <Button
                     variant="danger"

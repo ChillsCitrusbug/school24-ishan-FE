@@ -49,6 +49,7 @@ import { StudentPlaceholderHome } from './StudentPlaceholderHome'
 import { StudentProfileScreen } from './StudentProfileScreen'
 import { StudentTxnHistoryScreen } from './StudentTxnHistoryScreen'
 import { StudentStatusScreen } from './StudentStatusScreen'
+import { StudentResetCredentialScreen } from './StudentResetCredentialScreen'
 import { StudentWalletScreen } from './StudentWalletScreen'
 import { StudentWalletTopUpScreen } from './StudentWalletTopUpScreen'
 import { StudentsListScreen } from './StudentsListScreen'
@@ -322,6 +323,14 @@ export const routes: RouteObject[] = [
     element: (
       <RequireRole allow={['school_admin']}>
         <StudentDeleteScreen />
+      </RequireRole>
+    ),
+  },
+  {
+    path: '/school-admin/students/:studentId/reset-credential',
+    element: (
+      <RequireRole allow={['school_admin']}>
+        <StudentResetCredentialScreen />
       </RequireRole>
     ),
   },
