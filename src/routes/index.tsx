@@ -5,6 +5,7 @@ import { ApprovalQueueScreen } from './ApprovalQueueScreen'
 import { AssignRoleScreen } from './AssignRoleScreen'
 import { ChildSelectScreen } from './ChildSelectScreen'
 import { ChildWalletTopUpScreen } from './ChildWalletTopUpScreen'
+import { FoodRestrictionsScreen } from './FoodRestrictionsScreen'
 import { ClassDeleteScreen } from './ClassDeleteScreen'
 import { ClassDetailScreen } from './ClassDetailScreen'
 import { ClassFormScreen } from './ClassFormScreen'
@@ -554,6 +555,14 @@ export const routes: RouteObject[] = [
     element: (
       <RequireRole allow={['parent']}>
         <ChildWalletTopUpScreen />
+      </RequireRole>
+    ),
+  },
+  {
+    path: '/parent/food-restrictions',
+    element: (
+      <RequireRole allow={['parent']}>
+        <FoodRestrictionsScreen />
       </RequireRole>
     ),
   },

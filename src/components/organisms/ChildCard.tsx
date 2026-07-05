@@ -11,13 +11,15 @@ export interface ChildCardProps {
   balance?: string
   low?: boolean
   pending?: boolean
-  /** FR-029 — wired to the "Top up" tile only; Order/Limits/Spend stay
-   * decorative (those flows, FR-037 and beyond, don't exist yet). */
+  /** FR-029 — wired to the "Top up" tile only. */
   onTopUp?: () => void
+  /** FR-032 — wired to the "Limits" tile only; Order/Spend stay
+   * decorative (those flows don't exist yet). */
+  onLimits?: () => void
 }
 
 /** A child tile — balance + quick actions, or a pending-approval row. Used on Parent Home & My Children. */
-export function ChildCard({ initials, name, meta, balance, low, pending, onTopUp }: ChildCardProps) {
+export function ChildCard({ initials, name, meta, balance, low, pending, onTopUp, onLimits }: ChildCardProps) {
   if (pending) {
     return (
       <Card className="flex items-center gap-3 border-dashed bg-white/70 p-4">
@@ -51,7 +53,7 @@ export function ChildCard({ initials, name, meta, balance, low, pending, onTopUp
       <div className="mt-4 grid grid-cols-4 gap-2">
         <ActionTile icon="plus" label="Top up" tone={low ? 'accent' : 'brand'} onClick={onTopUp} />
         <ActionTile icon="order" label="Order" />
-        <ActionTile icon="shield" label="Limits" />
+        <ActionTile icon="shield" label="Limits" onClick={onLimits} />
         <ActionTile icon="chart" label="Spend" />
       </div>
     </Card>

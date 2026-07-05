@@ -59,6 +59,9 @@ function initialsOf(name: string): string {
  * exist yet) — now navigates straight to `ChildWalletTopUpScreen.tsx`
  * with the child already known, skipping `ChildSelectScreen`'s own
  * picker entirely.
+ *
+ * FR-032 addition: the per-child "Limits" action tile — same pattern,
+ * now navigates straight to `FoodRestrictionsScreen.tsx`.
  */
 export function MyChildrenScreen() {
   const { user } = useAuth()
@@ -166,6 +169,9 @@ export function MyChildrenScreen() {
                       balance={`$${(c.wallet_balance ?? 0).toFixed(2)}`}
                       onTopUp={() =>
                         navigate(`/parent/wallet/top-up-child?childId=${c.student_id}`)
+                      }
+                      onLimits={() =>
+                        navigate(`/parent/food-restrictions?childId=${c.student_id}`)
                       }
                     />
                   ))}

@@ -70,6 +70,17 @@ describe('PlaceholderDashboard (FR-022 additions)', () => {
     expect(topUpLink).toBeDefined()
   })
 
+  it('shows a "Food restrictions" card linking to the selection screen with the restrictions destination (FR-032)', async () => {
+    await renderAuthenticatedAt('/parent')
+
+    expect(screen.getByText('Food restrictions')).toBeInTheDocument()
+    const links = screen.getAllByRole('link', { name: /choose a child/i })
+    const restrictionsLink = links.find(
+      (link) => link.getAttribute('href') === '/parent/select-child?next=/parent/food-restrictions',
+    )
+    expect(restrictionsLink).toBeDefined()
+  })
+
   it('shows a "My children" card linking to the status list (FR-023)', async () => {
     await renderAuthenticatedAt('/parent')
 

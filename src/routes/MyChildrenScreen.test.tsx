@@ -4,6 +4,7 @@ import { afterEach, describe, expect, it, vi } from 'vitest'
 import { AuthProvider } from '@/features/auth/AuthContext'
 import * as authApi from '@/features/auth/api'
 import * as childSelectionApi from '@/features/child-selection/api'
+import * as foodRestrictionsApi from '@/features/food-restrictions/api'
 import * as myChildrenApi from '@/features/my-children/api'
 import * as permissionsApi from '@/features/permissions/api'
 import { StudentAuthProvider } from '@/features/student-auth/StudentAuthContext'
@@ -13,6 +14,7 @@ vi.mock('@/features/auth/api')
 vi.mock('@/features/my-children/api')
 vi.mock('@/features/permissions/api')
 vi.mock('@/features/child-selection/api')
+vi.mock('@/features/food-restrictions/api')
 
 const PARENT_USER = {
   id: 'u1',
@@ -115,6 +117,28 @@ describe('MyChildrenScreen (Sc061MyChildren)', () => {
     fireEvent.click(screen.getByText('Top up', { exact: true }))
 
     expect(await screen.findByRole('heading', { name: "Top up Noah Thompson's wallet" })).toBeInTheDocument()
+  })
+
+  it('an approved child\'s "Limits" tile navigates straight to the food restrictions screen with the child already known (FR-032)', async () => {
+    vi.mocked(myChildrenApi.listMyChildren).mockResolvedValue([NOAH_APPROVED])
+    vi.mocked(childSelectionApi.getActiveContext).mockResolvedValue([
+      {
+        student_id: 'st1',
+        student_id_code: 'S-41880',
+        full_name: 'Noah Thompson',
+        class_name: 'Year 1 · 1A',
+        school_name: 'Greenvale Primary',
+        wallet_balance: 23.5,
+      },
+    ])
+    vi.mocked(foodRestrictionsApi.listRestrictions).mockResolvedValue([])
+
+    await renderAuthenticatedAt('/parent/children')
+    await screen.findByText('Noah Thompson')
+
+    fireEvent.click(screen.getByText('Limits', { exact: true }))
+
+    expect(await screen.findByText('No restrictions set')).toBeInTheDocument()
   })
 
   it('shows the empty state with an "Add a child" action when there are no linked children', async () => {

@@ -28,6 +28,10 @@ const ROLE_LABEL: Record<string, string> = {
  * FR-023 addition: "My children" card links to the real
  * `MyChildrenScreen.tsx` (Sc061) — the canonical status home the
  * ticket's own field-reconciliation doc names.
+ *
+ * FR-032 addition: "Food restrictions" card routes through
+ * `ChildSelectScreen` with `next=/parent/food-restrictions`, kept as
+ * its own dedicated card rather than folded into any existing one.
  */
 export function PlaceholderDashboard() {
   const { user } = useAuth()
@@ -136,6 +140,24 @@ export function PlaceholderDashboard() {
               </div>
               <Link
                 to="/parent/select-child?next=/parent/wallet/top-up-child"
+                className="rounded-control bg-brand px-4 py-2 text-sm font-semibold text-white hover:bg-brand-deep"
+              >
+                Choose a child
+              </Link>
+            </div>
+          </Card>
+        )}
+        {user?.role === 'parent' && (
+          <Card className="p-5">
+            <div className="flex items-center justify-between gap-3">
+              <div>
+                <div className="font-semibold text-ink">Food restrictions</div>
+                <div className="text-sm text-muted">
+                  Block a product or category for a linked child.
+                </div>
+              </div>
+              <Link
+                to="/parent/select-child?next=/parent/food-restrictions"
                 className="rounded-control bg-brand px-4 py-2 text-sm font-semibold text-white hover:bg-brand-deep"
               >
                 Choose a child
