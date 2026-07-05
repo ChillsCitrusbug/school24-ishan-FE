@@ -22,6 +22,14 @@ export interface UpdateStudentInput {
   class_id: string
 }
 
+export interface StudentCredential {
+  student_pk: string
+  student_name: string
+  class_name: string
+  student_id: string
+  temp_password: string
+}
+
 interface Envelope<T> {
   data: T
   meta: unknown
@@ -50,4 +58,16 @@ export async function updateStudent(studentId: string, input: UpdateStudentInput
 
 export async function removeStudent(studentId: string): Promise<void> {
   await apiClient.delete<Envelope<null>>(`/api/v1/students/${studentId}`)
+}
+
+export async function listCredentials(): Promise<StudentCredential[]> {
+  const response = await apiClient.get<Envelope<StudentCredential[]>>('/api/v1/students/credentials')
+  return response.data.data
+}
+
+export async function exportCredentials(): Promise<Blob> {
+  const response = await apiClient.get('/api/v1/students/credentials/export', {
+    responseType: 'blob',
+  })
+  return response.data as Blob
 }

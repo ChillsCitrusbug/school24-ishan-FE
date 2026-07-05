@@ -36,6 +36,11 @@ function initialsOf(fullName: string): string {
  * only wires Name/Student ID/Class/open; Balance (FR-030+) and Status
  * (FR-014, built later in this same batch) columns are added when
  * those tickets extend this same screen, not invented here.
+ *
+ * A "Credentials" cross-link button (not in the approved mock, which
+ * has no navigation between Sc028/Sc033) was added once FR-013
+ * shipped — without it there would be no in-app way to reach the new
+ * credentials screen.
  */
 export function StudentsListScreen() {
   const { user } = useAuth()
@@ -145,9 +150,17 @@ export function StudentsListScreen() {
               {filteredStudents ? `${filteredStudents.length} students shown.` : 'Loading…'}
             </p>
           </div>
-          <Button leadingIcon="plus" onClick={() => navigate('/school-admin/students/new')}>
-            Add student
-          </Button>
+          <div className="flex gap-2">
+            <Button
+              variant="secondary"
+              onClick={() => navigate('/school-admin/students/credentials')}
+            >
+              Credentials
+            </Button>
+            <Button leadingIcon="plus" onClick={() => navigate('/school-admin/students/new')}>
+              Add student
+            </Button>
+          </div>
         </div>
 
         {students && students.length > 0 && (

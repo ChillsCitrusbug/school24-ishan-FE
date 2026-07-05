@@ -39,6 +39,7 @@ import { StaffListScreen } from './StaffListScreen'
 import { StaffPortalScreen } from './StaffPortalScreen'
 import { StaffProfileScreen } from './StaffProfileScreen'
 import { StaffStatusScreen } from './StaffStatusScreen'
+import { StudentCredentialsScreen } from './StudentCredentialsScreen'
 import { StudentDeleteScreen } from './StudentDeleteScreen'
 import { StudentDetailScreen } from './StudentDetailScreen'
 import { StudentFirstLoginScreen } from './StudentFirstLoginScreen'
@@ -288,6 +289,14 @@ export const routes: RouteObject[] = [
     element: (
       <RequireRole allow={['school_admin']}>
         <StudentFormScreen />
+      </RequireRole>
+    ),
+  },
+  {
+    path: '/school-admin/students/credentials',
+    element: (
+      <RequireRole allow={['school_admin']}>
+        <StudentCredentialsScreen />
       </RequireRole>
     ),
   },
