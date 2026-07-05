@@ -1,6 +1,6 @@
 import type { NavGroup, TabItem } from '@/components'
 
-type StaffSection = 'home' | 'menu' | 'notifications'
+type StaffSection = 'home' | 'menu' | 'approvals' | 'notifications'
 
 /**
  * Staff sidebar/tab nav — ported structurally from the approved
@@ -17,6 +17,13 @@ type StaffSection = 'home' | 'menu' | 'notifications'
  * `active` defaults to `'home'` so every existing caller (which never
  * passed an argument) keeps its exact current highlighting unchanged;
  * FR-024's own Products screens pass `'menu'`.
+ *
+ * FR-020 adds `'approvals'` — no staff-specific approved mock exists
+ * for this nav (Sc043/044's own Design reference names only
+ * `saNav`/`saTabs`), so this reuses the same shared
+ * `/school-admin/approvals` route Staff-with-access already reaches
+ * server-side, matching Menu's own precedent of one shared route
+ * reused across both roles.
  */
 export function staffNavGroups(active: StaffSection = 'home'): NavGroup[] {
   return [
@@ -29,6 +36,12 @@ export function staffNavGroups(active: StaffSection = 'home'): NavGroup[] {
           label: 'Menu',
           active: active === 'menu',
           href: '/school-admin/products',
+        },
+        {
+          icon: 'check',
+          label: 'Approvals',
+          active: active === 'approvals',
+          href: '/school-admin/approvals',
         },
         {
           icon: 'bell',
@@ -50,6 +63,12 @@ export function staffTabs(active: StaffSection = 'home'): TabItem[] {
       label: 'Menu',
       active: active === 'menu',
       href: '/school-admin/products',
+    },
+    {
+      icon: 'check',
+      label: 'Approvals',
+      active: active === 'approvals',
+      href: '/school-admin/approvals',
     },
     { icon: 'bell', label: 'Alerts' },
   ]

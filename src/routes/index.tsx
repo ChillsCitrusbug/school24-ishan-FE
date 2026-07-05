@@ -1,6 +1,7 @@
 import type { RouteObject } from 'react-router-dom'
 import { ActivateAccountScreen } from './ActivateAccountScreen'
 import { AddChildScreen } from './AddChildScreen'
+import { ApprovalQueueScreen } from './ApprovalQueueScreen'
 import { AssignRoleScreen } from './AssignRoleScreen'
 import { ClassDeleteScreen } from './ClassDeleteScreen'
 import { ClassDetailScreen } from './ClassDetailScreen'
@@ -12,6 +13,7 @@ import { ComposeNotificationScreen } from './ComposeNotificationScreen'
 import { ConfirmEmailChangeScreen } from './ConfirmEmailChangeScreen'
 import { ForgotPasswordScreen } from './ForgotPasswordScreen'
 import { RequireRole, RequireStudent } from './guards'
+import { LinkRequestReviewScreen } from './LinkRequestReviewScreen'
 import { LoginScreen } from './LoginScreen'
 import { MenuDisplayOrderScreen } from './MenuDisplayOrderScreen'
 import { OnboardSchoolScreen } from './OnboardSchoolScreen'
@@ -340,6 +342,22 @@ export const routes: RouteObject[] = [
     element: (
       <RequireRole allow={['school_admin']}>
         <StudentStatusScreen />
+      </RequireRole>
+    ),
+  },
+  {
+    path: '/school-admin/approvals',
+    element: (
+      <RequireRole allow={['school_admin', 'staff']}>
+        <ApprovalQueueScreen />
+      </RequireRole>
+    ),
+  },
+  {
+    path: '/school-admin/approvals/:linkId',
+    element: (
+      <RequireRole allow={['school_admin', 'staff']}>
+        <LinkRequestReviewScreen />
       </RequireRole>
     ),
   },

@@ -1,6 +1,13 @@
 import type { NavGroup, TabItem } from '@/components'
 
-type SchoolAdminSection = 'dashboard' | 'students' | 'classes' | 'staff' | 'menu' | 'notifications'
+type SchoolAdminSection =
+  | 'dashboard'
+  | 'students'
+  | 'classes'
+  | 'staff'
+  | 'approvals'
+  | 'menu'
+  | 'notifications'
 
 /**
  * School Admin sidebar/tab nav — ported structurally from the approved
@@ -29,7 +36,12 @@ export function schoolAdminNavGroups(active: SchoolAdminSection = 'dashboard'): 
         { icon: 'children', label: 'Students', active: active === 'students', href: '/school-admin/students' },
         { icon: 'grid', label: 'Classes', active: active === 'classes', href: '/school-admin/classes' },
         { icon: 'user', label: 'Staff', active: active === 'staff', href: '/school-admin/staff' },
-        { icon: 'check', label: 'Approvals' },
+        {
+          icon: 'check',
+          label: 'Approvals',
+          active: active === 'approvals',
+          href: '/school-admin/approvals',
+        },
       ],
     },
     {
@@ -57,7 +69,12 @@ export function schoolAdminTabs(active: SchoolAdminSection = 'dashboard'): TabIt
   return [
     { icon: 'home', label: 'Home', active: active === 'dashboard', href: '/school-admin' },
     { icon: 'children', label: 'Students', active: active === 'students', href: '/school-admin/students' },
-    { icon: 'check', label: 'Approvals' },
+    {
+      icon: 'check',
+      label: 'Approvals',
+      active: active === 'approvals',
+      href: '/school-admin/approvals',
+    },
     { icon: 'order', label: 'Orders' },
     { icon: 'chart', label: 'Reports' },
   ]
