@@ -53,9 +53,10 @@ function initialsOf(fullName: string): string {
  * Field-reconciliation decision #10: the mock hardcodes the School
  * Admin's own nav context even though the ticket covers Staff too —
  * the nav shell here is picked at render time from `user.role`.
- * Decision #11: the availability Toggle and "Arrange" button are
- * FR-026/FR-027's own scope — rendered per the approved design but
- * inert (disabled) until those tickets ship.
+ * Decision #11: the availability Toggle is FR-026's own scope —
+ * rendered per the approved design but inert (disabled) until that
+ * ticket ships. "Arrange" was the same kind of placeholder until
+ * FR-027 shipped and wired it to the new MenuDisplayOrderScreen.tsx.
  *
  * A "Combos" cross-link button (not in the approved mock, which has no
  * navigation between Sc046/Sc048) was added once FR-025 shipped —
@@ -179,7 +180,11 @@ export function ProductsListScreen() {
             <p className="mt-0.5 text-sm text-muted">Toggle availability or edit any item.</p>
           </div>
           <div className="flex gap-2">
-            <Button variant="secondary" leadingIcon="drag" disabled>
+            <Button
+              variant="secondary"
+              leadingIcon="drag"
+              onClick={() => navigate('/school-admin/products/order')}
+            >
               Arrange
             </Button>
             <Button variant="secondary" onClick={() => navigate('/school-admin/combos')}>

@@ -11,6 +11,7 @@ import { ConfirmEmailChangeScreen } from './ConfirmEmailChangeScreen'
 import { ForgotPasswordScreen } from './ForgotPasswordScreen'
 import { RequireRole, RequireStudent } from './guards'
 import { LoginScreen } from './LoginScreen'
+import { MenuDisplayOrderScreen } from './MenuDisplayOrderScreen'
 import { OnboardSchoolScreen } from './OnboardSchoolScreen'
 import { PaProfileScreen } from './PaProfileScreen'
 import { ParentProfileScreen } from './ParentProfileScreen'
@@ -334,6 +335,14 @@ export const routes: RouteObject[] = [
     element: (
       <RequireRole allow={['school_admin', 'staff']}>
         <ProductFormScreen />
+      </RequireRole>
+    ),
+  },
+  {
+    path: '/school-admin/products/order',
+    element: (
+      <RequireRole allow={['school_admin', 'staff']}>
+        <MenuDisplayOrderScreen />
       </RequireRole>
     ),
   },
