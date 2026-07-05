@@ -1,6 +1,6 @@
 import type { NavGroup, TabItem } from '@/components'
 
-type StaffSection = 'home' | 'menu'
+type StaffSection = 'home' | 'menu' | 'notifications'
 
 /**
  * Staff sidebar/tab nav — ported structurally from the approved
@@ -30,7 +30,12 @@ export function staffNavGroups(active: StaffSection = 'home'): NavGroup[] {
           active: active === 'menu',
           href: '/school-admin/products',
         },
-        { icon: 'bell', label: 'Notifications' },
+        {
+          icon: 'bell',
+          label: 'Notifications',
+          active: active === 'notifications',
+          href: '/school-admin/notifications/new',
+        },
       ],
     },
   ]

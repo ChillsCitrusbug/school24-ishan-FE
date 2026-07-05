@@ -7,6 +7,7 @@ import { ClassFormScreen } from './ClassFormScreen'
 import { ClassesListScreen } from './ClassesListScreen'
 import { ComboFormScreen } from './ComboFormScreen'
 import { CombosListScreen } from './CombosListScreen'
+import { ComposeNotificationScreen } from './ComposeNotificationScreen'
 import { ConfirmEmailChangeScreen } from './ConfirmEmailChangeScreen'
 import { ForgotPasswordScreen } from './ForgotPasswordScreen'
 import { RequireRole, RequireStudent } from './guards'
@@ -343,6 +344,14 @@ export const routes: RouteObject[] = [
     element: (
       <RequireRole allow={['school_admin', 'staff']}>
         <MenuDisplayOrderScreen />
+      </RequireRole>
+    ),
+  },
+  {
+    path: '/school-admin/notifications/new',
+    element: (
+      <RequireRole allow={['school_admin', 'staff']}>
+        <ComposeNotificationScreen />
       </RequireRole>
     ),
   },

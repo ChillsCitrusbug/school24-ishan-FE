@@ -1,6 +1,6 @@
 import type { NavGroup, TabItem } from '@/components'
 
-type SchoolAdminSection = 'dashboard' | 'students' | 'classes' | 'staff' | 'menu'
+type SchoolAdminSection = 'dashboard' | 'students' | 'classes' | 'staff' | 'menu' | 'notifications'
 
 /**
  * School Admin sidebar/tab nav — ported structurally from the approved
@@ -41,7 +41,14 @@ export function schoolAdminNavGroups(active: SchoolAdminSection = 'dashboard'): 
       ],
     },
     {
-      items: [{ icon: 'bell', label: 'Notifications' }],
+      items: [
+        {
+          icon: 'bell',
+          label: 'Notifications',
+          active: active === 'notifications',
+          href: '/school-admin/notifications/new',
+        },
+      ],
     },
   ]
 }
