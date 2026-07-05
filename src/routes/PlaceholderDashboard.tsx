@@ -1,5 +1,5 @@
-import { Link } from 'react-router-dom'
-import { AppShell, Sidebar, Topbar, MobileTabBar, Card, EmptyState } from '@/components'
+import { Link, useSearchParams } from 'react-router-dom'
+import { AppShell, Sidebar, Topbar, MobileTabBar, Banner, Card, EmptyState } from '@/components'
 import { useAuth } from '@/features/auth/useAuth'
 
 const ROLE_LABEL: Record<string, string> = {
@@ -17,9 +17,18 @@ const ROLE_LABEL: Record<string, string> = {
  * placeholder. Reuses the same AppShell wiring as every other
  * authenticated screen with a minimal placeholder in place of business
  * content this ticket does not own.
+ *
+ * FR-022 addition: this is `ChildSelectScreen.tsx`'s own default
+ * `next` destination (the real ordering/top-up destinations, FR-037/
+ * FR-029, don't exist yet) — a `?childId=` in the URL after returning
+ * here is rendered as a minimal "context loaded" confirmation banner,
+ * honestly proving the selection mechanism resolved a child rather
+ * than pretending to be the real order/top-up flow.
  */
 export function PlaceholderDashboard() {
   const { user } = useAuth()
+  const [searchParams] = useSearchParams()
+  const selectedChildId = searchParams.get('childId')
   const roleLabel = user ? (ROLE_LABEL[user.role] ?? user.role) : ''
 
   return (
@@ -29,6 +38,12 @@ export function PlaceholderDashboard() {
       mobileNav={<MobileTabBar items={[]} />}
     >
       <div className="mx-auto max-w-6xl space-y-4">
+        {selectedChildId && (
+          <Banner tone="success">
+            Ordering context loaded for the selected child (student ID {selectedChildId}). The
+            actual ordering flow ships with a later ticket.
+          </Banner>
+        )}
         <Card>
           <EmptyState
             icon="clock"
@@ -66,6 +81,24 @@ export function PlaceholderDashboard() {
                 className="rounded-control bg-brand px-4 py-2 text-sm font-semibold text-white hover:bg-brand-deep"
               >
                 Add child
+              </Link>
+            </div>
+          </Card>
+        )}
+        {user?.role === 'parent' && (
+          <Card className="p-5">
+            <div className="flex items-center justify-between gap-3">
+              <div>
+                <div className="font-semibold text-ink">Order for a child</div>
+                <div className="text-sm text-muted">
+                  Choose which linked child you're ordering for.
+                </div>
+              </div>
+              <Link
+                to="/parent/select-child"
+                className="rounded-control bg-brand px-4 py-2 text-sm font-semibold text-white hover:bg-brand-deep"
+              >
+                Choose a child
               </Link>
             </div>
           </Card>

@@ -3,6 +3,7 @@ import { ActivateAccountScreen } from './ActivateAccountScreen'
 import { AddChildScreen } from './AddChildScreen'
 import { ApprovalQueueScreen } from './ApprovalQueueScreen'
 import { AssignRoleScreen } from './AssignRoleScreen'
+import { ChildSelectScreen } from './ChildSelectScreen'
 import { ClassDeleteScreen } from './ClassDeleteScreen'
 import { ClassDetailScreen } from './ClassDetailScreen'
 import { ClassFormScreen } from './ClassFormScreen'
@@ -511,6 +512,14 @@ export const routes: RouteObject[] = [
     element: (
       <RequireRole allow={['parent']}>
         <AddChildScreen />
+      </RequireRole>
+    ),
+  },
+  {
+    path: '/parent/select-child',
+    element: (
+      <RequireRole allow={['parent']}>
+        <ChildSelectScreen />
       </RequireRole>
     ),
   },
