@@ -11,6 +11,7 @@ import {
   Avatar,
   Banner,
   InfoRow,
+  StatusPill,
   Spinner,
 } from '@/components'
 import { getStudent, type Student } from '@/features/students/api'
@@ -31,12 +32,19 @@ function initialsOf(fullName: string): string {
  * SC-096 · Student Detail (read-only record / action hub) — School
  * Admin (FR-012). Reuses the approved Sc096StudentDetail.tsx structure.
  *
- * Field-reconciliation decision #10: this ticket only wires "Edit
- * details" and "Remove student" — "Reset credential" (FR-051, not in
- * this batch), "Manage guardians" (FR-019/021, not in this batch), and
- * "Deactivate/Reactivate" (FR-014, built later in this same batch) are
- * omitted entirely rather than rendered as dead buttons, matching the
- * `schoolAdminNav.ts` precedent for not-yet-built actions.
+ * Field-reconciliation decision #10 (FR-012): this ticket only wired
+ * "Edit details" and "Remove student" — "Reset credential" (FR-051,
+ * not in this batch) and "Manage guardians" (FR-019/021, not in this
+ * batch) remain omitted; "Deactivate/Reactivate" is now wired for
+ * real, FR-014's own addition, once its own routed confirm screen
+ * (StudentStatusScreen.tsx) existed to navigate to.
+ *
+ * Round 1 review finding (Major, FR-014): FR-014 deliberately widened
+ * this screen's own read access to inactive students (previously a
+ * 404), but PUT/DELETE deliberately did NOT — so "Edit details"/
+ * "Remove student" are now hidden for an inactive student, avoiding a
+ * dead-end form that would 404 on submit. Only "Reactivate" remains
+ * for an inactive student.
  */
 export function StudentDetailScreen() {
   const { user } = useAuth()
@@ -105,13 +113,22 @@ export function StudentDetailScreen() {
         {student && (
           <>
             <div className="flex items-center gap-4">
-              <Avatar initials={initialsOf(student.full_name)} tone="brand" size="lg" />
+              <Avatar
+                initials={initialsOf(student.full_name)}
+                tone={student.is_active ? 'brand' : 'neutral'}
+                size="lg"
+              />
               <div>
                 <h1 className="text-2xl font-bold text-ink">{student.full_name}</h1>
                 <p className="mt-0.5 text-sm text-muted">
                   {student.student_id} · {classLabel}
                 </p>
               </div>
+              <StatusPill
+                tone={student.is_active ? 'success' : 'neutral'}
+                label={student.is_active ? 'Active' : 'Inactive'}
+                className="ml-auto"
+              />
             </div>
 
             <Card className="mt-4">
@@ -121,27 +138,39 @@ export function StudentDetailScreen() {
               <div className="divide-y divide-line">
                 <InfoRow label="Student ID" value={student.student_id} />
                 <InfoRow label="Class" value={classLabel} />
+                <InfoRow label="Status" value={student.is_active ? 'Active' : 'Inactive'} />
               </div>
             </Card>
 
             <Card className="mt-4 p-4">
               <div className="mb-3 text-sm font-semibold text-ink">Actions</div>
               <div className="flex flex-wrap gap-2">
+                {student.is_active && (
+                  <Button
+                    variant="secondary"
+                    size="sm"
+                    leadingIcon="user"
+                    onClick={() => navigate(`/school-admin/students/${student.id}/edit`)}
+                  >
+                    Edit details
+                  </Button>
+                )}
                 <Button
                   variant="secondary"
                   size="sm"
-                  leadingIcon="user"
-                  onClick={() => navigate(`/school-admin/students/${student.id}/edit`)}
+                  onClick={() => navigate(`/school-admin/students/${student.id}/status`)}
                 >
-                  Edit details
+                  {student.is_active ? 'Deactivate' : 'Reactivate'}
                 </Button>
-                <Button
-                  variant="danger"
-                  size="sm"
-                  onClick={() => navigate(`/school-admin/students/${student.id}/delete`)}
-                >
-                  Remove student
-                </Button>
+                {student.is_active && (
+                  <Button
+                    variant="danger"
+                    size="sm"
+                    onClick={() => navigate(`/school-admin/students/${student.id}/delete`)}
+                  >
+                    Remove student
+                  </Button>
+                )}
               </div>
             </Card>
           </>

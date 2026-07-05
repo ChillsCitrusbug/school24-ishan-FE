@@ -79,9 +79,45 @@ describe('StudentDetailScreen', () => {
     await screen.findByText('Liam Carter')
 
     expect(screen.getByRole('button', { name: /edit details/i })).toBeInTheDocument()
+    expect(screen.getByRole('button', { name: /^deactivate$/i })).toBeInTheDocument()
     expect(screen.getByRole('button', { name: /remove student/i })).toBeInTheDocument()
     expect(screen.queryByRole('button', { name: /reset credential/i })).not.toBeInTheDocument()
     expect(screen.queryByRole('button', { name: /manage guardians/i })).not.toBeInTheDocument()
+  })
+
+  it('shows the student\'s current status, and the action button label matches it', async () => {
+    vi.mocked(studentsApi.getStudent).mockResolvedValue({ ...STUDENT, is_active: false })
+    vi.mocked(classesApi.listClasses).mockResolvedValue([CLASS_A])
+
+    await renderAuthenticatedAt('/school-admin/students/s1')
+    await screen.findByText('Liam Carter')
+
+    expect(screen.getAllByText('Inactive').length).toBeGreaterThan(0)
+    expect(screen.getByRole('button', { name: /^reactivate$/i })).toBeInTheDocument()
+  })
+
+  it('hides Edit details and Remove student for an inactive student (round 1 review finding, Major)', async () => {
+    vi.mocked(studentsApi.getStudent).mockResolvedValue({ ...STUDENT, is_active: false })
+    vi.mocked(classesApi.listClasses).mockResolvedValue([CLASS_A])
+
+    await renderAuthenticatedAt('/school-admin/students/s1')
+    await screen.findByText('Liam Carter')
+
+    expect(screen.queryByRole('button', { name: /edit details/i })).not.toBeInTheDocument()
+    expect(screen.queryByRole('button', { name: /remove student/i })).not.toBeInTheDocument()
+    expect(screen.getByRole('button', { name: /^reactivate$/i })).toBeInTheDocument()
+  })
+
+  it('"Deactivate"/"Reactivate" navigates to the status-confirmation screen', async () => {
+    vi.mocked(studentsApi.getStudent).mockResolvedValue(STUDENT)
+    vi.mocked(classesApi.listClasses).mockResolvedValue([CLASS_A])
+
+    await renderAuthenticatedAt('/school-admin/students/s1')
+    await screen.findByText('Liam Carter')
+
+    fireEvent.click(screen.getByRole('button', { name: /^deactivate$/i }))
+
+    expect(await screen.findByText('Deactivate Liam Carter?')).toBeInTheDocument()
   })
 
   it('"Edit details" navigates to the edit form', async () => {

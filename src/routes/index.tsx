@@ -48,6 +48,7 @@ import { StudentLoginScreen } from './StudentLoginScreen'
 import { StudentPlaceholderHome } from './StudentPlaceholderHome'
 import { StudentProfileScreen } from './StudentProfileScreen'
 import { StudentTxnHistoryScreen } from './StudentTxnHistoryScreen'
+import { StudentStatusScreen } from './StudentStatusScreen'
 import { StudentWalletScreen } from './StudentWalletScreen'
 import { StudentWalletTopUpScreen } from './StudentWalletTopUpScreen'
 import { StudentsListScreen } from './StudentsListScreen'
@@ -321,6 +322,14 @@ export const routes: RouteObject[] = [
     element: (
       <RequireRole allow={['school_admin']}>
         <StudentDeleteScreen />
+      </RequireRole>
+    ),
+  },
+  {
+    path: '/school-admin/students/:studentId/status',
+    element: (
+      <RequireRole allow={['school_admin']}>
+        <StudentStatusScreen />
       </RequireRole>
     ),
   },

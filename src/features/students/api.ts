@@ -30,6 +30,23 @@ export interface StudentCredential {
   temp_password: string
 }
 
+export interface PaginationMeta {
+  page: number
+  page_size: number
+  total: number
+  total_pages: number
+}
+
+export interface ListStudentsParams {
+  class_id?: string
+  student_id?: string
+  name?: string
+  sort_by?: 'full_name' | 'student_id' | 'class'
+  sort_dir?: 'asc' | 'desc'
+  page?: number
+  page_size?: number
+}
+
 interface Envelope<T> {
   data: T
   meta: unknown
@@ -41,8 +58,21 @@ export async function createStudent(input: CreateStudentInput): Promise<Enrolled
   return response.data.data
 }
 
-export async function listStudents(): Promise<Student[]> {
-  const response = await apiClient.get<Envelope<Student[]>>('/api/v1/students')
+export async function listStudents(
+  params: ListStudentsParams = {},
+): Promise<{ data: Student[]; meta: PaginationMeta }> {
+  const response = await apiClient.get<Envelope<Student[]> & { meta: PaginationMeta }>(
+    '/api/v1/students',
+    { params },
+  )
+  return { data: response.data.data, meta: response.data.meta }
+}
+
+export async function setStudentStatus(studentId: string, isActive: boolean): Promise<Student> {
+  const response = await apiClient.patch<Envelope<Student>>(
+    `/api/v1/students/${studentId}/status`,
+    { is_active: isActive },
+  )
   return response.data.data
 }
 

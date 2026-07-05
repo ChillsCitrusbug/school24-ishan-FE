@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
+import { useCallback, useEffect, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import {
   AppShell,
@@ -12,15 +12,25 @@ import {
   EmptyState,
   ErrorState,
   Icon,
+  Avatar,
   Select,
+  Input,
+  StatusPill,
   Spinner,
   type Column,
 } from '@/components'
-import { listStudents, type Student } from '@/features/students/api'
+import {
+  listStudents,
+  type Student,
+  type ListStudentsParams,
+} from '@/features/students/api'
 import { listClasses, type SchoolClass } from '@/features/classes/api'
 import { useAuth } from '@/features/auth/useAuth'
 import { extractErrorMessage } from '@/lib/api-error'
 import { schoolAdminNavGroups, schoolAdminTabs } from './schoolAdminNav'
+
+const PAGE_SIZE = 20
+const DEBOUNCE_MS = 300
 
 function initialsOf(fullName: string): string {
   const parts = fullName.trim().split(/\s+/)
@@ -31,11 +41,17 @@ function initialsOf(fullName: string): string {
 }
 
 /**
- * SC-028 · Students List — School Admin (FR-012). Shared across
- * FR-012/013/014 per the design's own screen inventory — this ticket
- * only wires Name/Student ID/Class/open; Balance (FR-030+) and Status
- * (FR-014, built later in this same batch) columns are added when
- * those tickets extend this same screen, not invented here.
+ * SC-028 · Students List — School Admin (FR-012/013/014). Reuses the
+ * approved Sc028Students.tsx structure — Name (with Avatar)/Student
+ * ID/Class/Status/open columns, a Class filter dropdown.
+ *
+ * Field-reconciliation decision #6 (FR-014): Student ID and Student
+ * Name filter inputs are added on the page body — the mock's own
+ * Topbar search field is purely decorative everywhere in this
+ * codebase (no `onSearch` prop exists on the shared `Topbar`
+ * component), so it was never a real option for wiring these 2
+ * required filters. Sort controls (2 selects) are likewise not in the
+ * mock but required by this ticket's own DoD ("sortable").
  *
  * A "Credentials" cross-link button (not in the approved mock, which
  * has no navigation between Sc028/Sc033) was added once FR-013
@@ -46,52 +62,76 @@ export function StudentsListScreen() {
   const { user } = useAuth()
   const navigate = useNavigate()
   const [students, setStudents] = useState<Student[] | null>(null)
+  const [total, setTotal] = useState(0)
+  const [totalPages, setTotalPages] = useState(0)
   const [classes, setClasses] = useState<SchoolClass[]>([])
   const [classFilter, setClassFilter] = useState('')
+  const [studentIdInput, setStudentIdInput] = useState('')
+  const [nameInput, setNameInput] = useState('')
+  const [studentIdFilter, setStudentIdFilter] = useState('')
+  const [nameFilter, setNameFilter] = useState('')
+  const [sortBy, setSortBy] = useState<ListStudentsParams['sort_by']>('full_name')
+  const [sortDir, setSortDir] = useState<ListStudentsParams['sort_dir']>('asc')
+  const [page, setPage] = useState(1)
   const [error, setError] = useState<string | null>(null)
-  const mountedRef = useRef(true)
 
   useEffect(() => {
-    mountedRef.current = true
-    return () => {
-      mountedRef.current = false
-    }
+    listClasses().then(setClasses).catch(() => undefined)
   }, [])
+
+  useEffect(() => {
+    const timeout = setTimeout(() => {
+      setStudentIdFilter(studentIdInput)
+      setPage(1)
+    }, DEBOUNCE_MS)
+    return () => clearTimeout(timeout)
+  }, [studentIdInput])
+
+  useEffect(() => {
+    const timeout = setTimeout(() => {
+      setNameFilter(nameInput)
+      setPage(1)
+    }, DEBOUNCE_MS)
+    return () => clearTimeout(timeout)
+  }, [nameInput])
 
   const load = useCallback(() => {
     setError(null)
-    Promise.all([listStudents(), listClasses()])
-      .then(([studentsResult, classesResult]) => {
-        if (mountedRef.current) {
-          setStudents(studentsResult)
-          setClasses(classesResult)
-        }
+    listStudents({
+      class_id: classFilter || undefined,
+      student_id: studentIdFilter || undefined,
+      name: nameFilter || undefined,
+      sort_by: sortBy,
+      sort_dir: sortDir,
+      page,
+      page_size: PAGE_SIZE,
+    })
+      .then(({ data, meta }) => {
+        setStudents(data)
+        setTotal(meta.total)
+        setTotalPages(meta.total_pages)
       })
       .catch((err: unknown) => {
-        if (mountedRef.current) setError(extractErrorMessage(err, 'Something went wrong.'))
+        setError(extractErrorMessage(err, 'Something went wrong.'))
       })
-  }, [])
+  }, [classFilter, studentIdFilter, nameFilter, sortBy, sortDir, page])
 
   useEffect(() => {
     load()
   }, [load])
 
-  const classLabelById = useMemo(
-    () => new Map(classes.map((c) => [c.id, c.label])),
-    [classes],
-  )
-
-  const filteredStudents = useMemo(() => {
-    if (!students) return null
-    if (!classFilter) return students
-    return students.filter((s) => s.class_id === classFilter)
-  }, [students, classFilter])
+  const classLabelById = new Map(classes.map((c) => [c.id, c.label]))
 
   const columns: Column<Student>[] = [
     {
       key: 'name',
       header: 'Name',
-      cell: (s) => <span className="font-medium text-ink">{s.full_name}</span>,
+      cell: (s) => (
+        <span className="inline-flex items-center gap-2">
+          <Avatar initials={initialsOf(s.full_name)} tone="brand" size="sm" />
+          <span className="font-medium text-ink">{s.full_name}</span>
+        </span>
+      ),
     },
     {
       key: 'student_id',
@@ -102,6 +142,16 @@ export function StudentsListScreen() {
       key: 'class',
       header: 'Class',
       cell: (s) => classLabelById.get(s.class_id) ?? '—',
+    },
+    {
+      key: 'status',
+      header: 'Status',
+      cell: (s) => (
+        <StatusPill
+          tone={s.is_active ? 'success' : 'neutral'}
+          label={s.is_active ? 'Active' : 'Inactive'}
+        />
+      ),
     },
     {
       key: 'open',
@@ -119,6 +169,8 @@ export function StudentsListScreen() {
       ),
     },
   ]
+
+  const hasAnyFilter = Boolean(classFilter || studentIdInput || nameInput)
 
   return (
     <AppShell
@@ -147,7 +199,7 @@ export function StudentsListScreen() {
           <div>
             <h1 className="text-2xl font-bold text-ink">Students</h1>
             <p className="mt-0.5 text-sm text-muted">
-              {filteredStudents ? `${filteredStudents.length} students shown.` : 'Loading…'}
+              {students ? `${students.length} of ${total} students shown.` : 'Loading…'}
             </p>
           </div>
           <div className="flex gap-2">
@@ -163,12 +215,19 @@ export function StudentsListScreen() {
           </div>
         </div>
 
-        {students && students.length > 0 && (
-          <div className="mt-4 max-w-xs">
+        <div className="mt-4 flex flex-wrap items-end gap-3">
+          <div className="w-56">
+            <label className="mb-1.5 block text-sm font-medium text-ink" htmlFor="class-filter">
+              Class
+            </label>
             <Select
+              id="class-filter"
               aria-label="Filter by class"
               value={classFilter}
-              onChange={(e) => setClassFilter(e.target.value)}
+              onChange={(e) => {
+                setClassFilter(e.target.value)
+                setPage(1)
+              }}
             >
               <option value="">All classes</option>
               {classes.map((c) => (
@@ -178,7 +237,58 @@ export function StudentsListScreen() {
               ))}
             </Select>
           </div>
-        )}
+          <div className="w-48">
+            <label className="mb-1.5 block text-sm font-medium text-ink" htmlFor="student-id-filter">
+              Student ID
+            </label>
+            <Input
+              id="student-id-filter"
+              placeholder="e.g. S-12345"
+              value={studentIdInput}
+              onChange={(e) => setStudentIdInput(e.target.value)}
+            />
+          </div>
+          <div className="w-56">
+            <label className="mb-1.5 block text-sm font-medium text-ink" htmlFor="name-filter">
+              Student Name
+            </label>
+            <Input
+              id="name-filter"
+              placeholder="e.g. Ada"
+              value={nameInput}
+              onChange={(e) => setNameInput(e.target.value)}
+            />
+          </div>
+          <div className="w-44">
+            <label className="mb-1.5 block text-sm font-medium text-ink" htmlFor="sort-by">
+              Sort by
+            </label>
+            <Select
+              id="sort-by"
+              aria-label="Sort by"
+              value={sortBy}
+              onChange={(e) => setSortBy(e.target.value as ListStudentsParams['sort_by'])}
+            >
+              <option value="full_name">Name</option>
+              <option value="student_id">Student ID</option>
+              <option value="class">Class</option>
+            </Select>
+          </div>
+          <div className="w-36">
+            <label className="mb-1.5 block text-sm font-medium text-ink" htmlFor="sort-dir">
+              Order
+            </label>
+            <Select
+              id="sort-dir"
+              aria-label="Sort direction"
+              value={sortDir}
+              onChange={(e) => setSortDir(e.target.value as ListStudentsParams['sort_dir'])}
+            >
+              <option value="asc">Ascending</option>
+              <option value="desc">Descending</option>
+            </Select>
+          </div>
+        </div>
 
         {students === null && !error ? (
           <div role="status" aria-label="Loading students" className="mt-10 flex justify-center text-muted">
@@ -199,19 +309,52 @@ export function StudentsListScreen() {
           <Card className="mt-6">
             <EmptyState
               icon="children"
-              title="No students yet"
-              message="Enrol your first student to get started."
+              title={hasAnyFilter ? 'No students match these filters' : 'No students yet'}
+              message={
+                hasAnyFilter
+                  ? 'Try adjusting the filters above.'
+                  : 'Enrol your first student to get started.'
+              }
               action={
-                <Button leadingIcon="plus" onClick={() => navigate('/school-admin/students/new')}>
-                  Add student
-                </Button>
+                hasAnyFilter ? undefined : (
+                  <Button leadingIcon="plus" onClick={() => navigate('/school-admin/students/new')}>
+                    Add student
+                  </Button>
+                )
               }
             />
           </Card>
         ) : (
-          <Card className="mt-5">
-            <DataTable columns={columns} rows={filteredStudents ?? []} rowKey={(s) => s.id} />
-          </Card>
+          <>
+            <Card className="mt-5">
+              <DataTable columns={columns} rows={students ?? []} rowKey={(s) => s.id} />
+            </Card>
+            {totalPages > 1 && (
+              <div className="mt-3 flex items-center justify-between text-sm text-muted">
+                <span>
+                  Page {page} of {totalPages}
+                </span>
+                <div className="flex gap-2">
+                  <Button
+                    variant="secondary"
+                    size="sm"
+                    disabled={page <= 1}
+                    onClick={() => setPage((p) => Math.max(1, p - 1))}
+                  >
+                    Previous
+                  </Button>
+                  <Button
+                    variant="secondary"
+                    size="sm"
+                    disabled={page >= totalPages}
+                    onClick={() => setPage((p) => Math.min(totalPages, p + 1))}
+                  >
+                    Next
+                  </Button>
+                </div>
+              </div>
+            )}
+          </>
         )}
       </div>
     </AppShell>

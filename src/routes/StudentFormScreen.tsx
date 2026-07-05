@@ -54,6 +54,7 @@ export function StudentFormScreen() {
   const [classes, setClasses] = useState<SchoolClass[]>([])
   const [error, setError] = useState<string | null>(null)
   const [loadError, setLoadError] = useState<string | null>(null)
+  const [inactiveError, setInactiveError] = useState<string | null>(null)
   const [isSubmitting, setIsSubmitting] = useState(false)
   const [isLoading, setIsLoading] = useState(true)
   const [successState, setSuccessState] = useState<EnrolledStudent | null>(null)
@@ -71,10 +72,22 @@ export function StudentFormScreen() {
     if (studentId) {
       loaders.push(
         getStudent(studentId).then((result) => {
-          if (!cancelled) {
-            setFullName(result.full_name)
-            setClassId(result.class_id)
+          if (cancelled) return
+          if (!result.is_active) {
+            // Round 2 review finding (Minor): getStudent now allows an
+            // inactive student (FR-014 decision #2), but edits are
+            // still blocked server-side — reachable by a bookmarked/
+            // typed URL or a stale tab even with the Detail screen's
+            // own Edit button hidden. Surfaced via its own state (not
+            // the generic loadError path, which runs API errors
+            // through extractErrorMessage and would show a misleading
+            // "connection" message for what is really a clean,
+            // expected business state, not a failure).
+            setInactiveError('This student is deactivated and can’t be edited. Reactivate them first.')
+            return
           }
+          setFullName(result.full_name)
+          setClassId(result.class_id)
         }),
       )
     }
@@ -146,6 +159,10 @@ export function StudentFormScreen() {
           <div role="status" aria-label="Loading" className="mt-10 flex justify-center text-muted">
             <Spinner className="h-6 w-6" />
           </div>
+        ) : inactiveError ? (
+          <Card className="p-5">
+            <Banner tone="warning">{inactiveError}</Banner>
+          </Card>
         ) : loadError ? (
           <Card className="p-5">
             <Banner tone="danger">{loadError}</Banner>

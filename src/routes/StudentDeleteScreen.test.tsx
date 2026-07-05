@@ -58,11 +58,13 @@ const STUDENT: studentsApi.Student = {
   is_active: true,
 }
 
+const EMPTY_META = { page: 1, page_size: 20, total: 0, total_pages: 0 }
+
 describe('StudentDeleteScreen', () => {
   it('shows a single confirm state (no "blocked" variant) and removes on confirm', async () => {
     vi.mocked(studentsApi.getStudent).mockResolvedValue(STUDENT)
     vi.mocked(studentsApi.removeStudent).mockResolvedValue(undefined)
-    vi.mocked(studentsApi.listStudents).mockResolvedValue([])
+    vi.mocked(studentsApi.listStudents).mockResolvedValue({ data: [], meta: EMPTY_META })
     vi.mocked(classesApi.listClasses).mockResolvedValue([])
 
     await renderAuthenticatedAt('/school-admin/students/s1/delete')
@@ -79,7 +81,10 @@ describe('StudentDeleteScreen', () => {
 
   it('Cancel returns to the students list without removing', async () => {
     vi.mocked(studentsApi.getStudent).mockResolvedValue(STUDENT)
-    vi.mocked(studentsApi.listStudents).mockResolvedValue([STUDENT])
+    vi.mocked(studentsApi.listStudents).mockResolvedValue({
+      data: [STUDENT],
+      meta: { ...EMPTY_META, total: 1, total_pages: 1 },
+    })
     vi.mocked(classesApi.listClasses).mockResolvedValue([])
 
     await renderAuthenticatedAt('/school-admin/students/s1/delete')
@@ -103,5 +108,15 @@ describe('StudentDeleteScreen', () => {
     expect(
       await screen.findByText('Something went wrong. Please check your connection and try again.'),
     ).toBeInTheDocument()
+  })
+
+  it('shows a clear message instead of a submittable confirm for an already-inactive student (round 2 review finding, Minor)', async () => {
+    vi.mocked(studentsApi.getStudent).mockResolvedValue({ ...STUDENT, is_active: false })
+
+    await renderAuthenticatedAt('/school-admin/students/s1/delete')
+
+    expect(await screen.findByText('This student is already deactivated.')).toBeInTheDocument()
+    expect(screen.queryByText('Remove Liam Carter?')).not.toBeInTheDocument()
+    expect(screen.queryByRole('button', { name: /remove student/i })).not.toBeInTheDocument()
   })
 })

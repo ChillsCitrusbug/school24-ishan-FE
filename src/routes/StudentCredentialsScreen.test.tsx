@@ -132,7 +132,10 @@ describe('StudentCredentialsScreen (Sc033Credentials)', () => {
   })
 
   it('the "Credentials" button on the students list navigates here', async () => {
-    vi.mocked(studentsApi.listStudents).mockResolvedValue([])
+    vi.mocked(studentsApi.listStudents).mockResolvedValue({
+      data: [],
+      meta: { page: 1, page_size: 20, total: 0, total_pages: 0 },
+    })
     vi.mocked(classesApi.listClasses).mockResolvedValue([])
     vi.mocked(studentsApi.listCredentials).mockResolvedValue([])
 

@@ -12,7 +12,7 @@ import {
   Icon,
   Spinner,
 } from '@/components'
-import { getStudent, removeStudent, type Student } from '@/features/students/api'
+import { getStudent, setStudentStatus, type Student } from '@/features/students/api'
 import { useAuth } from '@/features/auth/useAuth'
 import { extractErrorMessage } from '@/lib/api-error'
 import { schoolAdminNavGroups, schoolAdminTabs } from './schoolAdminNav'
@@ -26,39 +26,30 @@ function initialsOf(fullName: string): string {
 }
 
 /**
- * SC-031 · Remove Student Confirmation — School Admin (FR-012 Scenario
- * 4). Unlike ClassDeleteScreen.tsx there is no "blocked" variant here —
- * Sc031RemoveStudent.tsx models only a single confirm state (removing a
- * student has no analogous "still has X" gate).
+ * SC-032 · Student Activate/Deactivate Confirmation — School Admin
+ * (FR-014). Reuses the approved Sc032StudentStatus.tsx structure — a
+ * separate routed confirmation screen (matching FR-016's own
+ * StaffStatusScreen.tsx precedent), NOT an inline dialog on the detail
+ * screen. Both deactivate AND reactivate go through this same confirm
+ * step, matching the mock's own two states exactly. This is additive
+ * to (not a replacement of) FR-012's own already-shipped "Remove
+ * student" flow — field-reconciliation decision #3.
  */
-export function StudentDeleteScreen() {
+export function StudentStatusScreen() {
   const { user } = useAuth()
   const navigate = useNavigate()
   const { studentId } = useParams<{ studentId: string }>()
   const [student, setStudent] = useState<Student | null>(null)
   const [loadError, setLoadError] = useState<string | null>(null)
-  const [inactiveError, setInactiveError] = useState<string | null>(null)
   const [error, setError] = useState<string | null>(null)
-  const [isRemoving, setIsRemoving] = useState(false)
+  const [isSubmitting, setIsSubmitting] = useState(false)
 
   useEffect(() => {
     if (!studentId) return
     let cancelled = false
     getStudent(studentId)
       .then((result) => {
-        if (cancelled) return
-        if (!result.is_active) {
-          // Round 2 review finding (Minor) — getStudent now allows an
-          // inactive student (FR-014 decision #2), but removal is
-          // still blocked server-side — reachable by a bookmarked/
-          // typed URL even with the Detail screen's own Remove button
-          // hidden. Surfaced via its own state, not the generic
-          // loadError path (which would show a misleading "connection"
-          // message for what is really a clean, expected state).
-          setInactiveError('This student is already deactivated.')
-          return
-        }
-        setStudent(result)
+        if (!cancelled) setStudent(result)
       })
       .catch((err: unknown) => {
         if (!cancelled) setLoadError(extractErrorMessage(err, 'This student could not be found.'))
@@ -68,16 +59,18 @@ export function StudentDeleteScreen() {
     }
   }, [studentId])
 
-  async function handleRemove() {
-    if (!studentId) return
+  const isDeactivating = student?.is_active !== false
+
+  async function handleConfirm() {
+    if (!studentId || !student) return
     setError(null)
-    setIsRemoving(true)
+    setIsSubmitting(true)
     try {
-      await removeStudent(studentId)
-      navigate('/school-admin/students', { replace: true })
+      await setStudentStatus(studentId, !isDeactivating)
+      navigate(`/school-admin/students/${studentId}`, { replace: true })
     } catch (err) {
-      setError(extractErrorMessage(err, 'This student could not be removed.'))
-      setIsRemoving(false)
+      setError(extractErrorMessage(err, 'This student’s status could not be changed.'))
+      setIsSubmitting(false)
     }
   }
 
@@ -99,16 +92,10 @@ export function StudentDeleteScreen() {
       mobileNav={<MobileTabBar items={schoolAdminTabs('students')} />}
     >
       <div className="mx-auto max-w-md pt-6">
-        {!student && !loadError && !inactiveError && (
+        {!student && !loadError && (
           <div role="status" aria-label="Loading student" className="flex justify-center text-muted">
             <Spinner className="h-6 w-6" />
           </div>
-        )}
-
-        {inactiveError && (
-          <Card className="p-8">
-            <Banner tone="warning">{inactiveError}</Banner>
-          </Card>
         )}
 
         {loadError && (
@@ -119,10 +106,16 @@ export function StudentDeleteScreen() {
 
         {student && (
           <Card className="p-8 text-center">
-            <span className="mx-auto grid h-16 w-16 place-items-center rounded-full bg-danger-soft text-danger">
-              <Icon name="close" className="h-8 w-8" strokeWidth={2} />
+            <span
+              className={`mx-auto grid h-16 w-16 place-items-center rounded-full ${
+                isDeactivating ? 'bg-warning-soft text-warning' : 'bg-success-soft text-success'
+              }`}
+            >
+              <Icon name={isDeactivating ? 'lock' : 'check'} className="h-8 w-8" strokeWidth={2} />
             </span>
-            <h1 className="mt-4 text-xl font-bold text-ink">Remove {student.full_name}?</h1>
+            <h1 className="mt-4 text-xl font-bold text-ink">
+              {isDeactivating ? `Deactivate ${student.full_name}?` : `Reactivate ${student.full_name}?`}
+            </h1>
 
             {error && (
               <div className="mt-3">
@@ -131,17 +124,22 @@ export function StudentDeleteScreen() {
             )}
 
             <p className="mx-auto mt-2 max-w-sm text-sm text-muted">
-              This permanently removes the student and their record, and immediately blocks
-              their sign-in. This can&rsquo;t be undone.
+              {isDeactivating
+                ? `${student.full_name} won’t be able to sign in or order until reactivated. Their guardians will be notified by email.`
+                : `${student.full_name} will be able to sign in and order again. Their guardians will be notified by email.`}
             </p>
             <div className="mt-5 flex flex-col gap-2">
-              <Button variant="danger" loading={isRemoving} onClick={handleRemove}>
-                Remove student
+              <Button
+                variant={isDeactivating ? 'danger' : 'primary'}
+                loading={isSubmitting}
+                onClick={handleConfirm}
+              >
+                {isDeactivating ? 'Deactivate & email' : 'Reactivate & email'}
               </Button>
               <Button
                 variant="secondary"
-                onClick={() => navigate('/school-admin/students')}
-                disabled={isRemoving}
+                onClick={() => navigate(`/school-admin/students/${student.id}`)}
+                disabled={isSubmitting}
               >
                 Cancel
               </Button>

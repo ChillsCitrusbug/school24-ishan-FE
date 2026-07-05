@@ -156,4 +156,22 @@ describe('StudentFormScreen — edit (Sc030EditStudent)', () => {
       }),
     )
   })
+
+  it('shows a clear message instead of a submittable form for an inactive student (round 2 review finding, Minor)', async () => {
+    vi.mocked(classesApi.listClasses).mockResolvedValue([CLASS_A, CLASS_B])
+    vi.mocked(studentsApi.getStudent).mockResolvedValue({
+      id: 's1',
+      student_id: 'S-40231',
+      full_name: 'Liam Carter',
+      class_id: 'c1',
+      is_active: false,
+    })
+
+    await renderAuthenticatedAt('/school-admin/students/s1/edit')
+
+    expect(
+      await screen.findByText(/deactivated and can.t be edited/i),
+    ).toBeInTheDocument()
+    expect(screen.queryByLabelText('Student name')).not.toBeInTheDocument()
+  })
 })
