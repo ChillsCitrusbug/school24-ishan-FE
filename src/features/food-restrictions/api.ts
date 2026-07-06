@@ -47,3 +47,7 @@ export async function searchCatalog(studentId: string, query: string): Promise<C
   )
   return response.data.data
 }
+
+export async function removeRestriction(studentId: string, restrictionId: string): Promise<void> {
+  await apiClient.delete(`/api/v1/students/${studentId}/food-restrictions/${restrictionId}`)
+}

@@ -80,6 +80,6 @@ test('sc-067 food restrictions, a real product and category are blocked for an a
   await page.getByRole('button', { name: /^add$/i }).click()
   await expect(page.getByText('This item or category is already blocked for this child.')).toBeVisible()
 
-  // No "unblock" control anywhere — removal is FR-034, out of scope.
-  await expect(page.getByLabel(/unblock/i)).toHaveCount(0)
+  // Removal (the "unblock" control) is FR-034's own real flow check —
+  // see fr-034-visual.spec.ts.
 })

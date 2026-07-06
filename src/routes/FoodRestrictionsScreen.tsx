@@ -6,6 +6,7 @@ import {
   Button,
   Card,
   CardHeader,
+  Dialog,
   EmptyState,
   ErrorState,
   Icon,
@@ -30,10 +31,15 @@ import { extractErrorMessage } from '@/lib/api-error'
  * `ChildSelectScreen.tsx` mechanism, or directly from a per-child
  * action already knowing the id.
  *
- * The mock's own per-item "Unblock" (×) affordance is deliberately
- * OMITTED — removal is FR-034's own separate, explicitly out-of-scope
- * ticket; rendering a control that does nothing would be a real,
- * user-visible half-built affordance. Wired back in when FR-034 ships.
+ * FR-034 wires the mock's own per-item "Unblock" (×) affordance back
+ * in — deliberately omitted when FR-032 first built this screen, since
+ * removal was a separate, explicitly out-of-scope ticket at the time.
+ * Gated behind a destructive-confirm Dialog (this ticket's own DoD),
+ * same tone/footer pattern as `SchoolDetailScreen.tsx`'s own
+ * deactivate-confirm (FR-008) — the approved mock shows the "×" button
+ * itself but no confirm-dialog state, so this is the same disclosed,
+ * minimal extension every prior destructive single-click action in
+ * this codebase has needed.
  */
 export function FoodRestrictionsScreen() {
   const navigate = useNavigate()
@@ -51,6 +57,12 @@ export function FoodRestrictionsScreen() {
   const [searching, setSearching] = useState(false)
   const [adding, setAdding] = useState<string | null>(null)
   const [actionError, setActionError] = useState<string | null>(null)
+
+  const [removeTarget, setRemoveTarget] = useState<foodRestrictionsApi.FoodRestriction | null>(
+    null,
+  )
+  const [removing, setRemoving] = useState(false)
+  const [removeError, setRemoveError] = useState<string | null>(null)
 
   useEffect(() => {
     getActiveContext()
@@ -110,6 +122,21 @@ export function FoodRestrictionsScreen() {
       setActionError(extractErrorMessage(err, 'Could not block this item. Please try again.'))
     } finally {
       setAdding(null)
+    }
+  }
+
+  async function handleRemove() {
+    if (!child || !removeTarget) return
+    setRemoving(true)
+    setRemoveError(null)
+    try {
+      await foodRestrictionsApi.removeRestriction(child.student_id, removeTarget.id)
+      setRestrictions((prev) => prev?.filter((r) => r.id !== removeTarget.id) ?? null)
+      setRemoveTarget(null)
+    } catch (err) {
+      setRemoveError(extractErrorMessage(err, 'Could not unblock this item. Please try again.'))
+    } finally {
+      setRemoving(false)
     }
   }
 
@@ -232,6 +259,14 @@ export function FoodRestrictionsScreen() {
                             <Icon name="shield" className="h-5 w-5" strokeWidth={1.7} />
                           </span>
                           <span className="flex-1 text-sm text-ink">{r.name}</span>
+                          <button
+                            type="button"
+                            aria-label={`Unblock ${r.name}`}
+                            onClick={() => setRemoveTarget(r)}
+                            className="text-muted transition hover:text-danger"
+                          >
+                            <Icon name="close" className="h-5 w-5" />
+                          </button>
                         </li>
                       ))}
                     </ul>
@@ -248,6 +283,14 @@ export function FoodRestrictionsScreen() {
                           className="inline-flex items-center gap-1.5 rounded-pill bg-danger-soft px-3 py-1.5 text-sm font-medium text-danger"
                         >
                           {r.name}
+                          <button
+                            type="button"
+                            aria-label={`Unblock ${r.name}`}
+                            onClick={() => setRemoveTarget(r)}
+                            className="hover:text-danger/70"
+                          >
+                            <Icon name="close" className="h-3.5 w-3.5" strokeWidth={2.2} />
+                          </button>
                         </span>
                       ))}
                     </div>
@@ -256,6 +299,44 @@ export function FoodRestrictionsScreen() {
               </>
             )}
           </>
+        )}
+
+        {removeTarget && (
+          <Dialog
+            open
+            onClose={() => {
+              setRemoveTarget(null)
+              setRemoveError(null)
+            }}
+            tone="danger"
+            title={`Unblock "${removeTarget.name}"?`}
+            footer={
+              <>
+                <Button
+                  variant="secondary"
+                  onClick={() => {
+                    setRemoveTarget(null)
+                    setRemoveError(null)
+                  }}
+                >
+                  Cancel
+                </Button>
+                <Button variant="danger" loading={removing} onClick={handleRemove}>
+                  Unblock
+                </Button>
+              </>
+            }
+          >
+            {removeError && (
+              <div className="mb-3">
+                <Banner tone="danger">{removeError}</Banner>
+              </div>
+            )}
+            <p className="text-sm text-muted">
+              {removeTarget.name} will become orderable again for {child?.full_name} right away —
+              there is no automatic expiry, and this is the only way to undo the block.
+            </p>
+          </Dialog>
         )}
       </div>
     </AppShell>

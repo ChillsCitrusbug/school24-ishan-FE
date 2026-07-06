@@ -168,15 +168,81 @@ describe('FoodRestrictionsScreen (FR-032)', () => {
     ).toBeInTheDocument()
   })
 
-  it('does not render any "unblock" control (removal is FR-034, out of scope)', async () => {
+  it('unblocking a product asks for confirmation, then removes it from the list (FR-034)', async () => {
     vi.mocked(childSelectionApi.getActiveContext).mockResolvedValue([NOAH])
     vi.mocked(foodRestrictionsApi.listRestrictions).mockResolvedValue([
-      { id: 'r1', restriction_type: 'product', product_id: 'p1', category_id: null, name: 'Chocolate Brownie' },
+      {
+        id: 'r1',
+        restriction_type: 'product',
+        product_id: 'p1',
+        category_id: null,
+        name: 'Chocolate Brownie',
+      },
     ])
+    vi.mocked(foodRestrictionsApi.removeRestriction).mockResolvedValue(undefined)
 
     await renderAuthenticatedAt('/parent/food-restrictions?childId=st1')
     await screen.findByText('Chocolate Brownie')
 
-    expect(screen.queryByLabelText(/unblock/i)).not.toBeInTheDocument()
+    fireEvent.click(screen.getByLabelText('Unblock Chocolate Brownie'))
+    expect(await screen.findByText('Unblock "Chocolate Brownie"?')).toBeInTheDocument()
+    expect(foodRestrictionsApi.removeRestriction).not.toHaveBeenCalled()
+
+    fireEvent.click(screen.getByRole('button', { name: /^unblock$/i }))
+
+    await waitFor(() =>
+      expect(foodRestrictionsApi.removeRestriction).toHaveBeenCalledWith('st1', 'r1'),
+    )
+    await waitFor(() => expect(screen.queryByText('Chocolate Brownie')).not.toBeInTheDocument())
+  })
+
+  it('cancelling the unblock confirmation leaves the restriction in place', async () => {
+    vi.mocked(childSelectionApi.getActiveContext).mockResolvedValue([NOAH])
+    vi.mocked(foodRestrictionsApi.listRestrictions).mockResolvedValue([
+      {
+        id: 'r1',
+        restriction_type: 'category',
+        product_id: null,
+        category_id: 'c1',
+        name: 'Soft drinks',
+      },
+    ])
+
+    await renderAuthenticatedAt('/parent/food-restrictions?childId=st1')
+    await screen.findByText('Soft drinks')
+
+    fireEvent.click(screen.getByLabelText('Unblock Soft drinks'))
+    await screen.findByText('Unblock "Soft drinks"?')
+    fireEvent.click(screen.getByRole('button', { name: /^cancel$/i }))
+
+    await waitFor(() => expect(screen.queryByText('Unblock "Soft drinks"?')).not.toBeInTheDocument())
+    expect(screen.getByText('Soft drinks')).toBeInTheDocument()
+    expect(foodRestrictionsApi.removeRestriction).not.toHaveBeenCalled()
+  })
+
+  it('shows an error inside the dialog when unblocking fails, without closing it', async () => {
+    vi.mocked(childSelectionApi.getActiveContext).mockResolvedValue([NOAH])
+    vi.mocked(foodRestrictionsApi.listRestrictions).mockResolvedValue([
+      {
+        id: 'r1',
+        restriction_type: 'product',
+        product_id: 'p1',
+        category_id: null,
+        name: 'Chocolate Brownie',
+      },
+    ])
+    vi.mocked(foodRestrictionsApi.removeRestriction).mockRejectedValue({ response: undefined })
+
+    await renderAuthenticatedAt('/parent/food-restrictions?childId=st1')
+    await screen.findByText('Chocolate Brownie')
+
+    fireEvent.click(screen.getByLabelText('Unblock Chocolate Brownie'))
+    await screen.findByText('Unblock "Chocolate Brownie"?')
+    fireEvent.click(screen.getByRole('button', { name: /^unblock$/i }))
+
+    expect(
+      await screen.findByText('Something went wrong. Please check your connection and try again.'),
+    ).toBeInTheDocument()
+    expect(screen.getByText('Chocolate Brownie')).toBeInTheDocument()
   })
 })
