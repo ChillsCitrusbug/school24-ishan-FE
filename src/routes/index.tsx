@@ -20,6 +20,7 @@ import { CombosListScreen } from './CombosListScreen'
 import { ComposeNotificationScreen } from './ComposeNotificationScreen'
 import { ConfirmEmailChangeScreen } from './ConfirmEmailChangeScreen'
 import { ForgotPasswordScreen } from './ForgotPasswordScreen'
+import { FulfilmentBoardScreen } from './FulfilmentBoardScreen'
 import { GuardiansScreen } from './GuardiansScreen'
 import { RequireRole, RequireStudent } from './guards'
 import { LinkRequestReviewScreen } from './LinkRequestReviewScreen'
@@ -28,6 +29,7 @@ import { MenuBrowseScreen } from './MenuBrowseScreen'
 import { MenuDisplayOrderScreen } from './MenuDisplayOrderScreen'
 import { MyChildrenScreen } from './MyChildrenScreen'
 import { OnboardSchoolScreen } from './OnboardSchoolScreen'
+import { OrderDetailScreen } from './OrderDetailScreen'
 import { PaProfileScreen } from './PaProfileScreen'
 import { ParentCartScreen } from './ParentCartScreen'
 import { ParentCheckoutScreen } from './ParentCheckoutScreen'
@@ -424,6 +426,22 @@ export const routes: RouteObject[] = [
     element: (
       <RequireRole allow={['school_admin', 'staff']}>
         <ApprovalQueueScreen />
+      </RequireRole>
+    ),
+  },
+  {
+    path: '/school-admin/orders',
+    element: (
+      <RequireRole allow={['school_admin', 'staff']}>
+        <FulfilmentBoardScreen />
+      </RequireRole>
+    ),
+  },
+  {
+    path: '/school-admin/orders/:orderId',
+    element: (
+      <RequireRole allow={['school_admin', 'staff']}>
+        <OrderDetailScreen />
       </RequireRole>
     ),
   },

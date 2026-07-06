@@ -2,10 +2,16 @@ import { Card } from '../atoms/Card'
 import { Button } from '../molecules/Button'
 import { Avatar } from '../atoms/Avatar'
 
-type Status = 'pending' | 'preparing' | 'ready'
+// FR-038 — the approved mock's own 3-status fixture (pending/
+// preparing/ready) skips "confirmed", the DB schema's own real 4th
+// forward-non-terminal status between pending and preparing. Extended
+// here (not redesigned — same card, same visual language) to cover the
+// real status set this board must operate on.
+type Status = 'pending' | 'confirmed' | 'preparing' | 'ready'
 
 const ACTION: Record<Status, string> = {
-  pending: 'Start preparing',
+  pending: 'Confirm',
+  confirmed: 'Start preparing',
   preparing: 'Mark ready',
   ready: 'Complete',
 }

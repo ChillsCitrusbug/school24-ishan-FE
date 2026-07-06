@@ -1,14 +1,16 @@
 import type { NavGroup, TabItem } from '@/components'
 
-type StaffSection = 'home' | 'menu' | 'approvals' | 'notifications'
+type StaffSection = 'home' | 'menu' | 'approvals' | 'orders' | 'notifications'
 
 /**
  * Staff sidebar/tab nav — ported structurally from the approved
  * design's school24-DESIGN/src/data/staff.ts (`staffNav`/`staffTabs`),
  * matching the same "unset href stays inert" pattern as
- * schoolAdminNav.ts — Orders doesn't have a real screen yet; Home
- * (FR-018), Menu (FR-024), Approvals (FR-020), and now Notifications
- * (FR-043/052) do.
+ * schoolAdminNav.ts. Home (FR-018), Menu (FR-024), Approvals (FR-020),
+ * Orders (FR-038 — the shared `/school-admin/orders` route, same
+ * one-route-reused-by-both-roles precedent Menu/Approvals already
+ * established), and Notifications (FR-043/052) all now have real
+ * screens.
  *
  * Review finding (FR-011 round 1, Minor): every item WITH a real route
  * carries its own `href` — `Sidebar`/`MobileTabBar` render these via
@@ -33,7 +35,7 @@ export function staffNavGroups(active: StaffSection = 'home'): NavGroup[] {
     {
       items: [
         { icon: 'home', label: 'Home', active: active === 'home', href: '/staff' },
-        { icon: 'order', label: 'Orders' },
+        { icon: 'order', label: 'Orders', active: active === 'orders', href: '/school-admin/orders' },
         {
           icon: 'list',
           label: 'Menu',

@@ -5,6 +5,7 @@ import { afterEach, describe, expect, it, vi } from 'vitest'
 import { AuthProvider } from '@/features/auth/AuthContext'
 import * as authApi from '@/features/auth/api'
 import * as notificationsApi from '@/features/notifications/api'
+import * as ordersApi from '@/features/orders/api'
 import * as permissionsApi from '@/features/permissions/api'
 import { StudentAuthProvider } from '@/features/student-auth/StudentAuthContext'
 import { routes } from './index'
@@ -12,6 +13,7 @@ import { routes } from './index'
 vi.mock('@/features/auth/api')
 vi.mock('@/features/permissions/api')
 vi.mock('@/features/notifications/api')
+vi.mock('@/features/orders/api')
 
 const STAFF_USER = {
   id: 'u1',
@@ -101,6 +103,21 @@ describe('StaffPortalScreen', () => {
     expect(screen.queryByText('Review and approve parent-student link requests.')).not.toBeInTheDocument()
     expect(screen.queryByText('Add products and combos, set availability.')).not.toBeInTheDocument()
     expect(screen.queryByText('Send updates to families and staff.')).not.toBeInTheDocument()
+  })
+
+  it('the "Order fulfilment" card navigates to the real order queue (FR-038)', async () => {
+    vi.mocked(permissionsApi.getMyPermissions).mockResolvedValue([
+      { module: 'order_management', can_add: false, can_edit: false, can_delete: false, can_list: true } as never,
+      noAccess('approval') as never,
+      noAccess('menu_management') as never,
+      noAccess('notification') as never,
+    ])
+    vi.mocked(ordersApi.listStaffOrders).mockResolvedValue([])
+
+    await renderAsStaffAt('/staff')
+    fireEvent.click(await screen.findByRole('button', { name: /order fulfilment/i }))
+
+    expect(await screen.findByText('Order queue')).toBeInTheDocument()
   })
 
   it('shows an error state (not the empty state) when the fetch fails', async () => {

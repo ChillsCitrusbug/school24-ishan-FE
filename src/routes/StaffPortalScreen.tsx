@@ -129,20 +129,41 @@ export function StaffPortalScreen() {
           </Card>
         ) : (
           <div className="mt-6 grid grid-cols-1 gap-4 sm:grid-cols-2">
-            {visibleModules.map((m) => (
-              <div
-                key={m.module}
-                className="flex items-start gap-3 rounded-card border border-line bg-white p-5 text-left shadow-softer"
-              >
-                <span className="grid h-11 w-11 shrink-0 place-items-center rounded-card bg-brand/10 text-brand">
-                  <Icon name={m.icon} />
-                </span>
-                <div className="min-w-0">
-                  <div className="font-semibold text-ink">{m.label}</div>
-                  <p className="mt-0.5 text-sm text-muted">{m.desc}</p>
+            {visibleModules.map((m) => {
+              // FR-038 — "Order fulfilment" now has a real destination
+              // screen; the other 3 modules' own destination screens
+              // don't exist yet, so they stay inert (same precedent as
+              // FR-017's own Edit/Delete buttons).
+              const isClickable = m.module === 'order_management'
+              const content = (
+                <>
+                  <span className="grid h-11 w-11 shrink-0 place-items-center rounded-card bg-brand/10 text-brand">
+                    <Icon name={m.icon} />
+                  </span>
+                  <div className="min-w-0">
+                    <div className="font-semibold text-ink">{m.label}</div>
+                    <p className="mt-0.5 text-sm text-muted">{m.desc}</p>
+                  </div>
+                </>
+              )
+              return isClickable ? (
+                <button
+                  key={m.module}
+                  type="button"
+                  onClick={() => navigate('/school-admin/orders')}
+                  className="flex items-start gap-3 rounded-card border border-line bg-white p-5 text-left shadow-softer transition hover:bg-canvas"
+                >
+                  {content}
+                </button>
+              ) : (
+                <div
+                  key={m.module}
+                  className="flex items-start gap-3 rounded-card border border-line bg-white p-5 text-left shadow-softer"
+                >
+                  {content}
                 </div>
-              </div>
-            ))}
+              )
+            })}
           </div>
         )}
       </div>
