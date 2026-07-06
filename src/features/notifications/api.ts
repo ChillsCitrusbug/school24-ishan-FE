@@ -18,6 +18,17 @@ export interface ComposeNotificationInput {
   target_roles: NotificationTargetRole[]
 }
 
+/** FR-044 — one row in the caller's own inbox. */
+export interface InboxNotification {
+  notification_id: string
+  title: string
+  body: string
+  source: 'manual' | 'system'
+  created_at: string
+  delivery_status: 'pending' | 'sent' | 'failed'
+  delivered_at: string | null
+}
+
 interface Envelope<T> {
   data: T
   meta: unknown
@@ -31,5 +42,12 @@ export async function composeNotification(input: ComposeNotificationInput): Prom
 
 export async function listNotifications(): Promise<Notification[]> {
   const response = await apiClient.get<Envelope<Notification[]>>('/api/v1/notifications')
+  return response.data.data
+}
+
+export async function listMyNotifications(): Promise<InboxNotification[]> {
+  const response = await apiClient.get<Envelope<InboxNotification[]>>(
+    '/api/v1/notifications/inbox',
+  )
   return response.data.data
 }

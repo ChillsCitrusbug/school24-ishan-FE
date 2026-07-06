@@ -12,6 +12,7 @@ import {
   Input,
   Checkbox,
   Banner,
+  Icon,
 } from '@/components'
 import { composeNotification, type NotificationTargetRole } from '@/features/notifications/api'
 import { useAuth } from '@/features/auth/useAuth'
@@ -44,11 +45,20 @@ function initialsOf(fullName: string): string {
  * this ticket's own scope (only POST/GET /api/v1/notifications are
  * built) — built without fabricated counts; the summary line instead
  * lists the selected role names.
+ *
+ * FR-044 addition: on submit, shows a "Sending started" confirmation
+ * step — NOT `Sc090SendResult.tsx`'s own designed delivered/failed
+ * counts or "Retry failed" button (LOCKED ticket note: delivery is a
+ * background/in-request call the sender's own request already
+ * returned before, so there is nothing live to report and nothing to
+ * retry). Previously this screen navigated away with no confirmation
+ * at all.
  */
 export function ComposeNotificationScreen() {
   const { user } = useAuth()
   const navigate = useNavigate()
   const isStaff = user?.role === 'staff'
+  const [step, setStep] = useState<'compose' | 'sent'>('compose')
   const [title, setTitle] = useState('')
   const [body, setBody] = useState('')
   const [selectedRoles, setSelectedRoles] = useState<NotificationTargetRole[]>([])
@@ -67,7 +77,7 @@ export function ComposeNotificationScreen() {
     setIsSubmitting(true)
     try {
       await composeNotification({ title, body, target_roles: selectedRoles })
-      navigate(isStaff ? '/staff' : '/school-admin')
+      setStep('sent')
     } catch (err) {
       setError(extractErrorMessage(err, 'Unable to send this notification.'))
     } finally {
@@ -102,11 +112,30 @@ export function ComposeNotificationScreen() {
       mobileNav={<MobileTabBar items={isStaff ? staffTabs('notifications') : schoolAdminTabs('notifications')} />}
     >
       <div className="mx-auto max-w-lg">
-        <h1 className="text-2xl font-bold text-ink">Send a notification</h1>
-        <p className="mt-0.5 text-sm text-muted">Message families and staff.</p>
+        {step === 'sent' ? (
+          <Card className="p-6 text-center">
+            <div className="mx-auto grid h-12 w-12 place-items-center rounded-full bg-mint text-brand">
+              <Icon name="bell" className="h-6 w-6" strokeWidth={1.7} />
+            </div>
+            <h1 className="mt-3 text-xl font-bold text-ink">Sending started</h1>
+            <p className="mt-1 text-sm text-muted">
+              Your notification is being delivered to the selected recipients.
+            </p>
+            <Button
+              fullWidth
+              className="mt-5"
+              onClick={() => navigate(isStaff ? '/staff' : '/school-admin')}
+            >
+              Done
+            </Button>
+          </Card>
+        ) : (
+          <>
+            <h1 className="text-2xl font-bold text-ink">Send a notification</h1>
+            <p className="mt-0.5 text-sm text-muted">Message families and staff.</p>
 
-        <Card className="mt-5 p-5">
-          <form className="space-y-4" onSubmit={handleSubmit}>
+            <Card className="mt-5 p-5">
+              <form className="space-y-4" onSubmit={handleSubmit}>
             {error && <Banner tone="danger">{error}</Banner>}
             <Field label="Title">
               <Input
@@ -166,8 +195,10 @@ export function ComposeNotificationScreen() {
             >
               Send notification
             </Button>
-          </form>
-        </Card>
+              </form>
+            </Card>
+          </>
+        )}
       </div>
     </AppShell>
   )

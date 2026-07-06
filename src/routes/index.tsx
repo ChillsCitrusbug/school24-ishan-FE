@@ -6,6 +6,9 @@ import { AssignRoleScreen } from './AssignRoleScreen'
 import { ChildSelectScreen } from './ChildSelectScreen'
 import { ChildWalletTopUpScreen } from './ChildWalletTopUpScreen'
 import { FoodRestrictionsScreen } from './FoodRestrictionsScreen'
+import { ParentInboxScreen } from './ParentInboxScreen'
+import { StaffInboxScreen } from './StaffInboxScreen'
+import { StudentInboxScreen } from './StudentInboxScreen'
 import { ClassDeleteScreen } from './ClassDeleteScreen'
 import { ClassDetailScreen } from './ClassDetailScreen'
 import { ClassFormScreen } from './ClassFormScreen'
@@ -564,6 +567,30 @@ export const routes: RouteObject[] = [
       <RequireRole allow={['parent']}>
         <FoodRestrictionsScreen />
       </RequireRole>
+    ),
+  },
+  {
+    path: '/parent/inbox',
+    element: (
+      <RequireRole allow={['parent']}>
+        <ParentInboxScreen />
+      </RequireRole>
+    ),
+  },
+  {
+    path: '/staff/inbox',
+    element: (
+      <RequireRole allow={['staff']}>
+        <StaffInboxScreen />
+      </RequireRole>
+    ),
+  },
+  {
+    path: '/student/inbox',
+    element: (
+      <RequireStudent>
+        <StudentInboxScreen />
+      </RequireStudent>
     ),
   },
   {

@@ -1,4 +1,5 @@
 import { useCallback, useEffect, useRef, useState } from 'react'
+import { useNavigate } from 'react-router-dom'
 import { AppShell, Sidebar, Topbar, MobileTabBar, IconButton, Card, EmptyState, ErrorState, Icon, Spinner } from '@/components'
 import { getMyPermissions } from '@/features/permissions/api'
 import type { ModulePermission } from '@/features/roles/api'
@@ -36,6 +37,7 @@ function hasAnyGrant(p: ModulePermission): boolean {
  */
 export function StaffPortalScreen() {
   const { user } = useAuth()
+  const navigate = useNavigate()
   const [permissions, setPermissions] = useState<ModulePermission[] | null>(null)
   const [error, setError] = useState<string | null>(null)
   const mountedRef = useRef(true)
@@ -91,7 +93,7 @@ export function StaffPortalScreen() {
       topbar={
         <Topbar
           searchPlaceholder="Search…"
-          right={<IconButton icon="bell" label="Notifications" />}
+          right={<IconButton icon="bell" label="Notifications" onClick={() => navigate('/staff/inbox')} />}
         />
       }
       mobileNav={<MobileTabBar items={staffTabs()} />}

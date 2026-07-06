@@ -1,5 +1,5 @@
-import { Link, useSearchParams } from 'react-router-dom'
-import { AppShell, Sidebar, Topbar, MobileTabBar, Banner, Card, EmptyState } from '@/components'
+import { Link, useNavigate, useSearchParams } from 'react-router-dom'
+import { AppShell, Sidebar, Topbar, MobileTabBar, Banner, Card, EmptyState, IconButton } from '@/components'
 import { useAuth } from '@/features/auth/useAuth'
 
 const ROLE_LABEL: Record<string, string> = {
@@ -35,6 +35,7 @@ const ROLE_LABEL: Record<string, string> = {
  */
 export function PlaceholderDashboard() {
   const { user } = useAuth()
+  const navigate = useNavigate()
   const [searchParams] = useSearchParams()
   const selectedChildId = searchParams.get('childId')
   const roleLabel = user ? (ROLE_LABEL[user.role] ?? user.role) : ''
@@ -42,7 +43,15 @@ export function PlaceholderDashboard() {
   return (
     <AppShell
       sidebar={<Sidebar brandTitle="School24" groups={[]} user={{ initials: '', name: user?.full_name ?? '', role: roleLabel }} />}
-      topbar={<Topbar />}
+      topbar={
+        <Topbar
+          right={
+            user?.role === 'parent' ? (
+              <IconButton icon="bell" label="Notifications" onClick={() => navigate('/parent/inbox')} />
+            ) : undefined
+          }
+        />
+      }
       mobileNav={<MobileTabBar items={[]} />}
     >
       <div className="mx-auto max-w-6xl space-y-4">

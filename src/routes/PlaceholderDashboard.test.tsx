@@ -3,12 +3,14 @@ import { createMemoryRouter, RouterProvider } from 'react-router-dom'
 import { afterEach, describe, expect, it, vi } from 'vitest'
 import { AuthProvider } from '@/features/auth/AuthContext'
 import * as authApi from '@/features/auth/api'
+import * as notificationsApi from '@/features/notifications/api'
 import * as permissionsApi from '@/features/permissions/api'
 import { StudentAuthProvider } from '@/features/student-auth/StudentAuthContext'
 import { routes } from './index'
 
 vi.mock('@/features/auth/api')
 vi.mock('@/features/permissions/api')
+vi.mock('@/features/notifications/api')
 
 const PARENT_USER = {
   id: 'u1',
@@ -49,6 +51,15 @@ afterEach(() => {
 })
 
 describe('PlaceholderDashboard (FR-022 additions)', () => {
+  it('the topbar bell navigates to the parent\'s own inbox (FR-044)', async () => {
+    vi.mocked(notificationsApi.listMyNotifications).mockResolvedValue([])
+
+    await renderAuthenticatedAt('/parent')
+    fireEvent.click(screen.getByRole('button', { name: /notifications/i }))
+
+    expect(await screen.findByText("You're all caught up")).toBeInTheDocument()
+  })
+
   it('shows an "Order for a child" card linking to the selection screen', async () => {
     await renderAuthenticatedAt('/parent')
 

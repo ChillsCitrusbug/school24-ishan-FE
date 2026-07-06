@@ -4,12 +4,14 @@ import { createMemoryRouter, RouterProvider } from 'react-router-dom'
 import { afterEach, describe, expect, it, vi } from 'vitest'
 import { AuthProvider } from '@/features/auth/AuthContext'
 import * as authApi from '@/features/auth/api'
+import * as notificationsApi from '@/features/notifications/api'
 import * as permissionsApi from '@/features/permissions/api'
 import { StudentAuthProvider } from '@/features/student-auth/StudentAuthContext'
 import { routes } from './index'
 
 vi.mock('@/features/auth/api')
 vi.mock('@/features/permissions/api')
+vi.mock('@/features/notifications/api')
 
 const STAFF_USER = {
   id: 'u1',
@@ -54,6 +56,22 @@ afterEach(() => {
 })
 
 describe('StaffPortalScreen', () => {
+  it("the topbar bell navigates to staff's own inbox (FR-044)", async () => {
+    vi.mocked(permissionsApi.getMyPermissions).mockResolvedValue([
+      noAccess('approval') as never,
+      noAccess('order_management') as never,
+      noAccess('menu_management') as never,
+      noAccess('notification') as never,
+    ])
+    vi.mocked(notificationsApi.listMyNotifications).mockResolvedValue([])
+
+    await renderAsStaffAt('/staff')
+    await screen.findByText('No modules assigned yet')
+    fireEvent.click(screen.getByRole('button', { name: /notifications/i }))
+
+    expect(await screen.findByText("You're all caught up")).toBeInTheDocument()
+  })
+
   it('shows the no-modules empty state when nothing is granted', async () => {
     vi.mocked(permissionsApi.getMyPermissions).mockResolvedValue([
       noAccess('approval') as never,

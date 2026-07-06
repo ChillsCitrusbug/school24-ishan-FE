@@ -1,5 +1,5 @@
-import { Link } from 'react-router-dom'
-import { AppShell, Sidebar, Topbar, MobileTabBar, Card, EmptyState } from '@/components'
+import { Link, useNavigate } from 'react-router-dom'
+import { AppShell, Sidebar, Topbar, MobileTabBar, Card, EmptyState, IconButton } from '@/components'
 import { useStudentAuth } from '@/features/student-auth/useStudentAuth'
 
 /**
@@ -8,9 +8,13 @@ import { useStudentAuth } from '@/features/student-auth/useStudentAuth'
  * (depends on FR-035/FR-041/FR-033, none built yet). Same pattern as
  * FR-001's PlaceholderDashboard for the 3 roles without a real dashboard
  * yet — see docs/design/field-reconciliation/FR-002.md item 2.
+ *
+ * FR-044 addition: the topbar's bell now navigates to the student's own
+ * real inbox.
  */
 export function StudentPlaceholderHome() {
   const { student } = useStudentAuth()
+  const navigate = useNavigate()
 
   return (
     <AppShell
@@ -21,7 +25,9 @@ export function StudentPlaceholderHome() {
           user={{ initials: '', name: student?.full_name ?? '', role: 'Student' }}
         />
       }
-      topbar={<Topbar />}
+      topbar={
+        <Topbar right={<IconButton icon="bell" label="Notifications" onClick={() => navigate('/student/inbox')} />} />
+      }
       mobileNav={<MobileTabBar items={[]} />}
     >
       <div className="mx-auto max-w-6xl space-y-4">

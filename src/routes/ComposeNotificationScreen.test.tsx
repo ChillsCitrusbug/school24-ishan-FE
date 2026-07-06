@@ -80,7 +80,7 @@ describe('ComposeNotificationScreen (Sc088Compose)', () => {
     ).toBeInTheDocument()
   })
 
-  it('composes a notification with the selected roles and navigates away on success', async () => {
+  it('composes a notification with the selected roles, then shows a "Sending started" confirmation (FR-044) — not live delivered/failed counts', async () => {
     vi.mocked(notificationsApi.composeNotification).mockResolvedValue({
       id: 'n1',
       title: 'Canteen closed',
@@ -107,7 +107,13 @@ describe('ComposeNotificationScreen (Sc088Compose)', () => {
         target_roles: ['parent', 'staff'],
       }),
     )
-    await waitFor(() => expect(screen.queryByText('Send a notification')).not.toBeInTheDocument())
+    expect(await screen.findByText('Sending started')).toBeInTheDocument()
+    expect(screen.queryByText('Send a notification')).not.toBeInTheDocument()
+    expect(screen.queryByText(/\d+\s*(delivered|failed|recipients)/i)).not.toBeInTheDocument()
+    expect(screen.queryByRole('button', { name: /retry failed/i })).not.toBeInTheDocument()
+
+    fireEvent.click(screen.getByRole('button', { name: /^done$/i }))
+    await waitFor(() => expect(screen.queryByText('Sending started')).not.toBeInTheDocument())
   })
 
   it('shows an error banner when the send call fails', async () => {
