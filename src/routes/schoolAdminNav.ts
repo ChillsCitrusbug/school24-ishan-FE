@@ -58,7 +58,7 @@ export function schoolAdminNavGroups(active: SchoolAdminSection = 'dashboard'): 
           icon: 'bell',
           label: 'Notifications',
           active: active === 'notifications',
-          href: '/school-admin/notifications/new',
+          href: '/school-admin/notifications',
         },
       ],
     },

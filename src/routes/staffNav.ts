@@ -6,8 +6,9 @@ type StaffSection = 'home' | 'menu' | 'approvals' | 'notifications'
  * Staff sidebar/tab nav — ported structurally from the approved
  * design's school24-DESIGN/src/data/staff.ts (`staffNav`/`staffTabs`),
  * matching the same "unset href stays inert" pattern as
- * schoolAdminNav.ts — Orders/Notifications don't have real screens yet
- * (FR-038/043); Home (FR-018) and now Menu (FR-024) do.
+ * schoolAdminNav.ts — Orders doesn't have a real screen yet; Home
+ * (FR-018), Menu (FR-024), Approvals (FR-020), and now Notifications
+ * (FR-043/052) do.
  *
  * Review finding (FR-011 round 1, Minor): every item WITH a real route
  * carries its own `href` — `Sidebar`/`MobileTabBar` render these via
@@ -23,7 +24,9 @@ type StaffSection = 'home' | 'menu' | 'approvals' | 'notifications'
  * `saNav`/`saTabs`), so this reuses the same shared
  * `/school-admin/approvals` route Staff-with-access already reaches
  * server-side, matching Menu's own precedent of one shared route
- * reused across both roles.
+ * reused across both roles. FR-052 wires the mobile tab's own
+ * "Alerts" item to the same shared `/school-admin/notifications` log
+ * route, previously inert.
  */
 export function staffNavGroups(active: StaffSection = 'home'): NavGroup[] {
   return [
@@ -47,7 +50,7 @@ export function staffNavGroups(active: StaffSection = 'home'): NavGroup[] {
           icon: 'bell',
           label: 'Notifications',
           active: active === 'notifications',
-          href: '/school-admin/notifications/new',
+          href: '/school-admin/notifications',
         },
       ],
     },
@@ -70,6 +73,11 @@ export function staffTabs(active: StaffSection = 'home'): TabItem[] {
       active: active === 'approvals',
       href: '/school-admin/approvals',
     },
-    { icon: 'bell', label: 'Alerts' },
+    {
+      icon: 'bell',
+      label: 'Alerts',
+      active: active === 'notifications',
+      href: '/school-admin/notifications',
+    },
   ]
 }

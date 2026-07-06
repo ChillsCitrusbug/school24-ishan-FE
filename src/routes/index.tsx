@@ -44,6 +44,7 @@ import { SaProfileScreen } from './SaProfileScreen'
 import { SchoolAdminDashboard } from './SchoolAdminDashboard'
 import { SchoolDetailScreen } from './SchoolDetailScreen'
 import { SchoolsListScreen } from './SchoolsListScreen'
+import { SentLogScreen } from './SentLogScreen'
 import { StaffDetailScreen } from './StaffDetailScreen'
 import { StaffFormScreen } from './StaffFormScreen'
 import { StaffListScreen } from './StaffListScreen'
@@ -406,6 +407,14 @@ export const routes: RouteObject[] = [
     element: (
       <RequireRole allow={['school_admin', 'staff']}>
         <MenuDisplayOrderScreen />
+      </RequireRole>
+    ),
+  },
+  {
+    path: '/school-admin/notifications',
+    element: (
+      <RequireRole allow={['school_admin', 'staff']}>
+        <SentLogScreen />
       </RequireRole>
     ),
   },

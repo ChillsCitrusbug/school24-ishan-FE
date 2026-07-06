@@ -29,6 +29,30 @@ export interface InboxNotification {
   delivered_at: string | null
 }
 
+/** FR-052 — one row in the sender-facing sent-notifications log. */
+export interface SentLogRow {
+  id: string
+  title: string
+  body: string
+  source: 'manual' | 'system'
+  sender_name: string
+  created_at: string
+  target_roles: NotificationTargetRole[]
+  delivery_outcome: { pending: number; sent: number; failed: number }
+}
+
+export interface PaginationMeta {
+  page: number
+  page_size: number
+  total: number
+  total_pages: number
+}
+
+export interface ListSentLogParams {
+  page?: number
+  page_size?: number
+}
+
 interface Envelope<T> {
   data: T
   meta: unknown
@@ -40,9 +64,14 @@ export async function composeNotification(input: ComposeNotificationInput): Prom
   return response.data.data
 }
 
-export async function listNotifications(): Promise<Notification[]> {
-  const response = await apiClient.get<Envelope<Notification[]>>('/api/v1/notifications')
-  return response.data.data
+export async function listNotifications(
+  params: ListSentLogParams = {},
+): Promise<{ data: SentLogRow[]; meta: PaginationMeta }> {
+  const response = await apiClient.get<Envelope<SentLogRow[]> & { meta: PaginationMeta }>(
+    '/api/v1/notifications',
+    { params },
+  )
+  return { data: response.data.data, meta: response.data.meta }
 }
 
 export async function listMyNotifications(): Promise<InboxNotification[]> {
