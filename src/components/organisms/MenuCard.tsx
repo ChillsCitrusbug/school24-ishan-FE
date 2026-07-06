@@ -14,12 +14,17 @@ export interface MenuCardProps {
   blocked?: boolean
   onAdd?: () => void
   onOpen?: () => void
+  /** FR-035 — scopes a specific card for e2e tests; a grid of many
+   * cards otherwise gives no reliable way to target one card's own Add
+   * button over another's (a shared ancestor div "contains" every
+   * card's text). */
+  testId?: string
 }
 
 /** Vertical menu item — image, name, price, Add. Used in the menu browse grid. */
-export function MenuCard({ name, desc, price, thumb, tag, blocked, onAdd, onOpen }: MenuCardProps) {
+export function MenuCard({ name, desc, price, thumb, tag, blocked, onAdd, onOpen, testId }: MenuCardProps) {
   return (
-    <Card className="overflow-hidden">
+    <Card className="overflow-hidden" data-testid={testId}>
       <button onClick={onOpen} className="block w-full text-left">
         <div className="relative h-28" style={{ background: thumb ?? 'linear-gradient(135deg,#7FC8B8,#0F8A78)' }}>
           {tag && (

@@ -5,7 +5,9 @@ import { ApprovalQueueScreen } from './ApprovalQueueScreen'
 import { AssignRoleScreen } from './AssignRoleScreen'
 import { ChildSelectScreen } from './ChildSelectScreen'
 import { ChildWalletTopUpScreen } from './ChildWalletTopUpScreen'
+import { CartScreen } from './CartScreen'
 import { FoodRestrictionsScreen } from './FoodRestrictionsScreen'
+import { ItemDetailScreen } from './ItemDetailScreen'
 import { ParentInboxScreen } from './ParentInboxScreen'
 import { StaffInboxScreen } from './StaffInboxScreen'
 import { StudentInboxScreen } from './StudentInboxScreen'
@@ -22,6 +24,7 @@ import { GuardiansScreen } from './GuardiansScreen'
 import { RequireRole, RequireStudent } from './guards'
 import { LinkRequestReviewScreen } from './LinkRequestReviewScreen'
 import { LoginScreen } from './LoginScreen'
+import { MenuBrowseScreen } from './MenuBrowseScreen'
 import { MenuDisplayOrderScreen } from './MenuDisplayOrderScreen'
 import { MyChildrenScreen } from './MyChildrenScreen'
 import { OnboardSchoolScreen } from './OnboardSchoolScreen'
@@ -143,6 +146,38 @@ export const routes: RouteObject[] = [
     element: (
       <RequireStudent>
         <StudentTxnHistoryScreen />
+      </RequireStudent>
+    ),
+  },
+  {
+    path: '/student/menu',
+    element: (
+      <RequireStudent>
+        <MenuBrowseScreen />
+      </RequireStudent>
+    ),
+  },
+  {
+    path: '/student/menu/products/:productId',
+    element: (
+      <RequireStudent>
+        <ItemDetailScreen itemType="product" />
+      </RequireStudent>
+    ),
+  },
+  {
+    path: '/student/menu/combos/:comboId',
+    element: (
+      <RequireStudent>
+        <ItemDetailScreen itemType="combo" />
+      </RequireStudent>
+    ),
+  },
+  {
+    path: '/student/cart',
+    element: (
+      <RequireStudent>
+        <CartScreen />
       </RequireStudent>
     ),
   },
