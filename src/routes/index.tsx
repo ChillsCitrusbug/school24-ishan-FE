@@ -37,6 +37,7 @@ import { PlaceholderDashboard } from './PlaceholderDashboard'
 import { PlatformDashboardScreen } from './PlatformDashboardScreen'
 import { ProductFormScreen } from './ProductFormScreen'
 import { ProductsListScreen } from './ProductsListScreen'
+import { ReceiptScreen } from './ReceiptScreen'
 import { RegisterScreen } from './RegisterScreen'
 import { ResetPasswordScreen } from './ResetPasswordScreen'
 import { RoleBuilderScreen } from './RoleBuilderScreen'
@@ -54,6 +55,7 @@ import { StaffListScreen } from './StaffListScreen'
 import { StaffPortalScreen } from './StaffPortalScreen'
 import { StaffProfileScreen } from './StaffProfileScreen'
 import { StaffStatusScreen } from './StaffStatusScreen'
+import { StudentCheckoutScreen } from './StudentCheckoutScreen'
 import { StudentCredentialsScreen } from './StudentCredentialsScreen'
 import { StudentDeleteScreen } from './StudentDeleteScreen'
 import { StudentDetailScreen } from './StudentDetailScreen'
@@ -178,6 +180,22 @@ export const routes: RouteObject[] = [
     element: (
       <RequireStudent>
         <CartScreen />
+      </RequireStudent>
+    ),
+  },
+  {
+    path: '/student/checkout',
+    element: (
+      <RequireStudent>
+        <StudentCheckoutScreen />
+      </RequireStudent>
+    ),
+  },
+  {
+    path: '/student/checkout/receipt',
+    element: (
+      <RequireStudent>
+        <ReceiptScreen />
       </RequireStudent>
     ),
   },

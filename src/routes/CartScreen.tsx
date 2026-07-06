@@ -16,13 +16,11 @@ import { getCart, type Cart } from '@/features/cart/api'
 import { extractErrorMessage } from '@/lib/api-error'
 
 /**
- * SC-073 · Cart Review (enforce: re-validate) — Student (FR-035).
- * Reuses the approved Sc073Cart.tsx structure. Read-only for this
- * ticket — quantity adjustment/removal and checkout (the mock's own
- * QtyStepper + "Checkout" button) are FR-036's own scope, not this
- * ticket's DoD ("cart build" stops here); the checkout button is
- * present but inert, matching the approved design without inventing
- * a live action this ticket doesn't own.
+ * SC-073 · Cart Review (enforce: re-validate) — Student (FR-035/036).
+ * Reuses the approved Sc073Cart.tsx structure. Read-only for line
+ * items — quantity adjustment/removal is still out of scope (no
+ * ticket in this batch owns it). FR-036 wires the mock's own
+ * "Checkout" button to the real checkout flow (`StudentCheckoutScreen`).
  */
 export function CartScreen() {
   const { student } = useStudentAuth()
@@ -120,7 +118,12 @@ export function CartScreen() {
               </div>
             </Card>
 
-            <Button fullWidth className="mt-4" trailingIcon="arrowRight" disabled>
+            <Button
+              fullWidth
+              className="mt-4"
+              trailingIcon="arrowRight"
+              onClick={() => navigate('/student/checkout')}
+            >
               Checkout · {money(cart.total)}
             </Button>
           </>
