@@ -60,13 +60,13 @@ describe('PlaceholderDashboard (FR-022 additions)', () => {
     expect(await screen.findByText("You're all caught up")).toBeInTheDocument()
   })
 
-  it('shows an "Order for a child" card linking to the selection screen', async () => {
+  it('shows an "Order for a child" card linking to the selection screen with the ordering destination (FR-037)', async () => {
     await renderAuthenticatedAt('/parent')
 
     expect(screen.getByText('Order for a child')).toBeInTheDocument()
     expect(screen.getAllByRole('link', { name: /choose a child/i })[0]).toHaveAttribute(
       'href',
-      '/parent/select-child',
+      '/parent/select-child?next=/parent/menu',
     )
   })
 

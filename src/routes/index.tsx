@@ -29,6 +29,10 @@ import { MenuDisplayOrderScreen } from './MenuDisplayOrderScreen'
 import { MyChildrenScreen } from './MyChildrenScreen'
 import { OnboardSchoolScreen } from './OnboardSchoolScreen'
 import { PaProfileScreen } from './PaProfileScreen'
+import { ParentCartScreen } from './ParentCartScreen'
+import { ParentCheckoutScreen } from './ParentCheckoutScreen'
+import { ParentItemDetailScreen } from './ParentItemDetailScreen'
+import { ParentMenuBrowseScreen } from './ParentMenuBrowseScreen'
 import { ParentProfileScreen } from './ParentProfileScreen'
 import { ParentTxnHistoryScreen } from './ParentTxnHistoryScreen'
 import { ParentWalletScreen } from './ParentWalletScreen'
@@ -628,6 +632,54 @@ export const routes: RouteObject[] = [
     element: (
       <RequireRole allow={['parent']}>
         <FoodRestrictionsScreen />
+      </RequireRole>
+    ),
+  },
+  {
+    path: '/parent/menu',
+    element: (
+      <RequireRole allow={['parent']}>
+        <ParentMenuBrowseScreen />
+      </RequireRole>
+    ),
+  },
+  {
+    path: '/parent/menu/products/:productId',
+    element: (
+      <RequireRole allow={['parent']}>
+        <ParentItemDetailScreen itemType="product" />
+      </RequireRole>
+    ),
+  },
+  {
+    path: '/parent/menu/combos/:comboId',
+    element: (
+      <RequireRole allow={['parent']}>
+        <ParentItemDetailScreen itemType="combo" />
+      </RequireRole>
+    ),
+  },
+  {
+    path: '/parent/cart',
+    element: (
+      <RequireRole allow={['parent']}>
+        <ParentCartScreen />
+      </RequireRole>
+    ),
+  },
+  {
+    path: '/parent/checkout',
+    element: (
+      <RequireRole allow={['parent']}>
+        <ParentCheckoutScreen />
+      </RequireRole>
+    ),
+  },
+  {
+    path: '/parent/checkout/receipt',
+    element: (
+      <RequireRole allow={['parent']}>
+        <ReceiptScreen />
       </RequireRole>
     ),
   },

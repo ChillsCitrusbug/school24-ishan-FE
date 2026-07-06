@@ -11,14 +11,16 @@ import {
   Topbar,
 } from '@/components'
 import type { Order } from '@/features/checkout/api'
+import { useAuth } from '@/features/auth/useAuth'
 import { useStudentAuth } from '@/features/student-auth/useStudentAuth'
 
 /**
  * SC-077 · Order Confirmation / Receipt — Student/Parent (FR-036/037,
- * shared). This ticket (FR-036) ships the Student-shell variant only;
- * the mock's own doc comment names this screen "Student/Parent" but
- * itself only ever renders the student sidebar/nav — a Parent-shell
- * variant is FR-037's own scope to add when it's built.
+ * shared). FR-036 shipped the Student-shell variant only; FR-037 adds
+ * the Parent-shell variant here — both auth contexts are always
+ * mounted (see `App.tsx`), so whichever identity is actually signed in
+ * (Student or Parent) determines the shell, without needing two
+ * separate route components.
  *
  * Reads the just-placed order from router navigation state (the
  * checkout response already carries everything this screen needs) —
@@ -29,9 +31,22 @@ import { useStudentAuth } from '@/features/student-auth/useStudentAuth'
  */
 export function ReceiptScreen() {
   const { student } = useStudentAuth()
+  const { user } = useAuth()
   const navigate = useNavigate()
   const location = useLocation()
-  const order = (location.state as { order?: Order } | null)?.order ?? null
+  const state = location.state as { order?: Order; childId?: string } | null
+  const order = state?.order ?? null
+  const childId = state?.childId
+
+  // Checks the actual authoritative signal (the parent's own role,
+  // which `RequireRole(['parent'])` already guarantees is true on this
+  // route) rather than inferring "is Parent" from the Student identity
+  // being absent — both auth contexts are always-mounted and in-memory
+  // only, so an absence check could misfire if both ever ended up
+  // signed in within the same session.
+  const isParent = user?.role === 'parent'
+  const backHref = isParent && childId ? `/parent/menu?childId=${childId}` : '/student/menu'
+  const backLabel = isParent ? 'Back to menu' : 'Done'
 
   const money = (n: string) => `$${Number(n).toFixed(2)}`
 
@@ -41,7 +56,11 @@ export function ReceiptScreen() {
         <Sidebar
           brandTitle="School24"
           groups={[]}
-          user={{ initials: '', name: student?.full_name ?? '', role: 'Student' }}
+          user={{
+            initials: '',
+            name: isParent ? (user?.full_name ?? '') : (student?.full_name ?? ''),
+            role: isParent ? 'Parent' : 'Student',
+          }}
         />
       }
       topbar={<Topbar searchPlaceholder="Search…" />}
@@ -53,7 +72,7 @@ export function ReceiptScreen() {
             <ErrorState
               message="No order details to show. Your order was placed, but this receipt can only be viewed right after checkout."
               action={
-                <Button variant="secondary" onClick={() => navigate('/student/menu')}>
+                <Button variant="secondary" onClick={() => navigate(backHref)}>
                   Back to menu
                 </Button>
               }
@@ -88,13 +107,13 @@ export function ReceiptScreen() {
                 ))}
               </ul>
               <div className="mt-1 flex w-full items-center justify-between border-t border-line pt-3 text-sm">
-                <span className="text-muted">Paid from your wallet</span>
+                <span className="text-muted">{isParent ? 'Paid from wallet' : 'Paid from your wallet'}</span>
                 <span className="font-bold text-ink">{money(order.total_amount)}</span>
               </div>
 
               <div className="mt-5 flex w-full flex-col gap-2">
-                <Button variant="secondary" fullWidth onClick={() => navigate('/student/menu')}>
-                  Done
+                <Button variant="secondary" fullWidth onClick={() => navigate(backHref)}>
+                  {backLabel}
                 </Button>
               </div>
             </ResultHero>

@@ -48,3 +48,11 @@ export async function getWalletTransactions(walletId: string): Promise<WalletTra
   )
   return response.data.data
 }
+
+/** FR-037 — a parent reading a LINKED CHILD's own wallet balance
+ * (distinct from `getWallet`, which only ever returns a wallet the
+ * caller directly owns). */
+export async function getChildWallet(studentId: string): Promise<Wallet> {
+  const response = await apiClient.get<Envelope<Wallet>>(`/api/v1/students/${studentId}/wallet`)
+  return response.data.data
+}

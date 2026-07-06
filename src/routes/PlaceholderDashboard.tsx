@@ -19,11 +19,13 @@ const ROLE_LABEL: Record<string, string> = {
  * content this ticket does not own.
  *
  * FR-022 addition: this is `ChildSelectScreen.tsx`'s own default
- * `next` destination (the real ordering/top-up destinations, FR-037/
- * FR-029, don't exist yet) — a `?childId=` in the URL after returning
- * here is rendered as a minimal "context loaded" confirmation banner,
- * honestly proving the selection mechanism resolved a child rather
- * than pretending to be the real order/top-up flow.
+ * `next` destination (a `?childId=` in the URL after returning here
+ * with no `next=` — e.g. a bookmarked/direct visit — is rendered as a
+ * minimal "context loaded" confirmation banner, honestly proving the
+ * selection mechanism resolved a child rather than pretending to be a
+ * real flow). The "Order for a child" card below now routes through
+ * with `next=/parent/menu` (FR-037) instead, reaching the real
+ * ordering flow.
  *
  * FR-023 addition: "My children" card links to the real
  * `MyChildrenScreen.tsx` (Sc061) — the canonical status home the
@@ -130,7 +132,7 @@ export function PlaceholderDashboard() {
                 </div>
               </div>
               <Link
-                to="/parent/select-child"
+                to="/parent/select-child?next=/parent/menu"
                 className="rounded-control bg-brand px-4 py-2 text-sm font-semibold text-white hover:bg-brand-deep"
               >
                 Choose a child

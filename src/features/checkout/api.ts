@@ -27,3 +27,11 @@ export async function studentCheckout(studentId: string): Promise<Order> {
   )
   return response.data.data
 }
+
+export async function childCheckout(studentId: string, fundingWalletId: string): Promise<Order> {
+  const response = await apiClient.post<{ data: Order; meta: unknown; errors: unknown }>(
+    `/api/v1/children/${studentId}/checkout`,
+    { confirm_checkout: true, funding_wallet_id: fundingWalletId },
+  )
+  return response.data.data
+}
