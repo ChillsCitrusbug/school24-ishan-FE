@@ -50,7 +50,7 @@ afterEach(() => {
 })
 
 describe('ExportOrdersScreen (FR-042)', () => {
-  it('generates and offers a CSV download', async () => {
+  it('generates and offers a CSV download by default', async () => {
     const blob = new Blob(['Order,Student\n'], { type: 'text/csv' })
     vi.mocked(ordersApi.exportAdminOrders).mockResolvedValue(blob)
 
@@ -60,7 +60,36 @@ describe('ExportOrdersScreen (FR-042)', () => {
     expect(await screen.findByText('Your export is ready')).toBeInTheDocument()
     expect(ordersApi.exportAdminOrders).toHaveBeenCalledWith(
       expect.objectContaining({ date_from: expect.any(String), date_to: expect.any(String) }),
+      'csv',
     )
+    expect(screen.getByText(/^CSV ·/)).toBeInTheDocument()
+  })
+
+  it('generates an XLSX download when Excel is selected', async () => {
+    const blob = new Blob(['fake-xlsx-bytes'])
+    vi.mocked(ordersApi.exportAdminOrders).mockResolvedValue(blob)
+
+    await renderAuthenticatedAt('/school-admin/orders/export')
+    fireEvent.change(screen.getByLabelText('Format'), { target: { value: 'xlsx' } })
+    fireEvent.click(screen.getByRole('button', { name: /generate export/i }))
+
+    expect(await screen.findByText('Your export is ready')).toBeInTheDocument()
+    expect(ordersApi.exportAdminOrders).toHaveBeenCalledWith(expect.any(Object), 'xlsx')
+    expect(screen.getByText(/^XLSX ·/)).toBeInTheDocument()
+    expect(screen.getByText(/\.xlsx$/)).toBeInTheDocument()
+  })
+
+  it('generates a PDF download when PDF is selected', async () => {
+    const blob = new Blob(['fake-pdf-bytes'])
+    vi.mocked(ordersApi.exportAdminOrders).mockResolvedValue(blob)
+
+    await renderAuthenticatedAt('/school-admin/orders/export')
+    fireEvent.change(screen.getByLabelText('Format'), { target: { value: 'pdf' } })
+    fireEvent.click(screen.getByRole('button', { name: /generate export/i }))
+
+    expect(await screen.findByText('Your export is ready')).toBeInTheDocument()
+    expect(ordersApi.exportAdminOrders).toHaveBeenCalledWith(expect.any(Object), 'pdf')
+    expect(screen.getByText(/^PDF ·/)).toBeInTheDocument()
   })
 
   it('shows an error if the export fails', async () => {

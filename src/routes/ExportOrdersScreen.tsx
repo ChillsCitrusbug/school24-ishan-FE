@@ -1,8 +1,8 @@
 import { useState } from 'react'
 import { useNavigate } from 'react-router-dom'
-import { AppShell, Sidebar, Topbar, MobileTabBar, IconButton, Button, Card, Field, Input, ResultHero, Icon } from '@/components'
+import { AppShell, Sidebar, Topbar, MobileTabBar, IconButton, Button, Card, Field, Input, Select, ResultHero, Icon } from '@/components'
 import { useAuth } from '@/features/auth/useAuth'
-import { exportAdminOrders } from '@/features/orders/api'
+import { exportAdminOrders, type AdminExportFormat } from '@/features/orders/api'
 import { extractErrorMessage } from '@/lib/api-error'
 import { schoolAdminNavGroups, schoolAdminTabs } from './schoolAdminNav'
 
@@ -19,17 +19,23 @@ function formatBytes(bytes: number): string {
   return `${(bytes / 1024).toFixed(1)} KB`
 }
 
+const FORMAT_LABEL: Record<AdminExportFormat, string> = {
+  csv: 'CSV (spreadsheet)',
+  xlsx: 'Excel (.xlsx)',
+  pdf: 'PDF',
+}
+
 /**
  * SC-085 · Export Order Data (FR-042). Reuses the approved
- * Sc085Export.tsx structure for the date-range fields. This ticket's
- * own DoD names CSV only ("GET /api/v1/orders/export produces a CSV
- * export") — matching this codebase's own established precedent
- * (FR-013's `credentials_to_csv`: "CSV, not PDF/XLSX — no such library
- * exists anywhere in this codebase"). The mock's own Format
- * select (CSV/XLSX/PDF) and "Include" column checkboxes are backend-
- * unsupported for this ticket and are dropped — a disclosed, minimal
- * reduction, the same precedent FR-038 set for its own out-of-scope
- * "Cancel order" button.
+ * Sc085Export.tsx structure, including its own Format selector
+ * (CSV/XLSX/PDF) — the user's own explicit upfront decision for this
+ * batch (decision #6) named all 3 formats, overriding an earlier build
+ * that shipped CSV-only by mistakenly citing a different, unrelated
+ * codebase precedent instead. The mock's own "Include" column
+ * checkboxes remain out of scope (no column-selection support exists
+ * anywhere in the export endpoint) — a disclosed, minimal reduction,
+ * the same precedent FR-038 set for its own out-of-scope "Cancel
+ * order" button.
  */
 export function ExportOrdersScreen() {
   const { user } = useAuth()
@@ -37,16 +43,19 @@ export function ExportOrdersScreen() {
   const today = new Date().toISOString().slice(0, 10)
   const [dateFrom, setDateFrom] = useState(today)
   const [dateTo, setDateTo] = useState(today)
+  const [format, setFormat] = useState<AdminExportFormat>('csv')
   const [isExporting, setIsExporting] = useState(false)
   const [exportError, setExportError] = useState<string | null>(null)
-  const [ready, setReady] = useState<{ blob: Blob; filename: string } | null>(null)
+  const [ready, setReady] = useState<{ blob: Blob; filename: string; format: AdminExportFormat } | null>(
+    null,
+  )
 
   async function handleGenerate() {
     setExportError(null)
     setIsExporting(true)
     try {
-      const blob = await exportAdminOrders({ date_from: dateFrom, date_to: dateTo })
-      setReady({ blob, filename: `orders_${dateFrom}-to-${dateTo}.csv` })
+      const blob = await exportAdminOrders({ date_from: dateFrom, date_to: dateTo }, format)
+      setReady({ blob, filename: `orders_${dateFrom}-to-${dateTo}.${format}`, format })
     } catch (err: unknown) {
       setExportError(extractErrorMessage(err, 'Something went wrong.'))
     } finally {
@@ -107,7 +116,9 @@ export function ExportOrdersScreen() {
                 </span>
                 <div className="min-w-0 text-left">
                   <div className="truncate text-sm font-medium text-ink">{ready.filename}</div>
-                  <div className="text-xs text-muted">CSV · {formatBytes(ready.blob.size)}</div>
+                  <div className="text-xs text-muted">
+                    {ready.format.toUpperCase()} · {formatBytes(ready.blob.size)}
+                  </div>
                 </div>
               </div>
               <div className="mt-5 flex w-full flex-col gap-2">
@@ -123,7 +134,7 @@ export function ExportOrdersScreen() {
         ) : (
           <Card className="p-5">
             <h1 className="text-xl font-bold text-ink">Export order data</h1>
-            <p className="mt-1 text-sm text-muted">Choose a date range to download a CSV.</p>
+            <p className="mt-1 text-sm text-muted">Choose a date range and format to download.</p>
 
             {exportError && (
               <p role="alert" className="mt-3 text-sm text-danger">
@@ -140,6 +151,18 @@ export function ExportOrdersScreen() {
                   <Input type="date" value={dateTo} onChange={(e) => setDateTo(e.target.value)} />
                 </Field>
               </div>
+              <Field label="Format">
+                <Select
+                  value={format}
+                  onChange={(e) => setFormat(e.target.value as AdminExportFormat)}
+                >
+                  {(Object.keys(FORMAT_LABEL) as AdminExportFormat[]).map((value) => (
+                    <option key={value} value={value}>
+                      {FORMAT_LABEL[value]}
+                    </option>
+                  ))}
+                </Select>
+              </Field>
               <Button fullWidth leadingIcon="export" onClick={handleGenerate} disabled={isExporting}>
                 {isExporting ? 'Generating…' : 'Generate export'}
               </Button>

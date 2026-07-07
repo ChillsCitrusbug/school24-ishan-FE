@@ -109,11 +109,14 @@ export async function listAdminOrders(filters: AdminOrderFilters = {}): Promise<
   return { rows: response.data.data, meta: response.data.meta }
 }
 
+export type AdminExportFormat = 'csv' | 'xlsx' | 'pdf'
+
 export async function exportAdminOrders(
   filters: Omit<AdminOrderFilters, 'sort_by' | 'sort_dir' | 'page' | 'page_size'> = {},
+  format: AdminExportFormat = 'csv',
 ): Promise<Blob> {
   const response = await apiClient.get('/api/v1/orders/admin/export', {
-    params: toQueryParams(filters),
+    params: { ...toQueryParams(filters), format },
     paramsSerializer: REPEATED_KEY_PARAMS_SERIALIZER,
     responseType: 'blob',
   })

@@ -1,14 +1,16 @@
 // FR-042 visual-regression (Step 17 / _visual-check.md).
 //
 // A real School Admin views the school-wide all-orders list and
-// exports it as CSV. Places TWO real orders for the same real linked
-// child — one funded by the STUDENT's own wallet (FR-036's checkout)
-// and one funded by the PARENT's own wallet (FR-037's checkout) — then
-// confirms the SA sees BOTH on GET /api/v1/orders/admin (unlike
-// FR-040's own funding-wallet visibility filter, which deliberately
-// does not apply to this SA view), that a student_name filter narrows
-// the result, and that GET /api/v1/orders/admin/export returns a real
-// CSV containing both orders.
+// exports it in all 3 formats (CSV/XLSX/PDF — the user's own upfront
+// batch decision named all 3, not CSV-only). Places TWO real orders
+// for the same real linked child — one funded by the STUDENT's own
+// wallet (FR-036's checkout) and one funded by the PARENT's own wallet
+// (FR-037's checkout) — then confirms the SA sees BOTH on
+// GET /api/v1/orders/admin (unlike FR-040's own funding-wallet
+// visibility filter, which deliberately does not apply to this SA
+// view), that a student_name filter narrows the result, and that
+// GET /api/v1/orders/admin/export returns real, correctly-typed
+// content for each format.
 
 import { test, expect, request as playwrightRequest } from '@playwright/test'
 
@@ -123,13 +125,34 @@ test('fr-042 school admin sees every in-tenant order and exports a real CSV', as
   expect(filteredIds).toContain(studentOrder.id)
   expect(filteredIds).toContain(parentOrder.id)
 
-  // A real CSV export containing both orders.
-  const exportResponse = await api.get('/api/v1/orders/admin/export', { headers: auth(saToken) })
-  expect(exportResponse.ok()).toBeTruthy()
-  expect(exportResponse.headers()['content-type']).toContain('text/csv')
-  const csvText = await exportResponse.text()
+  // A real CSV export containing both orders (the default format).
+  const csvResponse = await api.get('/api/v1/orders/admin/export', { headers: auth(saToken) })
+  expect(csvResponse.ok()).toBeTruthy()
+  expect(csvResponse.headers()['content-type']).toContain('text/csv')
+  const csvText = await csvResponse.text()
   expect(csvText).toContain(studentOrder.display_id)
   expect(csvText).toContain(parentOrder.display_id)
+
+  // A real XLSX export — a genuine ZIP-based spreadsheet (magic bytes
+  // "PK"), not just a mislabeled CSV.
+  const xlsxResponse = await api.get('/api/v1/orders/admin/export?format=xlsx', {
+    headers: auth(saToken),
+  })
+  expect(xlsxResponse.ok()).toBeTruthy()
+  expect(xlsxResponse.headers()['content-type']).toBe(
+    'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
+  )
+  const xlsxBody = await xlsxResponse.body()
+  expect(xlsxBody.subarray(0, 2).toString('latin1')).toBe('PK')
+
+  // A real PDF export — genuine PDF magic bytes.
+  const pdfResponse = await api.get('/api/v1/orders/admin/export?format=pdf', {
+    headers: auth(saToken),
+  })
+  expect(pdfResponse.ok()).toBeTruthy()
+  expect(pdfResponse.headers()['content-type']).toBe('application/pdf')
+  const pdfBody = await pdfResponse.body()
+  expect(pdfBody.subarray(0, 5).toString('latin1')).toBe('%PDF-')
 
   await api.dispose()
 })
