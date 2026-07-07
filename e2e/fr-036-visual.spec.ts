@@ -17,7 +17,8 @@ test('sc-074/077 a real student checks out from their own wallet and gets a real
   await page.getByRole('button', { name: /sign in/i }).click()
   await page.waitForURL('**/student')
 
-  await page.getByRole('link', { name: /browse menu/i }).click()
+  await page.waitForLoadState('networkidle')
+  await page.getByRole('button', { name: /^browse menu$/i }).click()
   await page.waitForURL('**/student/menu')
   await page.waitForLoadState('networkidle')
 

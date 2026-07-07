@@ -41,7 +41,7 @@ describe('StudentLoginScreen', () => {
     fillAndSubmit('S-41880', 'CorrectHorseBattery9!')
 
     await waitFor(() =>
-      expect(screen.getByText(/canteen home coming soon/i)).toBeInTheDocument(),
+      expect(screen.getByText(/grab your usual in a tap/i)).toBeInTheDocument(),
     )
   })
 

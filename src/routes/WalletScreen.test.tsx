@@ -61,7 +61,7 @@ async function loginAsStudentAt(path: string) {
   fireEvent.change(screen.getByLabelText('Student ID'), { target: { value: 'S-41880' } })
   fireEvent.change(screen.getByLabelText('Password'), { target: { value: 'whatever' } })
   fireEvent.click(screen.getByRole('button', { name: /sign in/i }))
-  await waitFor(() => expect(screen.getByText(/canteen home coming soon/i)).toBeInTheDocument())
+  await waitFor(() => expect(screen.getByText(/grab your usual in a tap/i)).toBeInTheDocument())
   await act(async () => {
     await router.navigate(path)
   })

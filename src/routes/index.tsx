@@ -75,10 +75,10 @@ import { StudentDeleteScreen } from './StudentDeleteScreen'
 import { StudentDetailScreen } from './StudentDetailScreen'
 import { StudentFirstLoginScreen } from './StudentFirstLoginScreen'
 import { StudentFormScreen } from './StudentFormScreen'
+import { StudentHomeScreen } from './StudentHomeScreen'
 import { StudentLoginScreen } from './StudentLoginScreen'
 import { StudentOrderHistoryScreen } from './StudentOrderHistoryScreen'
 import { StudentOrderTrackingScreen } from './StudentOrderTrackingScreen'
-import { StudentPlaceholderHome } from './StudentPlaceholderHome'
 import { StudentProfileScreen } from './StudentProfileScreen'
 import { StudentTxnHistoryScreen } from './StudentTxnHistoryScreen'
 import { StudentStatusScreen } from './StudentStatusScreen'
@@ -131,7 +131,7 @@ export const routes: RouteObject[] = [
     path: '/student',
     element: (
       <RequireStudent>
-        <StudentPlaceholderHome />
+        <StudentHomeScreen />
       </RequireStudent>
     ),
   },

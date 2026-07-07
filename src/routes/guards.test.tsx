@@ -100,7 +100,7 @@ describe('RequireStudent', () => {
     await loginAsStudent()
 
     await waitFor(() =>
-      expect(screen.getByText(/canteen home coming soon/i)).toBeInTheDocument(),
+      expect(screen.getByText(/grab your usual in a tap/i)).toBeInTheDocument(),
     )
   })
 
@@ -140,7 +140,7 @@ describe('RootRedirect', () => {
   it('sends a signed-in student straight to their home', async () => {
     const { router } = await loginAsStudent()
     await waitFor(() =>
-      expect(screen.getByText(/canteen home coming soon/i)).toBeInTheDocument(),
+      expect(screen.getByText(/grab your usual in a tap/i)).toBeInTheDocument(),
     )
 
     await act(async () => {
@@ -148,7 +148,7 @@ describe('RootRedirect', () => {
     })
 
     await waitFor(() =>
-      expect(screen.getByText(/canteen home coming soon/i)).toBeInTheDocument(),
+      expect(screen.getByText(/grab your usual in a tap/i)).toBeInTheDocument(),
     )
   })
 })

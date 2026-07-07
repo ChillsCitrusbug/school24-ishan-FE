@@ -16,7 +16,8 @@ test('sc-071/072/073 a real student browses the menu, selects a size, and builds
   await page.getByRole('button', { name: /sign in/i }).click()
   await page.waitForURL('**/student')
 
-  await page.getByRole('link', { name: /browse menu/i }).click()
+  await page.waitForLoadState('networkidle')
+  await page.getByRole('button', { name: /^browse menu$/i }).click()
   await page.waitForURL('**/student/menu')
   await page.waitForLoadState('networkidle')
 
