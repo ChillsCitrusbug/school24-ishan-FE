@@ -194,6 +194,24 @@ export function PlaceholderDashboard() {
             </div>
           </Card>
         )}
+        {user?.role === 'parent' && (
+          <Card className="p-5">
+            <div className="flex items-center justify-between gap-3">
+              <div>
+                <div className="font-semibold text-ink">Spending insights</div>
+                <div className="text-sm text-muted">
+                  See wallet balances and canteen spending across all your children.
+                </div>
+              </div>
+              <Link
+                to="/parent/spending-report"
+                className="rounded-control bg-brand px-4 py-2 text-sm font-semibold text-white hover:bg-brand-deep"
+              >
+                View report
+              </Link>
+            </div>
+          </Card>
+        )}
       </div>
     </AppShell>
   )

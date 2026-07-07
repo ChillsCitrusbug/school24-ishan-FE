@@ -60,6 +60,7 @@ import { SchoolAdminDashboard } from './SchoolAdminDashboard'
 import { SchoolDetailScreen } from './SchoolDetailScreen'
 import { SchoolsListScreen } from './SchoolsListScreen'
 import { SentLogScreen } from './SentLogScreen'
+import { SpendingReportScreen } from './SpendingReportScreen'
 import { StaffDetailScreen } from './StaffDetailScreen'
 import { StaffFormScreen } from './StaffFormScreen'
 import { StaffListScreen } from './StaffListScreen'
@@ -801,6 +802,14 @@ export const routes: RouteObject[] = [
     element: (
       <RequireRole allow={['parent']}>
         <ParentTxnHistoryScreen />
+      </RequireRole>
+    ),
+  },
+  {
+    path: '/parent/spending-report',
+    element: (
+      <RequireRole allow={['parent']}>
+        <SpendingReportScreen />
       </RequireRole>
     ),
   },
