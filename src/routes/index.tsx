@@ -47,9 +47,11 @@ import { ParentWalletTopUpScreen } from './ParentWalletTopUpScreen'
 import { PlaceholderDashboard } from './PlaceholderDashboard'
 import { PlatformDashboardScreen } from './PlatformDashboardScreen'
 import { ProductFormScreen } from './ProductFormScreen'
+import { ProductSalesScreen } from './ProductSalesScreen'
 import { ProductsListScreen } from './ProductsListScreen'
 import { ReceiptScreen } from './ReceiptScreen'
 import { RegisterScreen } from './RegisterScreen'
+import { ReportsScreen } from './ReportsScreen'
 import { ResetPasswordScreen } from './ResetPasswordScreen'
 import { RoleBuilderScreen } from './RoleBuilderScreen'
 import { RoleDeleteScreen } from './RoleDeleteScreen'
@@ -490,6 +492,22 @@ export const routes: RouteObject[] = [
     element: (
       <RequireRole allow={['school_admin', 'staff']}>
         <CancelOrderScreen />
+      </RequireRole>
+    ),
+  },
+  {
+    path: '/school-admin/reports',
+    element: (
+      <RequireRole allow={['school_admin']}>
+        <ReportsScreen />
+      </RequireRole>
+    ),
+  },
+  {
+    path: '/school-admin/reports/products',
+    element: (
+      <RequireRole allow={['school_admin']}>
+        <ProductSalesScreen />
       </RequireRole>
     ),
   },

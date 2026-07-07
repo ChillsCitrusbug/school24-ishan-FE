@@ -9,6 +9,7 @@ type SchoolAdminSection =
   | 'menu'
   | 'orders'
   | 'allOrders'
+  | 'reports'
   | 'notifications'
 
 /**
@@ -57,7 +58,12 @@ export function schoolAdminNavGroups(active: SchoolAdminSection = 'dashboard'): 
           active: active === 'allOrders',
           href: '/school-admin/orders/all',
         },
-        { icon: 'chart', label: 'Reports' },
+        {
+          icon: 'chart',
+          label: 'Reports',
+          active: active === 'reports',
+          href: '/school-admin/reports',
+        },
       ],
     },
     {
@@ -84,6 +90,6 @@ export function schoolAdminTabs(active: SchoolAdminSection = 'dashboard'): TabIt
       href: '/school-admin/approvals',
     },
     { icon: 'order', label: 'Orders', active: active === 'orders', href: '/school-admin/orders' },
-    { icon: 'chart', label: 'Reports' },
+    { icon: 'chart', label: 'Reports', active: active === 'reports', href: '/school-admin/reports' },
   ]
 }
