@@ -176,6 +176,24 @@ export function PlaceholderDashboard() {
             </div>
           </Card>
         )}
+        {user?.role === 'parent' && (
+          <Card className="p-5">
+            <div className="flex items-center justify-between gap-3">
+              <div>
+                <div className="font-semibold text-ink">My orders</div>
+                <div className="text-sm text-muted">
+                  Track an active order or review order history for any linked child.
+                </div>
+              </div>
+              <Link
+                to="/parent/orders"
+                className="rounded-control bg-brand px-4 py-2 text-sm font-semibold text-white hover:bg-brand-deep"
+              >
+                View orders
+              </Link>
+            </div>
+          </Card>
+        )}
       </div>
     </AppShell>
   )

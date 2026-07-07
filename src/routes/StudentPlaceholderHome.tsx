@@ -68,6 +68,20 @@ export function StudentPlaceholderHome() {
             </Link>
           </div>
         </Card>
+        <Card className="p-5">
+          <div className="flex items-center justify-between gap-3">
+            <div>
+              <div className="font-semibold text-ink">My orders</div>
+              <div className="text-sm text-muted">Track an active order or review your order history.</div>
+            </div>
+            <Link
+              to="/student/orders"
+              className="rounded-control bg-brand px-4 py-2 text-sm font-semibold text-white hover:bg-brand-deep"
+            >
+              View orders
+            </Link>
+          </div>
+        </Card>
       </div>
     </AppShell>
   )

@@ -38,6 +38,8 @@ import { ParentCartScreen } from './ParentCartScreen'
 import { ParentCheckoutScreen } from './ParentCheckoutScreen'
 import { ParentItemDetailScreen } from './ParentItemDetailScreen'
 import { ParentMenuBrowseScreen } from './ParentMenuBrowseScreen'
+import { ParentOrderHistoryScreen } from './ParentOrderHistoryScreen'
+import { ParentOrderTrackingScreen } from './ParentOrderTrackingScreen'
 import { ParentProfileScreen } from './ParentProfileScreen'
 import { ParentTxnHistoryScreen } from './ParentTxnHistoryScreen'
 import { ParentWalletScreen } from './ParentWalletScreen'
@@ -71,6 +73,8 @@ import { StudentDetailScreen } from './StudentDetailScreen'
 import { StudentFirstLoginScreen } from './StudentFirstLoginScreen'
 import { StudentFormScreen } from './StudentFormScreen'
 import { StudentLoginScreen } from './StudentLoginScreen'
+import { StudentOrderHistoryScreen } from './StudentOrderHistoryScreen'
+import { StudentOrderTrackingScreen } from './StudentOrderTrackingScreen'
 import { StudentPlaceholderHome } from './StudentPlaceholderHome'
 import { StudentProfileScreen } from './StudentProfileScreen'
 import { StudentTxnHistoryScreen } from './StudentTxnHistoryScreen'
@@ -205,6 +209,22 @@ export const routes: RouteObject[] = [
     element: (
       <RequireStudent>
         <ReceiptScreen />
+      </RequireStudent>
+    ),
+  },
+  {
+    path: '/student/orders',
+    element: (
+      <RequireStudent>
+        <StudentOrderHistoryScreen />
+      </RequireStudent>
+    ),
+  },
+  {
+    path: '/student/orders/:orderId',
+    element: (
+      <RequireStudent>
+        <StudentOrderTrackingScreen />
       </RequireStudent>
     ),
   },
@@ -725,6 +745,22 @@ export const routes: RouteObject[] = [
     element: (
       <RequireRole allow={['parent']}>
         <ReceiptScreen />
+      </RequireRole>
+    ),
+  },
+  {
+    path: '/parent/orders',
+    element: (
+      <RequireRole allow={['parent']}>
+        <ParentOrderHistoryScreen />
+      </RequireRole>
+    ),
+  },
+  {
+    path: '/parent/orders/:orderId',
+    element: (
+      <RequireRole allow={['parent']}>
+        <ParentOrderTrackingScreen />
       </RequireRole>
     ),
   },

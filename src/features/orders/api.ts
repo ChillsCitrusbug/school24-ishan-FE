@@ -65,6 +65,37 @@ export async function cancelOrder(orderId: string): Promise<StaffOrderDetail> {
   return response.data.data
 }
 
+// --- FR-041: Student/Parent-facing (FR-040's own visibility filter). These
+// reuse the exact same `id`/`display_id`/... shape as the Staff-facing
+// summary/detail above — the backend serializes both with the same function. ---
+
+export type OrderView = 'all' | 'active' | 'history'
+
+export async function listMyOrders(view: OrderView = 'all'): Promise<StaffOrderSummary[]> {
+  const response = await apiClient.get<Envelope<StaffOrderSummary[]>>('/api/v1/orders', {
+    params: { view },
+  })
+  return response.data.data
+}
+
+export async function getMyOrder(orderId: string): Promise<StaffOrderDetail> {
+  const response = await apiClient.get<Envelope<StaffOrderDetail>>(`/api/v1/orders/${orderId}`)
+  return response.data.data
+}
+
+export interface OrderStatusOnly {
+  id: string
+  status: OrderStatus
+  version: number
+}
+
+export async function getMyOrderStatus(orderId: string): Promise<OrderStatusOnly> {
+  const response = await apiClient.get<Envelope<OrderStatusOnly>>(
+    `/api/v1/orders/${orderId}/status`,
+  )
+  return response.data.data
+}
+
 export interface AdminOrderFilters {
   date_from?: string
   date_to?: string
