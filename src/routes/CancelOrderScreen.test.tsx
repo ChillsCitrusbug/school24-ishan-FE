@@ -66,66 +66,57 @@ afterEach(() => {
   vi.restoreAllMocks()
 })
 
-describe('OrderDetailScreen (FR-038)', () => {
-  it('shows the timeline, items, and an Advance button for an active order', async () => {
+describe('CancelOrderScreen (FR-039)', () => {
+  it('shows the confirm state with items and total', async () => {
     vi.mocked(ordersApi.getStaffOrderDetail).mockResolvedValue(DETAIL)
 
-    await renderAuthenticatedAt('/school-admin/orders/o1')
+    await renderAuthenticatedAt('/school-admin/orders/o1/cancel')
 
-    expect(await screen.findByText('Order #ORD-ABCD1234')).toBeInTheDocument()
+    expect(await screen.findByText('Cancel order #ORD-ABCD1234?')).toBeInTheDocument()
     expect(screen.getByText('Sushi Pack')).toBeInTheDocument()
-    expect(screen.getByRole('button', { name: /mark ready to collect/i })).toBeInTheDocument()
+    expect(screen.getByRole('button', { name: /cancel & refund \$12\.40/i })).toBeInTheDocument()
   })
 
-  it('advancing calls the API with the correct next status and refreshes the timeline', async () => {
+  it('confirming cancels the order and shows the success state with the refund amount', async () => {
     vi.mocked(ordersApi.getStaffOrderDetail).mockResolvedValue(DETAIL)
-    vi.mocked(ordersApi.advanceOrderStatus).mockResolvedValue({ ...DETAIL, status: 'ready', version: 4 })
+    vi.mocked(ordersApi.cancelOrder).mockResolvedValue({ ...DETAIL, status: 'cancelled' })
 
-    await renderAuthenticatedAt('/school-admin/orders/o1')
-    await screen.findByText('Order #ORD-ABCD1234')
-    fireEvent.click(screen.getByRole('button', { name: /mark ready to collect/i }))
+    await renderAuthenticatedAt('/school-admin/orders/o1/cancel')
+    await screen.findByText('Cancel order #ORD-ABCD1234?')
+    fireEvent.click(screen.getByRole('button', { name: /cancel & refund \$12\.40/i }))
 
-    await waitFor(() => expect(ordersApi.advanceOrderStatus).toHaveBeenCalledWith('o1', 'ready'))
-    expect(await screen.findByText('Ready')).toBeInTheDocument()
+    await waitFor(() => expect(ordersApi.cancelOrder).toHaveBeenCalledWith('o1'))
+    expect(await screen.findByText('Order cancelled & refunded')).toBeInTheDocument()
+    expect(screen.getByText('Refunded $12.40')).toBeInTheDocument()
   })
 
-  it('shows a read-only message with no Advance button for a completed order', async () => {
-    vi.mocked(ordersApi.getStaffOrderDetail).mockResolvedValue({ ...DETAIL, status: 'completed' })
+  it('shows an error banner if cancellation fails, and stays on the confirm screen', async () => {
+    vi.mocked(ordersApi.getStaffOrderDetail).mockResolvedValue(DETAIL)
+    vi.mocked(ordersApi.cancelOrder).mockRejectedValue({
+      response: { data: { errors: 'This order has already been cancelled or completed and cannot be cancelled again.' } },
+    })
 
-    await renderAuthenticatedAt('/school-admin/orders/o1')
+    await renderAuthenticatedAt('/school-admin/orders/o1/cancel')
+    await screen.findByText('Cancel order #ORD-ABCD1234?')
+    fireEvent.click(screen.getByRole('button', { name: /cancel & refund \$12\.40/i }))
 
     expect(
-      await screen.findByText('This order has reached a final status and can no longer be changed.'),
+      await screen.findByText(
+        'This order has already been cancelled or completed and cannot be cancelled again.',
+      ),
     ).toBeInTheDocument()
-    expect(screen.queryByRole('button', { name: /mark ready/i })).not.toBeInTheDocument()
+    expect(screen.getByText('Cancel order #ORD-ABCD1234?')).toBeInTheDocument()
   })
 
-  it('shows a Cancel order button for an active order and navigates to the cancel screen (FR-039)', async () => {
+  it('"Keep order" navigates back to the order detail screen without cancelling', async () => {
     vi.mocked(ordersApi.getStaffOrderDetail).mockResolvedValue(DETAIL)
 
-    await renderAuthenticatedAt('/school-admin/orders/o1')
-    await screen.findByText('Order #ORD-ABCD1234')
-    fireEvent.click(screen.getByRole('button', { name: /^cancel order$/i }))
+    await renderAuthenticatedAt('/school-admin/orders/o1/cancel')
+    await screen.findByText('Cancel order #ORD-ABCD1234?')
+    fireEvent.click(screen.getByRole('button', { name: /keep order/i }))
 
-    await waitFor(() => expect(screen.getByText('Cancel order #ORD-ABCD1234?')).toBeInTheDocument())
-  })
-
-  it('does not show a Cancel order button for a completed order (FR-039)', async () => {
-    vi.mocked(ordersApi.getStaffOrderDetail).mockResolvedValue({ ...DETAIL, status: 'completed' })
-
-    await renderAuthenticatedAt('/school-admin/orders/o1')
-    await screen.findByText('Order #ORD-ABCD1234')
-
-    expect(screen.queryByRole('button', { name: /^cancel order$/i })).not.toBeInTheDocument()
-  })
-
-  it('does not show a Cancel order button for an already-cancelled order (FR-039)', async () => {
-    vi.mocked(ordersApi.getStaffOrderDetail).mockResolvedValue({ ...DETAIL, status: 'cancelled' })
-
-    await renderAuthenticatedAt('/school-admin/orders/o1')
-    await screen.findByText('Order #ORD-ABCD1234')
-
-    expect(screen.queryByRole('button', { name: /^cancel order$/i })).not.toBeInTheDocument()
+    await waitFor(() => expect(screen.getByText('Order #ORD-ABCD1234')).toBeInTheDocument())
+    expect(ordersApi.cancelOrder).not.toHaveBeenCalled()
   })
 
   it('shows an error state when the order fails to load', async () => {
@@ -133,7 +124,7 @@ describe('OrderDetailScreen (FR-038)', () => {
       response: { data: { errors: 'This order could not be loaded.' } },
     })
 
-    await renderAuthenticatedAt('/school-admin/orders/o1')
+    await renderAuthenticatedAt('/school-admin/orders/o1/cancel')
 
     expect(await screen.findByText('This order could not be loaded.')).toBeInTheDocument()
   })

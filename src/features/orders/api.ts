@@ -57,6 +57,14 @@ export async function advanceOrderStatus(
   return response.data.data
 }
 
+export async function cancelOrder(orderId: string): Promise<StaffOrderDetail> {
+  const response = await apiClient.post<Envelope<StaffOrderDetail>>(
+    `/api/v1/orders/${orderId}/cancel`,
+    { cancellation_confirmation: true },
+  )
+  return response.data.data
+}
+
 export interface AdminOrderFilters {
   date_from?: string
   date_to?: string

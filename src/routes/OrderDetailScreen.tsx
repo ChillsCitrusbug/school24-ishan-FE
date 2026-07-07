@@ -73,14 +73,18 @@ function buildTimeline(order: StaffOrderDetail): TimelineStep[] {
   }))
 }
 
+const CANCELLABLE_STATUSES: OrderStatus[] = ['pending', 'confirmed', 'preparing', 'ready']
+
 /**
  * SC-079 · Order Detail & Status Control — Staff/School Admin (FR-038).
- * Reuses the approved Sc079OrderDetail.tsx structure — the mock's own
- * "Cancel order" button is dropped (FR-039's own separate scope, not
- * built yet), same disclosed-scope-reduction precedent as FR-036/037's
- * own dropped "Track order" button. The mock's own 4-step timeline
- * skips "Confirmed" (same gap as Sc078's own card component); a 5-step
- * timeline is used here to match the real forward sequence.
+ * Reuses the approved Sc079OrderDetail.tsx structure. The mock's own
+ * 4-step timeline skips "Confirmed" (same gap as Sc078's own card
+ * component); a 5-step timeline is used here to match the real forward
+ * sequence. The mock's own "Cancel order" button — dropped in FR-038 as
+ * a disclosed scope reduction ("this ticket's own separate scope, not
+ * built yet") — is restored now that FR-039 exists, navigating to
+ * CancelOrderScreen.tsx (Sc080), shown only while the order is still in
+ * a non-terminal status.
  */
 export function OrderDetailScreen() {
   const { user } = useAuth()
@@ -223,6 +227,17 @@ export function OrderDetailScreen() {
               <p className="mt-4 text-center text-xs text-muted">
                 This order has reached a final status and can no longer be changed.
               </p>
+            )}
+
+            {CANCELLABLE_STATUSES.includes(order.status) && (
+              <Button
+                variant="danger"
+                fullWidth
+                className="mt-2"
+                onClick={() => navigate(`/school-admin/orders/${order.id}/cancel`)}
+              >
+                Cancel order
+              </Button>
             )}
           </>
         )}

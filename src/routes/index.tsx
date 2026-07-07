@@ -6,6 +6,7 @@ import { ApprovalQueueScreen } from './ApprovalQueueScreen'
 import { AssignRoleScreen } from './AssignRoleScreen'
 import { ChildSelectScreen } from './ChildSelectScreen'
 import { ChildWalletTopUpScreen } from './ChildWalletTopUpScreen'
+import { CancelOrderScreen } from './CancelOrderScreen'
 import { CartScreen } from './CartScreen'
 import { FoodRestrictionsScreen } from './FoodRestrictionsScreen'
 import { ItemDetailScreen } from './ItemDetailScreen'
@@ -460,6 +461,14 @@ export const routes: RouteObject[] = [
     element: (
       <RequireRole allow={['school_admin', 'staff']}>
         <OrderDetailScreen />
+      </RequireRole>
+    ),
+  },
+  {
+    path: '/school-admin/orders/:orderId/cancel',
+    element: (
+      <RequireRole allow={['school_admin', 'staff']}>
+        <CancelOrderScreen />
       </RequireRole>
     ),
   },
