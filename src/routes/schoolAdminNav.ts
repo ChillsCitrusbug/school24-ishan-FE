@@ -8,6 +8,7 @@ type SchoolAdminSection =
   | 'approvals'
   | 'menu'
   | 'orders'
+  | 'allOrders'
   | 'notifications'
 
 /**
@@ -50,6 +51,12 @@ export function schoolAdminNavGroups(active: SchoolAdminSection = 'dashboard'): 
       items: [
         { icon: 'list', label: 'Menu', active: active === 'menu', href: '/school-admin/products' },
         { icon: 'order', label: 'Orders', active: active === 'orders', href: '/school-admin/orders' },
+        {
+          icon: 'order',
+          label: 'All orders',
+          active: active === 'allOrders',
+          href: '/school-admin/orders/all',
+        },
         { icon: 'chart', label: 'Reports' },
       ],
     },

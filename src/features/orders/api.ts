@@ -56,3 +56,66 @@ export async function advanceOrderStatus(
   )
   return response.data.data
 }
+
+export interface AdminOrderFilters {
+  date_from?: string
+  date_to?: string
+  // Repeated `status` query params (e.g. the "Active" quick-filter
+  // matches several statuses at once) — a single string is also
+  // accepted for the "one status" case.
+  status?: OrderStatus | OrderStatus[]
+  student_name?: string
+  parent_name?: string
+  sort_by?: 'placed_at' | 'total_amount' | 'status' | 'student_name'
+  sort_dir?: 'asc' | 'desc'
+  page?: number
+  page_size?: number
+}
+
+export interface AdminOrdersMeta {
+  page: number
+  page_size: number
+  total: number
+  total_pages: number
+}
+
+export interface AdminOrdersPage {
+  rows: StaffOrderSummary[]
+  meta: AdminOrdersMeta
+}
+
+function toQueryParams(filters: AdminOrderFilters): Record<string, string | string[]> {
+  const params: Record<string, string | string[]> = {}
+  for (const [key, value] of Object.entries(filters)) {
+    if (Array.isArray(value)) {
+      if (value.length > 0) params[key] = value
+    } else if (value !== undefined && value !== '') {
+      params[key] = String(value)
+    }
+  }
+  return params
+}
+
+// FastAPI's own `list[...]` query params expect repeated keys
+// (`status=pending&status=preparing`), not axios's default bracket
+// notation (`status[]=pending&status[]=preparing`).
+const REPEATED_KEY_PARAMS_SERIALIZER = { indexes: null }
+
+export async function listAdminOrders(filters: AdminOrderFilters = {}): Promise<AdminOrdersPage> {
+  const response = await apiClient.get<Envelope<StaffOrderSummary[]> & { meta: AdminOrdersMeta }>(
+    '/api/v1/orders/admin',
+    { params: toQueryParams(filters), paramsSerializer: REPEATED_KEY_PARAMS_SERIALIZER },
+  )
+  return { rows: response.data.data, meta: response.data.meta }
+}
+
+export async function exportAdminOrders(
+  filters: Omit<AdminOrderFilters, 'sort_by' | 'sort_dir' | 'page' | 'page_size'> = {},
+): Promise<Blob> {
+  const response = await apiClient.get('/api/v1/orders/admin/export', {
+    params: toQueryParams(filters),
+    paramsSerializer: REPEATED_KEY_PARAMS_SERIALIZER,
+    responseType: 'blob',
+  })
+  return response.data as Blob
+}

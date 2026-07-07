@@ -1,6 +1,7 @@
 import type { RouteObject } from 'react-router-dom'
 import { ActivateAccountScreen } from './ActivateAccountScreen'
 import { AddChildScreen } from './AddChildScreen'
+import { AllOrdersScreen } from './AllOrdersScreen'
 import { ApprovalQueueScreen } from './ApprovalQueueScreen'
 import { AssignRoleScreen } from './AssignRoleScreen'
 import { ChildSelectScreen } from './ChildSelectScreen'
@@ -19,6 +20,7 @@ import { ComboFormScreen } from './ComboFormScreen'
 import { CombosListScreen } from './CombosListScreen'
 import { ComposeNotificationScreen } from './ComposeNotificationScreen'
 import { ConfirmEmailChangeScreen } from './ConfirmEmailChangeScreen'
+import { ExportOrdersScreen } from './ExportOrdersScreen'
 import { ForgotPasswordScreen } from './ForgotPasswordScreen'
 import { FulfilmentBoardScreen } from './FulfilmentBoardScreen'
 import { GuardiansScreen } from './GuardiansScreen'
@@ -434,6 +436,22 @@ export const routes: RouteObject[] = [
     element: (
       <RequireRole allow={['school_admin', 'staff']}>
         <FulfilmentBoardScreen />
+      </RequireRole>
+    ),
+  },
+  {
+    path: '/school-admin/orders/all',
+    element: (
+      <RequireRole allow={['school_admin']}>
+        <AllOrdersScreen />
+      </RequireRole>
+    ),
+  },
+  {
+    path: '/school-admin/orders/export',
+    element: (
+      <RequireRole allow={['school_admin']}>
+        <ExportOrdersScreen />
       </RequireRole>
     ),
   },
