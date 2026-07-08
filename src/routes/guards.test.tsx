@@ -85,7 +85,7 @@ describe('RequireRole', () => {
   it('renders the real content when the signed-in role matches the route', async () => {
     await loginAs('school_admin')
 
-    await waitFor(() => expect(screen.getByText(/let.s set up your school/i)).toBeInTheDocument())
+    await waitFor(() => expect(screen.getByText(/good morning/i)).toBeInTheDocument())
   })
 })
 
@@ -128,13 +128,13 @@ describe('RootRedirect', () => {
 
   it('sends a signed-in School Admin straight to their dashboard', async () => {
     const { router } = await loginAs('school_admin')
-    await waitFor(() => expect(screen.getByText(/let.s set up your school/i)).toBeInTheDocument())
+    await waitFor(() => expect(screen.getByText(/good morning/i)).toBeInTheDocument())
 
     await act(async () => {
       await router.navigate('/')
     })
 
-    await waitFor(() => expect(screen.getByText(/let.s set up your school/i)).toBeInTheDocument())
+    await waitFor(() => expect(screen.getByText(/good morning/i)).toBeInTheDocument())
   })
 
   it('sends a signed-in student straight to their home', async () => {
@@ -156,7 +156,7 @@ describe('RootRedirect', () => {
 describe('Logout (session-persistence addition, 2026-07-08)', () => {
   it('a signed-in user can log out from any authenticated screen and lands back on /login', async () => {
     await loginAs('school_admin')
-    await waitFor(() => expect(screen.getByText(/let.s set up your school/i)).toBeInTheDocument())
+    await waitFor(() => expect(screen.getByText(/good morning/i)).toBeInTheDocument())
 
     fireEvent.click(screen.getByRole('button', { name: /log out/i }))
 
@@ -181,7 +181,7 @@ describe('Logout (session-persistence addition, 2026-07-08)', () => {
 describe('Sidebar brand title (clickable-home addition, 2026-07-08)', () => {
   it('navigates back to the role home from a nested screen', async () => {
     const { router } = await loginAs('school_admin')
-    await waitFor(() => expect(screen.getByText(/let.s set up your school/i)).toBeInTheDocument())
+    await waitFor(() => expect(screen.getByText(/good morning/i)).toBeInTheDocument())
 
     await act(async () => {
       await router.navigate('/school-admin/reports')
@@ -190,14 +190,14 @@ describe('Sidebar brand title (clickable-home addition, 2026-07-08)', () => {
 
     fireEvent.click(screen.getByRole('link', { name: /school24/i }))
 
-    await waitFor(() => expect(screen.getByText(/let.s set up your school/i)).toBeInTheDocument())
+    await waitFor(() => expect(screen.getByText(/good morning/i)).toBeInTheDocument())
   })
 })
 
 describe('Sidebar collapse/expand toggle (2026-07-08)', () => {
   it('collapsing the sidebar hides nav labels; expanding restores them', async () => {
     await loginAs('school_admin')
-    await waitFor(() => expect(screen.getByText(/let.s set up your school/i)).toBeInTheDocument())
+    await waitFor(() => expect(screen.getByText(/good morning/i)).toBeInTheDocument())
     // Scoped to the sidebar's own <aside> — MobileTabBar renders the
     // same "Students" label as a real <a> in the same jsdom tree (CSS
     // md:hidden doesn't remove it without a real layout engine), so an
@@ -221,7 +221,7 @@ describe('Sidebar collapse/expand toggle (2026-07-08)', () => {
 
   it('the collapsed state persists across a page navigation', async () => {
     const { router } = await loginAs('school_admin')
-    await waitFor(() => expect(screen.getByText(/let.s set up your school/i)).toBeInTheDocument())
+    await waitFor(() => expect(screen.getByText(/good morning/i)).toBeInTheDocument())
     const sidebar = within(screen.getByRole('complementary'))
 
     fireEvent.click(sidebar.getByRole('button', { name: /collapse sidebar/i }))
@@ -262,7 +262,7 @@ describe('Session persistence across a refresh (2026-07-08)', () => {
     // Never flashes the login screen while rehydration is in flight.
     expect(screen.queryByText('Welcome back')).not.toBeInTheDocument()
     await waitFor(() =>
-      expect(screen.getByText(/let.s set up your school/i)).toBeInTheDocument(),
+      expect(screen.getByText(/good morning/i)).toBeInTheDocument(),
     )
     expect(authApi.getMe).toHaveBeenCalled()
   })

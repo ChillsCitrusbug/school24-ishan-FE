@@ -47,7 +47,7 @@ describe('LoginScreen', () => {
     renderAt('/login')
     fillAndSubmit('priya@example.com', 'CorrectHorseBattery9!')
 
-    await waitFor(() => expect(screen.getByText(/let.s set up your school/i)).toBeInTheDocument())
+    await waitFor(() => expect(screen.getByText(/good morning/i)).toBeInTheDocument())
     // Appears in both the sidebar subtitle and the greeting line — assert
     // it rendered at least once rather than requiring exactly one match.
     expect(screen.getAllByText('Greenvale Primary', { exact: false }).length).toBeGreaterThan(0)

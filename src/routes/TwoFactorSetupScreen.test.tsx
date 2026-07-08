@@ -43,7 +43,7 @@ async function loginAs(user: typeof SA_USER_OFF) {
   fireEvent.change(screen.getByLabelText('Email'), { target: { value: user.email } })
   fireEvent.change(screen.getByLabelText('Password'), { target: { value: 'whatever' } })
   fireEvent.click(screen.getByRole('button', { name: /sign in/i }))
-  await waitFor(() => expect(screen.getByText(/let.s set up your school/i)).toBeInTheDocument())
+  await waitFor(() => expect(screen.getByText(/good morning/i)).toBeInTheDocument())
 
   await act(async () => {
     await router.navigate('/two-factor-setup')

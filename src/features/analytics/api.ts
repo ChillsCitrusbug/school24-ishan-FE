@@ -42,3 +42,26 @@ export async function getPlatformDashboard(): Promise<PlatformDashboard> {
   )
   return response.data.data
 }
+
+export interface PendingApprovalPreview {
+  link_id: string
+  parent_name: string
+  student_name: string
+}
+
+export interface SchoolDashboard {
+  is_empty: boolean
+  students_count: number
+  classes_count: number
+  orders_today_count: number
+  orders_today_value: string
+  pending_approvals_count: number
+  most_recent_pending_approval: PendingApprovalPreview | null
+}
+
+export async function getSchoolDashboard(): Promise<SchoolDashboard> {
+  const response = await apiClient.get<Envelope<SchoolDashboard>>(
+    '/api/v1/analytics/school-dashboard',
+  )
+  return response.data.data
+}

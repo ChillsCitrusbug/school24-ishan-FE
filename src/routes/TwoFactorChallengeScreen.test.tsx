@@ -73,7 +73,7 @@ describe('TwoFactorChallengeScreen', () => {
     fillDigits('123456')
     fireEvent.click(screen.getByRole('button', { name: /verify & continue/i }))
 
-    await waitFor(() => expect(screen.getByText(/let.s set up your school/i)).toBeInTheDocument())
+    await waitFor(() => expect(screen.getByText(/good morning/i)).toBeInTheDocument())
     expect(twoFactorApi.verifyLoginChallenge).toHaveBeenCalledWith('challenge-abc', '123456')
   })
 
@@ -114,7 +114,7 @@ describe('TwoFactorChallengeScreen', () => {
     fireEvent.change(screen.getByLabelText('Backup code'), { target: { value: '4f2a-9c1d' } })
     fireEvent.click(screen.getByRole('button', { name: /verify & continue/i }))
 
-    await waitFor(() => expect(screen.getByText(/let.s set up your school/i)).toBeInTheDocument())
+    await waitFor(() => expect(screen.getByText(/good morning/i)).toBeInTheDocument())
     expect(twoFactorApi.verifyLoginBackupCode).toHaveBeenCalledWith('challenge-abc', '4f2a-9c1d')
   })
 
