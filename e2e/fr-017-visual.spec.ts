@@ -67,7 +67,7 @@ test('sc-037-empty matches the approved design', async ({ page }) => {
   await page.evaluate(() => document.fonts.ready)
 
   await expect(page).toHaveScreenshot('sc-037-empty.png', {
-    maxDiffPixelRatio: 0.04,
+    maxDiffPixelRatio: 0.02,
     animations: 'disabled',
   })
 })
@@ -97,7 +97,7 @@ test('sc-038 (create, empty form) matches the approved design', async ({ page })
   await page.evaluate(() => document.fonts.ready)
 
   await expect(page).toHaveScreenshot('sc-038-create.png', {
-    maxDiffPixelRatio: 0.04,
+    maxDiffPixelRatio: 0.02,
     animations: 'disabled',
   })
 })

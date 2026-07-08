@@ -89,7 +89,7 @@ test('sc-056 (success) matches the approved design', async ({ page }) => {
     await hideFixedElements(page)
     await prep(page)
     await expect(page).toHaveScreenshot('sc-056.png', {
-      maxDiffPixelRatio: 0.04,
+      maxDiffPixelRatio: 0.02,
       animations: 'disabled',
     })
   } else {

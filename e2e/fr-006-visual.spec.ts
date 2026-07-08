@@ -55,7 +55,7 @@ test('sc-017-schools matches the approved design', async ({ page }) => {
   await page.evaluate(() => document.fonts.ready)
 
   await expect(page).toHaveScreenshot('sc-017-schools.png', {
-    maxDiffPixelRatio: 0.04,
+    maxDiffPixelRatio: 0.02,
     animations: 'disabled',
     // "Showing X of X" (real count, no pagination built yet) vs the
     // design mock's own hardcoded "Showing X of 24" — same "no real
@@ -78,7 +78,7 @@ test('sc-017-empty matches the approved design', async ({ page }) => {
   await page.evaluate(() => document.fonts.ready)
 
   await expect(page).toHaveScreenshot('sc-017-empty.png', {
-    maxDiffPixelRatio: 0.04,
+    maxDiffPixelRatio: 0.02,
     animations: 'disabled',
   })
 })

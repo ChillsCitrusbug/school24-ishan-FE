@@ -30,7 +30,7 @@ test('sc-007-forgot (default) matches the approved design', async ({ page }) => 
   await prep(page)
 
   await expect(page).toHaveScreenshot('sc-007-forgot.png', {
-    maxDiffPixelRatio: 0.04,
+    maxDiffPixelRatio: 0.02,
     animations: 'disabled',
   })
 })
@@ -48,7 +48,7 @@ test('sc-007-sent matches the approved design', async ({ page }) => {
   await prep(page)
 
   await expect(page).toHaveScreenshot('sc-007-sent.png', {
-    maxDiffPixelRatio: 0.04,
+    maxDiffPixelRatio: 0.02,
     animations: 'disabled',
   })
 })
@@ -63,7 +63,7 @@ test('sc-008-reset (default) matches the approved design', async ({ page }) => {
   await prep(page)
 
   await expect(page).toHaveScreenshot('sc-008-reset.png', {
-    maxDiffPixelRatio: 0.04,
+    maxDiffPixelRatio: 0.02,
     animations: 'disabled',
   })
 })
@@ -80,7 +80,7 @@ test('sc-008-invalid matches the approved design', async ({ page }) => {
   await prep(page)
 
   await expect(page).toHaveScreenshot('sc-008-invalid.png', {
-    maxDiffPixelRatio: 0.04,
+    maxDiffPixelRatio: 0.02,
     animations: 'disabled',
   })
 })

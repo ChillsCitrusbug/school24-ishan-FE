@@ -143,7 +143,7 @@ for (const role of ROLES) {
     await prep(page)
 
     await expect(page).toHaveScreenshot(`${role.name}.png`, {
-      maxDiffPixelRatio: 0.04,
+      maxDiffPixelRatio: 0.02,
       animations: 'disabled',
     })
   })
@@ -165,7 +165,7 @@ for (const role of ROLES) {
     await prep(page)
 
     await expect(page).toHaveScreenshot(`${role.name}-changepw.png`, {
-      maxDiffPixelRatio: 0.04,
+      maxDiffPixelRatio: 0.02,
       animations: 'disabled',
     })
   })
@@ -186,7 +186,7 @@ test('sc-098-student (default) matches the approved design', async ({ page }) =>
   await prep(page)
 
   await expect(page).toHaveScreenshot('sc-098-student.png', {
-    maxDiffPixelRatio: 0.04,
+    maxDiffPixelRatio: 0.02,
     animations: 'disabled',
   })
 })
@@ -207,7 +207,7 @@ test('sc-098-student-changepw matches the approved design', async ({ page }) => 
   await prep(page)
 
   await expect(page).toHaveScreenshot('sc-098-student-changepw.png', {
-    maxDiffPixelRatio: 0.04,
+    maxDiffPixelRatio: 0.02,
     animations: 'disabled',
   })
 })

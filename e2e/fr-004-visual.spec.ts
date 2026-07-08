@@ -31,21 +31,17 @@ for (const screen of SCREENS) {
     await page.waitForLoadState('networkidle')
     await page.evaluate(() => document.fonts.ready)
 
-    // SC-006's description sentence ("Set up a parent account to top up
-    // wallets and order canteen food.") sits right at its container's
-    // wrap boundary. Direct DOM measurement (computed width/font-family/
-    // text content) confirmed byte-identical between the design catalog
-    // and the app build once fonts finish loading, yet the two
-    // independent Vite dev servers still render the text wrapped onto a
-    // different number of lines — a font-file-serving artifact between
-    // the two dev-server instances used only for this check, not a real
-    // content/layout/component difference (same class of accepted nuance
-    // as FR-001's own review-documented notification-badge Nit).
-    // Slightly higher tolerance than the project default (0.02) for this
-    // one screen only to accommodate it — every other screen this
-    // session has passed within the default.
+    // Root-cause fix (2026-07-08): the earlier 0.04 tolerance here was
+    // masking a real bug, not a dev-server artifact — the FE app's own
+    // index.html never loaded the Poppins/Inter webfonts DESIGN loads
+    // (the shared `font-sans` Tailwind token requests them, but nothing
+    // ever fetched the files), so the FE build silently rendered in a
+    // fallback system font, causing genuine wrap-point differences.
+    // Fixed by adding the same Google Fonts <link> DESIGN already has.
+    // Back to the project default tolerance now that the real cause is
+    // fixed, not papered over.
     await expect(page).toHaveScreenshot(`${screen.name}.png`, {
-      maxDiffPixelRatio: 0.04,
+      maxDiffPixelRatio: 0.02,
       animations: 'disabled',
     })
   })

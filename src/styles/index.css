@@ -15,4 +15,16 @@
   body {
     @apply bg-canvas text-ink font-sans antialiased;
   }
+
+  *::-webkit-scrollbar {
+    width: 9px;
+    height: 9px;
+  }
+  *::-webkit-scrollbar-thumb {
+    background: #cbded8;
+    border-radius: 9999px;
+  }
+  *::-webkit-scrollbar-track {
+    background: transparent;
+  }
 }

@@ -79,7 +79,7 @@ test('sc-100 (default) matches the approved design', async ({ page }) => {
   await prep(page)
 
   await expect(page).toHaveScreenshot('sc-100.png', {
-    maxDiffPixelRatio: 0.04,
+    maxDiffPixelRatio: 0.02,
     animations: 'disabled',
   })
 })

@@ -2,9 +2,9 @@ import type { ReactNode } from 'react'
 import { Icon } from '../atoms/Icon'
 
 const VALUE_PROPS = [
-  'Fast student meal ordering',
-  'Real-time order tracking',
-  'Easy wallet management',
+  'Per-child spending controls',
+  'Order tracking in real time',
+  'Secure payments by Stripe',
 ]
 
 /** Split auth layout — brand panel (desktop) + centered form. No app shell. */
@@ -28,12 +28,11 @@ export function AuthLayout({
 
         <div>
           <h2 className="max-w-sm text-3xl font-bold leading-tight text-ink">
-            School meal ordering made simple.
+            The cashless canteen for your whole family.
           </h2>
 
           <p className="mt-3 max-w-sm text-muted">
-            Order meals for students, manage wallets, and track every order from one secure
-            platform.
+            Top up once, set what they can buy, and let them order lunch in seconds.
           </p>
 
           <ul className="mt-6 space-y-2.5 text-sm text-ink">
@@ -52,9 +51,12 @@ export function AuthLayout({
           </ul>
         </div>
 
-        <div className="text-xs text-muted">
-          © 2026 School24
-        </div>
+        {/* Design-parity fix (2026-07-08): the mock's own footer names a
+            specific illustrative school ("Greenvale Primary") since it's
+            a static catalog with fake data — this real login page is
+            reachable by every school's users before any tenant is known,
+            so it stays generic rather than hardcoding one school's name. */}
+        <div className="text-xs text-muted">© 2026 School24</div>
       </div>
 
       {/* Form panel */}

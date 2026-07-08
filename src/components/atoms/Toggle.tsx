@@ -1,6 +1,9 @@
 import { cn } from '@/lib/cn'
 
-/** Accessible on/off switch. */
+/** Accessible on/off switch. `disabled` defaults to false — same
+ * rendering as the approved design's own Toggle when omitted; added
+ * for screens that need to disable the control while a save is in
+ * flight. */
 export function Toggle({
   checked,
   onChange,

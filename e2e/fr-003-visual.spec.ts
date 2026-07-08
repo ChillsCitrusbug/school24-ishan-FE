@@ -41,17 +41,13 @@ for (const screen of SCREENS) {
     await page.waitForLoadState('networkidle')
     await page.evaluate(() => document.fonts.ready)
 
-    // Same font-rendering-timing artifact FR-004 diagnosed and disclosed
-    // (e2e/fr-004-visual.spec.ts) — two independently-run Vite dev
-    // servers (design catalog vs. app), text-ghosting on the shared
-    // AuthLayout decorative panel plus this screen's own heading/labels.
-    // Direct visual inspection of both actual screenshots confirms a
-    // pixel-perfect match to the approved design; only the diff overlay
-    // (which double-exposes two slightly-differently-hinted font
-    // renders) shows anything. Same disclosed, narrow tolerance bump as
-    // FR-004, not a blind global change.
+    // Root-cause fix (2026-07-08): the earlier 0.04 tolerance here (and
+    // in fr-004-visual.spec.ts) was masking a real bug, not a dev-server
+    // artifact — see fr-004-visual.spec.ts's own comment for the full
+    // diagnosis (FE's index.html never loaded the Poppins/Inter webfonts
+    // DESIGN loads). Fixed; back to the project default tolerance.
     await expect(page).toHaveScreenshot(`${screen.name}.png`, {
-      maxDiffPixelRatio: 0.04,
+      maxDiffPixelRatio: 0.02,
       animations: 'disabled',
     })
   })

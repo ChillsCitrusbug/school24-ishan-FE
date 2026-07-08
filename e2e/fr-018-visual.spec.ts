@@ -74,7 +74,7 @@ for (const screen of SCREENS) {
     await page.evaluate(() => document.fonts.ready)
 
     await expect(page).toHaveScreenshot(`${screen.name}.png`, {
-      maxDiffPixelRatio: 0.04,
+      maxDiffPixelRatio: 0.02,
       animations: 'disabled',
     })
   })
@@ -95,7 +95,7 @@ test('sc-040-empty matches the approved design', async ({ page }) => {
   await page.evaluate(() => document.fonts.ready)
 
   await expect(page).toHaveScreenshot('sc-040-empty.png', {
-    maxDiffPixelRatio: 0.04,
+    maxDiffPixelRatio: 0.02,
     animations: 'disabled',
   })
 })
@@ -116,7 +116,7 @@ test('sc-041-norole matches the approved design', async ({ page }) => {
   await page.evaluate(() => document.fonts.ready)
 
   await expect(page).toHaveScreenshot('sc-041-norole.png', {
-    maxDiffPixelRatio: 0.04,
+    maxDiffPixelRatio: 0.02,
     animations: 'disabled',
   })
 })
