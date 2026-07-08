@@ -64,7 +64,7 @@ export function StudentLoginScreen() {
     <AuthLayout
       footer={
         <Link to="/login" className="font-semibold text-brand-deep hover:text-brand">
-          If you are a parent, login here.
+          Login.
         </Link>
       }
     >

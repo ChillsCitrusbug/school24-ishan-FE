@@ -191,10 +191,10 @@ describe('LoginScreen', () => {
     expect(screen.queryByText('Dashboard coming soon')).not.toBeInTheDocument()
   })
 
-  it('the "If you are a student, login here" link navigates to the real Student login', async () => {
+  it('the "Student Login" link navigates to the real Student login', async () => {
     renderAt('/login')
 
-    fireEvent.click(screen.getByRole('link', { name: /if you are a student, login here/i }))
+    fireEvent.click(screen.getByRole('link', { name: /Student Login/i }))
 
     expect(await screen.findByText('Student sign in')).toBeInTheDocument()
   })

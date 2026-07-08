@@ -86,7 +86,7 @@ export function LoginScreen() {
           </div>
           <div>
             <Link to="/student-login" className="font-semibold text-brand-deep hover:text-brand">
-              If you are a student, login here.
+              Student Login.
             </Link>
           </div>
         </div>

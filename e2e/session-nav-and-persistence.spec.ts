@@ -77,11 +77,11 @@ test('the Student <-> Parent/Admin login cross-links both navigate correctly', a
   await page.goto('/student-login')
   await expect(page.getByText('Student sign in')).toBeVisible()
 
-  await page.getByRole('link', { name: /if you are a parent, login here/i }).click()
+  await page.getByRole('link', { name: /Login/i }).click()
   await page.waitForURL('**/login')
   await expect(page.getByText('Welcome back')).toBeVisible()
 
-  await page.getByRole('link', { name: /if you are a student, login here/i }).click()
+  await page.getByRole('link', { name: /Student Login/i }).click()
   await page.waitForURL('**/student-login')
   await expect(page.getByText('Student sign in')).toBeVisible()
 })
