@@ -38,7 +38,7 @@ async function renderAuthenticatedAt(path: string) {
   fireEvent.change(screen.getByLabelText('Email'), { target: { value: PARENT_USER.email } })
   fireEvent.change(screen.getByLabelText('Password'), { target: { value: 'whatever' } })
   fireEvent.click(screen.getByRole('button', { name: /sign in/i }))
-  await waitFor(() => expect(screen.getByText('Dashboard coming soon')).toBeInTheDocument())
+  await waitFor(() => expect(screen.getByText(/good morning/i)).toBeInTheDocument())
   await act(async () => {
     await router.navigate(path)
   })

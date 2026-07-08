@@ -85,3 +85,28 @@ test('the Student <-> Parent/Admin login cross-links both navigate correctly', a
   await page.waitForURL('**/student-login')
   await expect(page.getByText('Student sign in')).toBeVisible()
 })
+
+test('the sidebar collapses to icon-only, and the choice survives a real refresh', async ({
+  page,
+}) => {
+  await page.goto('/login')
+  await page.getByLabel('Email').fill(SA_EMAIL)
+  await page.getByLabel('Password').fill(SA_PASSWORD)
+  await page.getByRole('button', { name: /sign in/i }).click()
+  await page.waitForURL('**/school-admin')
+
+  const sidebar = page.getByRole('complementary')
+  await expect(sidebar.getByText('Students')).toBeVisible()
+
+  await sidebar.getByRole('button', { name: /collapse sidebar/i }).click()
+  await expect(sidebar.getByText('Students')).not.toBeVisible()
+
+  await page.reload()
+
+  const sidebarAfterReload = page.getByRole('complementary')
+  await expect(sidebarAfterReload.getByRole('button', { name: /expand sidebar/i })).toBeVisible()
+  await expect(sidebarAfterReload.getByText('Students')).not.toBeVisible()
+
+  await sidebarAfterReload.getByRole('button', { name: /expand sidebar/i }).click()
+  await expect(sidebarAfterReload.getByText('Students')).toBeVisible()
+})

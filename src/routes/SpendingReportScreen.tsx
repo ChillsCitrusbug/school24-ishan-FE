@@ -36,6 +36,7 @@ import {
 } from '@/features/parent-reports/api'
 import { extractErrorMessage } from '@/lib/api-error'
 import type { DateRangeSelection } from '@/lib/date-range-presets'
+import { parentNavGroups, parentTabs } from './parentNav'
 
 const STATUS_TONE: Record<string, StatusTone> = {
   pending: 'warning',
@@ -212,7 +213,7 @@ export function SpendingReportScreen() {
       sidebar={
         <Sidebar
           brandTitle="School24"
-          groups={[]}
+          groups={parentNavGroups('insights')}
           user={{ initials: '', name: user?.full_name ?? '', role: 'Parent' }}
         />
       }
@@ -222,7 +223,7 @@ export function SpendingReportScreen() {
           right={<IconButton icon="bell" label="Notifications" onClick={() => navigate('/parent/inbox')} />}
         />
       }
-      mobileNav={<MobileTabBar items={[]} />}
+      mobileNav={<MobileTabBar items={parentTabs('insights')} />}
     >
       <div className="mx-auto max-w-6xl">
         <div className="flex flex-wrap items-end justify-between gap-4">

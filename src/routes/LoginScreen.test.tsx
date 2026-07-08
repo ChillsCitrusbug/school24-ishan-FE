@@ -70,7 +70,7 @@ describe('LoginScreen', () => {
     renderAt('/login')
     fillAndSubmit('sarah@example.com', 'CorrectHorseBattery9!')
 
-    await waitFor(() => expect(screen.getByText(/dashboard coming soon/i)).toBeInTheDocument())
+    await waitFor(() => expect(screen.getByText(/good morning/i)).toBeInTheDocument())
   })
 
   it('shows the generic EC-001 error banner on a 401 without navigating away', async () => {

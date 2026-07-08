@@ -24,6 +24,7 @@ import {
 } from '@/features/menu-browse/api'
 import { addCartItem } from '@/features/cart/api'
 import { extractErrorMessage } from '@/lib/api-error'
+import { studentNavGroups, studentTabs } from './studentNav'
 
 type Detail = MenuProductDetail | MenuComboDetail
 
@@ -70,9 +71,9 @@ export function ItemDetailScreen({ itemType }: { itemType: 'product' | 'combo' }
   if (loadError) {
     return (
       <AppShell
-        sidebar={<Sidebar brandTitle="School24" groups={[]} user={{ initials: '', name: student?.full_name ?? '', role: 'Student' }} />}
+        sidebar={<Sidebar brandTitle="School24" groups={studentNavGroups('menu')} user={{ initials: '', name: student?.full_name ?? '', role: 'Student' }} />}
         topbar={<Topbar />}
-        mobileNav={<MobileTabBar items={[]} />}
+        mobileNav={<MobileTabBar items={studentTabs('menu')} />}
       >
         <div className="mx-auto max-w-2xl">
           <Card className="p-6">
@@ -86,9 +87,9 @@ export function ItemDetailScreen({ itemType }: { itemType: 'product' | 'combo' }
   if (!detail) {
     return (
       <AppShell
-        sidebar={<Sidebar brandTitle="School24" groups={[]} user={{ initials: '', name: student?.full_name ?? '', role: 'Student' }} />}
+        sidebar={<Sidebar brandTitle="School24" groups={studentNavGroups('menu')} user={{ initials: '', name: student?.full_name ?? '', role: 'Student' }} />}
         topbar={<Topbar />}
-        mobileNav={<MobileTabBar items={[]} />}
+        mobileNav={<MobileTabBar items={studentTabs('menu')} />}
       >
         <div role="status" aria-label="Loading item" className="mt-10 flex justify-center text-muted">
           <Spinner className="h-6 w-6" />
@@ -129,12 +130,12 @@ export function ItemDetailScreen({ itemType }: { itemType: 'product' | 'combo' }
       sidebar={
         <Sidebar
           brandTitle="School24"
-          groups={[]}
+          groups={studentNavGroups('menu')}
           user={{ initials: '', name: student?.full_name ?? '', role: 'Student' }}
         />
       }
       topbar={<Topbar searchPlaceholder="Search the menu…" />}
-      mobileNav={<MobileTabBar items={[]} />}
+      mobileNav={<MobileTabBar items={studentTabs('menu')} />}
     >
       <div className="mx-auto max-w-2xl">
         <Button variant="ghost" size="sm" leadingIcon="chevronLeft" className="mb-3" onClick={() => navigate('/student/menu')}>

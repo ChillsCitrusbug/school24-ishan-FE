@@ -6,6 +6,7 @@ export function StudentOrderTrackingScreen() {
   const { student } = useStudentAuth()
   return (
     <OrderTrackingScreen
+      role="student"
       displayName={student?.full_name ?? ''}
       roleLabel="Student"
       backHref="/student/orders"

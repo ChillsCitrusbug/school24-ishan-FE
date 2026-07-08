@@ -18,8 +18,11 @@ import {
 } from '@/components'
 import { listMyOrders, type StaffOrderSummary, type OrderStatus } from '@/features/orders/api'
 import { extractErrorMessage } from '@/lib/api-error'
+import { parentNavGroups, parentTabs } from './parentNav'
+import { studentNavGroups, studentTabs } from './studentNav'
 
 interface OrderHistoryScreenProps {
+  role: 'parent' | 'student'
   displayName: string
   roleLabel: string
   orderHref: (orderId: string) => string
@@ -49,6 +52,7 @@ const STATUS_DISPLAY: Record<OrderStatus, { tone: StatusTone; label: string }> =
  * `application/orders/services.py`), never a client-side label list.
  */
 export function OrderHistoryScreen({
+  role,
   displayName,
   roleLabel,
   orderHref,
@@ -77,7 +81,7 @@ export function OrderHistoryScreen({
       sidebar={
         <Sidebar
           brandTitle="School24"
-          groups={[]}
+          groups={role === 'parent' ? parentNavGroups() : studentNavGroups('orders')}
           user={{ initials: displayName.slice(0, 1).toUpperCase(), name: displayName, role: roleLabel }}
         />
       }
@@ -87,7 +91,7 @@ export function OrderHistoryScreen({
           right={<IconButton icon="bell" label="Notifications" onClick={() => navigate(inboxHref)} />}
         />
       }
-      mobileNav={<MobileTabBar items={[]} />}
+      mobileNav={<MobileTabBar items={role === 'parent' ? parentTabs() : studentTabs('orders')} />}
     >
       <div className="mx-auto max-w-2xl">
         <h1 className="text-2xl font-bold text-ink">My orders</h1>

@@ -14,6 +14,7 @@ import {
 import { useAuth } from '@/features/auth/useAuth'
 import { getCart, type Cart } from '@/features/cart/api'
 import { extractErrorMessage } from '@/lib/api-error'
+import { parentNavGroups, parentTabs } from './parentNav'
 
 /**
  * SC-073 · Cart Review — Parent's own reuse, for a linked child
@@ -50,12 +51,12 @@ export function ParentCartScreen() {
       sidebar={
         <Sidebar
           brandTitle="School24"
-          groups={[]}
+          groups={parentNavGroups('order')}
           user={{ initials: '', name: user?.full_name ?? '', role: 'Parent' }}
         />
       }
       topbar={<Topbar searchPlaceholder="Search the menu…" />}
-      mobileNav={<MobileTabBar items={[]} />}
+      mobileNav={<MobileTabBar items={parentTabs('order')} />}
     >
       <div className="mx-auto max-w-2xl">
         <Button

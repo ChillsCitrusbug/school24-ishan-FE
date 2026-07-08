@@ -16,13 +16,11 @@ import {
 import { requestChildLink, type ChildLink } from '@/features/parent-links/api'
 import { useAuth } from '@/features/auth/useAuth'
 import { extractErrorMessage } from '@/lib/api-error'
+import { parentNavGroups, parentTabs } from './parentNav'
 
 /**
  * SC-059 · Add Child (link request) by Student ID — Parent (FR-019).
- * Reuses the approved Sc059AddChild.tsx structure. No `parentNav.ts`
- * exists yet (Parent's own real dashboard is FR-046, a later ticket) —
- * empty nav groups, same precedent as `PlaceholderDashboard.tsx`/
- * `ParentProfileScreen.tsx`.
+ * Reuses the approved Sc059AddChild.tsx structure.
  *
  * The mock's own state prop only models `default | notfound | success`
  * — no distinct visual for the guardian-cap-reached (409) case. Both
@@ -60,12 +58,12 @@ export function AddChildScreen() {
       sidebar={
         <Sidebar
           brandTitle="School24"
-          groups={[]}
+          groups={parentNavGroups('children')}
           user={{ initials: '', name: user?.full_name ?? '', role: 'Parent' }}
         />
       }
       topbar={<Topbar />}
-      mobileNav={<MobileTabBar items={[]} />}
+      mobileNav={<MobileTabBar items={parentTabs('children')} />}
     >
       <div className="mx-auto max-w-lg">
         <Button

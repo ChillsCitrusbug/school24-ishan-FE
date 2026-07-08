@@ -1,4 +1,4 @@
-import { act, fireEvent, render, screen, waitFor } from '@testing-library/react'
+import { act, fireEvent, render, screen, waitFor, within } from '@testing-library/react'
 import { createMemoryRouter, RouterProvider } from 'react-router-dom'
 import { afterEach, describe, expect, it, vi } from 'vitest'
 import { AuthProvider } from '@/features/auth/AuthContext'
@@ -70,7 +70,7 @@ describe('RequireRole', () => {
 
   it('redirects a signed-in user away from a route belonging to a different role', async () => {
     const { router } = await loginAs('parent')
-    await waitFor(() => expect(screen.getByText(/dashboard coming soon/i)).toBeInTheDocument())
+    await waitFor(() => expect(screen.getByText(/good morning/i)).toBeInTheDocument())
 
     // A parent session attempting to navigate to the School Admin route
     // must bounce back to the parent's own home, not render SA content.
@@ -78,7 +78,7 @@ describe('RequireRole', () => {
       await router.navigate('/school-admin')
     })
 
-    await waitFor(() => expect(screen.getByText(/dashboard coming soon/i)).toBeInTheDocument())
+    await waitFor(() => expect(screen.getByText(/good morning/i)).toBeInTheDocument())
     expect(screen.queryByText(/let.s set up your school/i)).not.toBeInTheDocument()
   })
 
@@ -106,7 +106,7 @@ describe('RequireStudent', () => {
 
   it('a signed-in user (not a student) is still bounced from /student', async () => {
     const { router } = await loginAs('parent')
-    await waitFor(() => expect(screen.getByText(/dashboard coming soon/i)).toBeInTheDocument())
+    await waitFor(() => expect(screen.getByText(/good morning/i)).toBeInTheDocument())
 
     // No student session exists just because a user is signed in — these
     // are two entirely separate identity contexts, so /student must still
@@ -191,6 +191,52 @@ describe('Sidebar brand title (clickable-home addition, 2026-07-08)', () => {
     fireEvent.click(screen.getByRole('link', { name: /school24/i }))
 
     await waitFor(() => expect(screen.getByText(/let.s set up your school/i)).toBeInTheDocument())
+  })
+})
+
+describe('Sidebar collapse/expand toggle (2026-07-08)', () => {
+  it('collapsing the sidebar hides nav labels; expanding restores them', async () => {
+    await loginAs('school_admin')
+    await waitFor(() => expect(screen.getByText(/let.s set up your school/i)).toBeInTheDocument())
+    // Scoped to the sidebar's own <aside> — MobileTabBar renders the
+    // same "Students" label as a real <a> in the same jsdom tree (CSS
+    // md:hidden doesn't remove it without a real layout engine), so an
+    // unscoped query would always see two matches.
+    const sidebar = within(screen.getByRole('complementary'))
+
+    // The visible label text — a collapsed item keeps an accessible
+    // name via `title` (so it's still findable/announceable), so this
+    // checks the VISIBLE text disappears, not the accessible name.
+    expect(sidebar.getByText('Students')).toBeInTheDocument()
+
+    fireEvent.click(sidebar.getByRole('button', { name: /collapse sidebar/i }))
+
+    expect(sidebar.queryByText('Students')).not.toBeInTheDocument()
+    expect(sidebar.getByTitle('Students')).toBeInTheDocument()
+
+    fireEvent.click(sidebar.getByRole('button', { name: /expand sidebar/i }))
+
+    expect(await sidebar.findByText('Students')).toBeInTheDocument()
+  })
+
+  it('the collapsed state persists across a page navigation', async () => {
+    const { router } = await loginAs('school_admin')
+    await waitFor(() => expect(screen.getByText(/let.s set up your school/i)).toBeInTheDocument())
+    const sidebar = within(screen.getByRole('complementary'))
+
+    fireEvent.click(sidebar.getByRole('button', { name: /collapse sidebar/i }))
+    expect(sidebar.queryByText('Students')).not.toBeInTheDocument()
+
+    await act(async () => {
+      await router.navigate('/school-admin/reports')
+    })
+    await waitFor(() => expect(screen.getByText('Operational reports')).toBeInTheDocument())
+    // Re-scoped — Reports is a separate screen component with its own
+    // <Sidebar>, so the earlier `sidebar` binding is a detached node.
+    const newSidebar = within(screen.getByRole('complementary'))
+
+    expect(newSidebar.queryByText('Reports')).not.toBeInTheDocument()
+    expect(newSidebar.getByRole('button', { name: /expand sidebar/i })).toBeInTheDocument()
   })
 })
 

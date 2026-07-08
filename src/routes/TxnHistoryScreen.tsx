@@ -23,6 +23,8 @@ import {
 } from '@/features/wallet/api'
 import { TXN_DISPLAY, formatTxnAmount, formatTxnDate } from '@/features/wallet/txnDisplay'
 import { extractErrorMessage } from '@/lib/api-error'
+import { parentNavGroups, parentTabs } from './parentNav'
+import { studentNavGroups, studentTabs } from './studentNav'
 
 interface TxnHistoryScreenProps {
   role: 'parent' | 'student'
@@ -92,7 +94,7 @@ export function TxnHistoryScreen({
       sidebar={
         <Sidebar
           brandTitle="School24"
-          groups={[]}
+          groups={role === 'parent' ? parentNavGroups('wallet') : studentNavGroups('wallet')}
           user={{ initials: displayName.slice(0, 1).toUpperCase(), name: displayName, role: roleLabel }}
         />
       }
@@ -102,7 +104,7 @@ export function TxnHistoryScreen({
           right={<IconButton icon="bell" label="Notifications" />}
         />
       }
-      mobileNav={<MobileTabBar items={[]} />}
+      mobileNav={<MobileTabBar items={role === 'parent' ? parentTabs('wallet') : studentTabs('wallet')} />}
     >
       <div className="mx-auto max-w-2xl">
         <Button

@@ -18,6 +18,7 @@ import { getChildWallet, getMyParentWalletId, getWallet, type Wallet } from '@/f
 import { useAuth } from '@/features/auth/useAuth'
 import { extractErrorMessage } from '@/lib/api-error'
 import { cn } from '@/lib/cn'
+import { parentNavGroups, parentTabs } from './parentNav'
 
 interface WalletChoice {
   key: 'parent' | 'child'
@@ -98,12 +99,12 @@ export function ParentCheckoutScreen() {
       sidebar={
         <Sidebar
           brandTitle="School24"
-          groups={[]}
+          groups={parentNavGroups('order')}
           user={{ initials: '', name: user?.full_name ?? '', role: 'Parent' }}
         />
       }
       topbar={<Topbar searchPlaceholder="Search…" />}
-      mobileNav={<MobileTabBar items={[]} />}
+      mobileNav={<MobileTabBar items={parentTabs('order')} />}
     >
       <div className="mx-auto max-w-lg">
         <Button

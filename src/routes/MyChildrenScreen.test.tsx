@@ -43,7 +43,7 @@ async function renderAuthenticatedAt(path: string) {
   fireEvent.change(screen.getByLabelText('Email'), { target: { value: PARENT_USER.email } })
   fireEvent.change(screen.getByLabelText('Password'), { target: { value: 'whatever' } })
   fireEvent.click(screen.getByRole('button', { name: /sign in/i }))
-  await waitFor(() => expect(screen.getByText(/dashboard coming soon/i)).toBeInTheDocument())
+  await waitFor(() => expect(screen.getByText(/good morning/i)).toBeInTheDocument())
 
   await act(async () => {
     await router.navigate(path)
@@ -94,8 +94,12 @@ describe('MyChildrenScreen (Sc061MyChildren)', () => {
     await renderAuthenticatedAt('/parent/children')
     await screen.findByText('Grace Okoro')
 
-    expect(screen.queryByText('Top up')).not.toBeInTheDocument()
-    expect(screen.queryByText('Order')).not.toBeInTheDocument()
+    // Scoped to a button role — the sidebar/mobile-tab-bar legitimately
+    // render their own "Order food"/"Order" nav links elsewhere on the
+    // page now that parentNav.ts is wired in; only the child card's own
+    // ActionTile (a <button>) is what this assertion cares about.
+    expect(screen.queryByRole('button', { name: 'Top up' })).not.toBeInTheDocument()
+    expect(screen.queryByRole('button', { name: 'Order' })).not.toBeInTheDocument()
   })
 
   it('an approved child\'s "Top up" tile navigates straight to the child top-up screen with the child already known (FR-029)', async () => {
@@ -190,7 +194,12 @@ describe('MyChildrenScreen — live status update (FR-023 DoD)', () => {
     // it. This still lets `vi.advanceTimersByTimeAsync` control the
     // screen's own poll interval deterministically.
     vi.useFakeTimers({ toFake: ['setInterval', 'clearInterval'] })
+    // 3 calls, not 2 — ParentHomeScreen (the real /parent landing
+    // `renderAuthenticatedAt` always passes through first) now also
+    // calls listMyChildren() on its own mount, ahead of
+    // MyChildrenScreen's own initial load + first poll.
     vi.mocked(myChildrenApi.listMyChildren)
+      .mockResolvedValueOnce([GRACE_PENDING])
       .mockResolvedValueOnce([GRACE_PENDING])
       .mockResolvedValueOnce([{ ...GRACE_PENDING, status: 'approved', class_name: 'Year 3 · 3R', school_name: 'Greenvale Primary', wallet_balance: 0 }])
 
@@ -204,6 +213,6 @@ describe('MyChildrenScreen — live status update (FR-023 DoD)', () => {
     await waitFor(() => expect(screen.queryByText('Pending approval')).not.toBeInTheDocument())
     expect(screen.getByText('Approved')).toBeInTheDocument()
     expect(screen.getByText('Grace Okoro')).toBeInTheDocument()
-    expect(vi.mocked(myChildrenApi.listMyChildren)).toHaveBeenCalledTimes(2)
+    expect(vi.mocked(myChildrenApi.listMyChildren)).toHaveBeenCalledTimes(3)
   })
 })

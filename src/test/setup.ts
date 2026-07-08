@@ -9,4 +9,8 @@ import { beforeEach } from 'vitest'
 // PREVIOUS test's own leftover login token.
 beforeEach(() => {
   sessionStorage.clear()
+  // Sidebar collapse state (src/lib/sidebar-collapse.ts) similarly
+  // persists via localStorage — clear it too so one test's collapsed
+  // preference doesn't leak into the next.
+  localStorage.clear()
 })

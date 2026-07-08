@@ -19,8 +19,11 @@ import {
 import { getMyOrder, type StaffOrderDetail, type OrderStatus } from '@/features/orders/api'
 import { useOrderTrackingSocket } from '@/features/orders/useOrderTrackingSocket'
 import { extractErrorMessage } from '@/lib/api-error'
+import { parentNavGroups, parentTabs } from './parentNav'
+import { studentNavGroups, studentTabs } from './studentNav'
 
 interface OrderTrackingScreenProps {
+  role: 'parent' | 'student'
   displayName: string
   roleLabel: string
   backHref: string
@@ -65,6 +68,7 @@ function buildTimeline(order: StaffOrderDetail): TimelineStep[] {
  *   WebSocket" text — see the field-reconciliation doc's decision #1.
  */
 export function OrderTrackingScreen({
+  role,
   displayName,
   roleLabel,
   backHref,
@@ -107,7 +111,7 @@ export function OrderTrackingScreen({
       sidebar={
         <Sidebar
           brandTitle="School24"
-          groups={[]}
+          groups={role === 'parent' ? parentNavGroups() : studentNavGroups('orders')}
           user={{ initials: displayName.slice(0, 1).toUpperCase(), name: displayName, role: roleLabel }}
         />
       }
@@ -117,7 +121,7 @@ export function OrderTrackingScreen({
           right={<IconButton icon="bell" label="Notifications" onClick={() => navigate(inboxHref)} />}
         />
       }
-      mobileNav={<MobileTabBar items={[]} />}
+      mobileNav={<MobileTabBar items={role === 'parent' ? parentTabs() : studentTabs('orders')} />}
     >
       <div className="mx-auto max-w-lg">
         <Button variant="ghost" size="sm" leadingIcon="chevronLeft" className="mb-3" onClick={() => navigate(backHref)}>

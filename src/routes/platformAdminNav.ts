@@ -30,7 +30,7 @@ export function platformAdminNavGroups(active: PlatformAdminSection = 'schools')
 
 export function platformAdminTabs(active: PlatformAdminSection = 'schools'): TabItem[] {
   return [
-    { icon: 'home', label: 'Dashboard', href: '/platform-admin' },
+    { icon: 'home', label: 'Dashboard', active: active === 'home', href: '/platform-admin' },
     { icon: 'list', label: 'Schools', active: active === 'schools', href: '/platform-admin/schools' },
     { icon: 'children', label: 'Users', active: active === 'users', href: '/platform-admin/users' },
   ]

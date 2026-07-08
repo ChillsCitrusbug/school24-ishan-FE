@@ -62,7 +62,7 @@ export function staffNavGroups(active: StaffSection = 'home'): NavGroup[] {
 export function staffTabs(active: StaffSection = 'home'): TabItem[] {
   return [
     { icon: 'home', label: 'Home', active: active === 'home', href: '/staff' },
-    { icon: 'order', label: 'Orders' },
+    { icon: 'order', label: 'Orders', active: active === 'orders', href: '/school-admin/orders' },
     {
       icon: 'list',
       label: 'Menu',

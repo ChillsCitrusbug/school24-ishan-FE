@@ -26,6 +26,8 @@ import {
 } from '@/features/wallet/api'
 import { TXN_DISPLAY, formatTxnAmount, formatTxnDate } from '@/features/wallet/txnDisplay'
 import { extractErrorMessage } from '@/lib/api-error'
+import { parentNavGroups, parentTabs } from './parentNav'
+import { studentNavGroups, studentTabs } from './studentNav'
 
 interface WalletScreenProps {
   role: 'parent' | 'student'
@@ -82,13 +84,15 @@ export function WalletScreen({ role, displayName, roleLabel, topUpHref, historyH
 
   const isLoading = wallet === null && !error
   const recentTransactions = (transactions ?? []).slice(0, 5)
+  const navGroups = role === 'parent' ? parentNavGroups('wallet') : studentNavGroups('wallet')
+  const tabs = role === 'parent' ? parentTabs('wallet') : studentTabs('wallet')
 
   return (
     <AppShell
       sidebar={
         <Sidebar
           brandTitle="School24"
-          groups={[]}
+          groups={navGroups}
           user={{ initials: displayName.slice(0, 1).toUpperCase(), name: displayName, role: roleLabel }}
         />
       }
@@ -105,7 +109,7 @@ export function WalletScreen({ role, displayName, roleLabel, topUpHref, historyH
           }
         />
       }
-      mobileNav={<MobileTabBar items={[]} />}
+      mobileNav={<MobileTabBar items={tabs} />}
     >
       <div className="mx-auto max-w-3xl space-y-5">
         <div>

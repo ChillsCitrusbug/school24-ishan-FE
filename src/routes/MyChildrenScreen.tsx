@@ -16,6 +16,7 @@ import {
 import { listMyChildren, type MyChild } from '@/features/my-children/api'
 import { useAuth } from '@/features/auth/useAuth'
 import { extractErrorMessage } from '@/lib/api-error'
+import { parentNavGroups, parentTabs } from './parentNav'
 
 const POLL_INTERVAL_MS = 10_000
 
@@ -101,7 +102,7 @@ export function MyChildrenScreen() {
       sidebar={
         <Sidebar
           brandTitle="School24"
-          groups={[]}
+          groups={parentNavGroups('children')}
           user={{ initials: user ? initialsOf(user.full_name) : '', name: user?.full_name ?? '', role: 'Parent' }}
         />
       }
@@ -118,7 +119,7 @@ export function MyChildrenScreen() {
           }
         />
       }
-      mobileNav={<MobileTabBar items={[]} />}
+      mobileNav={<MobileTabBar items={parentTabs('children')} />}
     >
       <div className="mx-auto max-w-5xl">
         <div className="flex items-end justify-between gap-4">

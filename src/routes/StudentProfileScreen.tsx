@@ -19,6 +19,7 @@ import {
 import { useStudentAuth } from '@/features/student-auth/useStudentAuth'
 import * as studentProfileApi from '@/features/student-profile/api'
 import { extractErrorMessage } from '@/lib/api-error'
+import { studentNavGroups, studentTabs } from './studentNav'
 
 function initialsOf(fullName: string): string {
   const parts = fullName.trim().split(/\s+/)
@@ -101,12 +102,12 @@ export function StudentProfileScreen() {
       sidebar={
         <Sidebar
           brandTitle="School24"
-          groups={[]}
+          groups={studentNavGroups()}
           user={{ initials, name: profile?.full_name ?? student?.full_name ?? '', role: 'Student' }}
         />
       }
       topbar={<Topbar />}
-      mobileNav={<MobileTabBar items={[]} />}
+      mobileNav={<MobileTabBar items={studentTabs()} />}
     >
       <div className="mx-auto max-w-2xl space-y-4">
         <button

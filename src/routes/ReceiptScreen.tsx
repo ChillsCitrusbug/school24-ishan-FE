@@ -13,6 +13,8 @@ import {
 import type { Order } from '@/features/checkout/api'
 import { useAuth } from '@/features/auth/useAuth'
 import { useStudentAuth } from '@/features/student-auth/useStudentAuth'
+import { parentNavGroups, parentTabs } from './parentNav'
+import { studentNavGroups, studentTabs } from './studentNav'
 
 /**
  * SC-077 · Order Confirmation / Receipt — Student/Parent (FR-036/037,
@@ -55,7 +57,7 @@ export function ReceiptScreen() {
       sidebar={
         <Sidebar
           brandTitle="School24"
-          groups={[]}
+          groups={isParent ? parentNavGroups('order') : studentNavGroups('menu')}
           user={{
             initials: '',
             name: isParent ? (user?.full_name ?? '') : (student?.full_name ?? ''),
@@ -64,7 +66,7 @@ export function ReceiptScreen() {
         />
       }
       topbar={<Topbar searchPlaceholder="Search…" />}
-      mobileNav={<MobileTabBar items={[]} />}
+      mobileNav={<MobileTabBar items={isParent ? parentTabs('order') : studentTabs('menu')} />}
     >
       <div className="mx-auto max-w-lg pt-4">
         {order === null ? (

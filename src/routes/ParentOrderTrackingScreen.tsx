@@ -6,6 +6,7 @@ export function ParentOrderTrackingScreen() {
   const { user } = useAuth()
   return (
     <OrderTrackingScreen
+      role="parent"
       displayName={user?.full_name ?? ''}
       roleLabel="Parent"
       backHref="/parent/orders"

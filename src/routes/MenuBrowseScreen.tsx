@@ -23,6 +23,7 @@ import {
 } from '@/features/menu-browse/api'
 import { addCartItem, getCart } from '@/features/cart/api'
 import { extractErrorMessage } from '@/lib/api-error'
+import { studentNavGroups, studentTabs } from './studentNav'
 
 const ALL = 'All'
 
@@ -114,7 +115,7 @@ export function MenuBrowseScreen() {
       sidebar={
         <Sidebar
           brandTitle="School24"
-          groups={[]}
+          groups={studentNavGroups('menu')}
           user={{ initials: '', name: student?.full_name ?? '', role: 'Student' }}
         />
       }
@@ -128,7 +129,7 @@ export function MenuBrowseScreen() {
           }
         />
       }
-      mobileNav={<MobileTabBar items={[]} />}
+      mobileNav={<MobileTabBar items={studentTabs('menu')} />}
     >
       <div className="mx-auto max-w-5xl">
         <div>

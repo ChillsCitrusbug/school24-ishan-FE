@@ -23,6 +23,7 @@ import {
 import type { MenuCategory, MenuItem } from '@/features/menu-browse/api'
 import { addCartItem, getCart } from '@/features/cart/api'
 import { extractErrorMessage } from '@/lib/api-error'
+import { parentNavGroups, parentTabs } from './parentNav'
 
 const ALL = 'All'
 
@@ -128,7 +129,7 @@ export function ParentMenuBrowseScreen() {
       sidebar={
         <Sidebar
           brandTitle="School24"
-          groups={[]}
+          groups={parentNavGroups('order')}
           user={{ initials: '', name: user?.full_name ?? '', role: 'Parent' }}
         />
       }
@@ -147,7 +148,7 @@ export function ParentMenuBrowseScreen() {
           }
         />
       }
-      mobileNav={<MobileTabBar items={[]} />}
+      mobileNav={<MobileTabBar items={parentTabs('order')} />}
     >
       <div className="mx-auto max-w-5xl">
         <div>

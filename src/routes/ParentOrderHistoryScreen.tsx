@@ -8,6 +8,7 @@ export function ParentOrderHistoryScreen() {
   const { user } = useAuth()
   return (
     <OrderHistoryScreen
+      role="parent"
       displayName={user?.full_name ?? ''}
       roleLabel="Parent"
       orderHref={(orderId) => `/parent/orders/${orderId}`}

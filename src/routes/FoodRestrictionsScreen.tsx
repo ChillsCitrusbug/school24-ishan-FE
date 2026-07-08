@@ -19,6 +19,7 @@ import {
 import { getActiveContext, type ActiveChild } from '@/features/child-selection/api'
 import * as foodRestrictionsApi from '@/features/food-restrictions/api'
 import { extractErrorMessage } from '@/lib/api-error'
+import { parentNavGroups, parentTabs } from './parentNav'
 
 /**
  * Sc067Restrictions.tsx — a Parent blocks a specific product or an
@@ -145,9 +146,9 @@ export function FoodRestrictionsScreen() {
 
   return (
     <AppShell
-      sidebar={<Sidebar brandTitle="School24" groups={[]} user={{ initials: '', name: '', role: 'Parent' }} />}
+      sidebar={<Sidebar brandTitle="School24" groups={parentNavGroups('restrictions')} user={{ initials: '', name: '', role: 'Parent' }} />}
       topbar={<Topbar />}
-      mobileNav={<MobileTabBar items={[]} />}
+      mobileNav={<MobileTabBar items={parentTabs('restrictions')} />}
     >
       <div className="mx-auto max-w-3xl">
         <button

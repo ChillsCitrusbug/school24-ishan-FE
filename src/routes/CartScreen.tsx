@@ -14,6 +14,7 @@ import {
 import { useStudentAuth } from '@/features/student-auth/useStudentAuth'
 import { getCart, type Cart } from '@/features/cart/api'
 import { extractErrorMessage } from '@/lib/api-error'
+import { studentNavGroups, studentTabs } from './studentNav'
 
 /**
  * SC-073 · Cart Review (enforce: re-validate) — Student (FR-035/036).
@@ -49,12 +50,12 @@ export function CartScreen() {
       sidebar={
         <Sidebar
           brandTitle="School24"
-          groups={[]}
+          groups={studentNavGroups('menu')}
           user={{ initials: '', name: student?.full_name ?? '', role: 'Student' }}
         />
       }
       topbar={<Topbar searchPlaceholder="Search the menu…" />}
-      mobileNav={<MobileTabBar items={[]} />}
+      mobileNav={<MobileTabBar items={studentTabs('menu')} />}
     >
       <div className="mx-auto max-w-2xl">
         <Button variant="ghost" size="sm" leadingIcon="chevronLeft" className="mb-3" onClick={() => navigate('/student/menu')}>

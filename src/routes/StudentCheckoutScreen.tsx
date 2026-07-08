@@ -18,6 +18,7 @@ import { getMyStudentWalletId, getWallet } from '@/features/wallet/api'
 import { useStudentAuth } from '@/features/student-auth/useStudentAuth'
 import { extractErrorMessage } from '@/lib/api-error'
 import { cn } from '@/lib/cn'
+import { studentNavGroups, studentTabs } from './studentNav'
 
 /**
  * SC-074 · Student Checkout & Wallet Confirmation (FR-036). Reuses the
@@ -82,12 +83,12 @@ export function StudentCheckoutScreen() {
       sidebar={
         <Sidebar
           brandTitle="School24"
-          groups={[]}
+          groups={studentNavGroups('menu')}
           user={{ initials: '', name: student?.full_name ?? '', role: 'Student' }}
         />
       }
       topbar={<Topbar searchPlaceholder="Search…" />}
-      mobileNav={<MobileTabBar items={[]} />}
+      mobileNav={<MobileTabBar items={studentTabs('menu')} />}
     >
       <div className="mx-auto max-w-lg">
         <Button

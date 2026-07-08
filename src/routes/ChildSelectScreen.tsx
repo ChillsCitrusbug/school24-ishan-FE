@@ -17,6 +17,7 @@ import {
 import { getActiveContext, type ActiveChild } from '@/features/child-selection/api'
 import { useAuth } from '@/features/auth/useAuth'
 import { extractErrorMessage } from '@/lib/api-error'
+import { parentNavGroups, parentTabs } from './parentNav'
 
 function initialsOf(name: string): string {
   const parts = name.trim().split(/\s+/)
@@ -91,12 +92,12 @@ export function ChildSelectScreen() {
       sidebar={
         <Sidebar
           brandTitle="School24"
-          groups={[]}
+          groups={parentNavGroups('children')}
           user={{ initials: user ? initialsOf(user.full_name) : '', name: user?.full_name ?? '', role: 'Parent' }}
         />
       }
       topbar={<Topbar searchPlaceholder="Search…" right={<IconButton icon="bell" label="Notifications" />} />}
-      mobileNav={<MobileTabBar items={[]} />}
+      mobileNav={<MobileTabBar items={parentTabs('children')} />}
     >
       <div className="mx-auto max-w-2xl">
         <h1 className="text-2xl font-bold text-ink">Choose a child</h1>

@@ -1,6 +1,6 @@
 import { act, fireEvent, render, screen, waitFor } from '@testing-library/react'
 import { createMemoryRouter, RouterProvider } from 'react-router-dom'
-import { afterEach, describe, expect, it, vi } from 'vitest'
+import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 import { AuthProvider } from '@/features/auth/AuthContext'
 import * as authApi from '@/features/auth/api'
 import * as childSelectionApi from '@/features/child-selection/api'
@@ -62,11 +62,19 @@ async function renderAuthenticatedAt(path: string) {
   fireEvent.change(screen.getByLabelText('Email'), { target: { value: PARENT_USER.email } })
   fireEvent.change(screen.getByLabelText('Password'), { target: { value: 'whatever' } })
   fireEvent.click(screen.getByRole('button', { name: /sign in/i }))
-  await waitFor(() => expect(screen.getByText('Dashboard coming soon')).toBeInTheDocument())
+  await waitFor(() => expect(screen.getByText(/good morning/i)).toBeInTheDocument())
   await act(async () => {
     await router.navigate(path)
   })
 }
+
+beforeEach(() => {
+  // ParentHomeScreen (the real /parent landing this helper always passes
+  // through) now calls listMyChildren() on mount — a safe empty default
+  // so the auto-mocked module doesn't return `undefined` there; tests
+  // that care about a specific children list override this afterward.
+  vi.mocked(myChildrenApi.listMyChildren).mockResolvedValue([])
+})
 
 afterEach(() => {
   vi.restoreAllMocks()

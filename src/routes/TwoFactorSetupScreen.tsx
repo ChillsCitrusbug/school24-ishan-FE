@@ -10,10 +10,16 @@ import {
   MobileTabBar,
   Sidebar,
   Topbar,
+  type NavGroup,
+  type TabItem,
 } from '@/components'
 import { useAuth } from '@/features/auth/useAuth'
 import * as twoFactorApi from '@/features/two-factor/api'
 import { extractErrorMessage } from '@/lib/api-error'
+import { platformAdminNavGroups, platformAdminTabs } from './platformAdminNav'
+import { schoolAdminNavGroups, schoolAdminTabs } from './schoolAdminNav'
+import { staffNavGroups, staffTabs } from './staffNav'
+import { parentNavGroups, parentTabs } from './parentNav'
 
 const CODE_LENGTH = 6
 
@@ -22,6 +28,20 @@ const PROFILE_PATH: Record<string, string> = {
   school_admin: '/school-admin/profile',
   staff: '/staff/profile',
   parent: '/parent/profile',
+}
+
+const NAV_GROUPS: Record<string, () => NavGroup[]> = {
+  platform_admin: () => platformAdminNavGroups(),
+  school_admin: () => schoolAdminNavGroups(),
+  staff: () => staffNavGroups(),
+  parent: () => parentNavGroups(),
+}
+
+const NAV_TABS: Record<string, () => TabItem[]> = {
+  platform_admin: () => platformAdminTabs(),
+  school_admin: () => schoolAdminTabs(),
+  staff: () => staffTabs(),
+  parent: () => parentTabs(),
 }
 
 type Mode = 'off' | 'confirm' | 'backup-codes' | 'on'
@@ -145,12 +165,12 @@ export function TwoFactorSetupScreen() {
       sidebar={
         <Sidebar
           brandTitle="School24"
-          groups={[]}
+          groups={user ? (NAV_GROUPS[user.role]?.() ?? []) : []}
           user={{ initials: '', name: user?.full_name ?? '', role: user?.role ?? '' }}
         />
       }
       topbar={<Topbar />}
-      mobileNav={<MobileTabBar items={[]} />}
+      mobileNav={<MobileTabBar items={user ? (NAV_TABS[user.role]?.() ?? []) : []} />}
     >
       <div className="mx-auto max-w-md space-y-4">
         <button

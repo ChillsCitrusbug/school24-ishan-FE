@@ -19,6 +19,7 @@ import { useStudentAuth } from '@/features/student-auth/useStudentAuth'
 import { addCartItem } from '@/features/cart/api'
 import { getStudentDashboard, type FrequentItem, type StudentDashboard } from '@/features/student-dashboard/api'
 import { extractErrorMessage } from '@/lib/api-error'
+import { studentNavGroups, studentTabs } from './studentNav'
 
 /**
  * SC-070 · Student Home / Quick-Reorder Dashboard (FR-047). Reuses the
@@ -83,7 +84,7 @@ export function StudentHomeScreen() {
       sidebar={
         <Sidebar
           brandTitle="School24"
-          groups={[]}
+          groups={studentNavGroups('home')}
           user={{ initials: '', name: student?.full_name ?? '', role: 'Student' }}
         />
       }
@@ -93,7 +94,7 @@ export function StudentHomeScreen() {
           right={<IconButton icon="bell" label="Notifications" onClick={() => navigate('/student/inbox')} />}
         />
       }
-      mobileNav={<MobileTabBar items={[]} />}
+      mobileNav={<MobileTabBar items={studentTabs('home')} />}
     >
       <div className="mx-auto max-w-3xl space-y-5">
         <div>

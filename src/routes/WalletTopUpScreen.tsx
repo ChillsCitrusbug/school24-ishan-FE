@@ -21,6 +21,8 @@ import {
 } from '@/components'
 import * as walletTopUpApi from '@/features/wallet-topup/api'
 import { extractErrorMessage } from '@/lib/api-error'
+import { parentNavGroups, parentTabs } from './parentNav'
+import { studentNavGroups, studentTabs } from './studentNav'
 
 const QUICK_AMOUNTS = [5, 10, 15, 20, 30, 50, 75, 100]
 const POLL_INTERVAL_MS = 1500
@@ -144,12 +146,12 @@ export function WalletTopUpScreen({
       sidebar={
         <Sidebar
           brandTitle="School24"
-          groups={[]}
+          groups={role === 'parent' ? parentNavGroups('wallet') : studentNavGroups('wallet')}
           user={{ initials: displayName.slice(0, 1).toUpperCase(), name: displayName, role: roleLabel }}
         />
       }
       topbar={<Topbar />}
-      mobileNav={<MobileTabBar items={[]} />}
+      mobileNav={<MobileTabBar items={role === 'parent' ? parentTabs('wallet') : studentTabs('wallet')} />}
     >
       <div className="mx-auto max-w-lg">
         {step !== 'result' && (

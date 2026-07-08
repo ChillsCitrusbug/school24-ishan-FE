@@ -41,10 +41,10 @@ import { ParentMenuBrowseScreen } from './ParentMenuBrowseScreen'
 import { ParentOrderHistoryScreen } from './ParentOrderHistoryScreen'
 import { ParentOrderTrackingScreen } from './ParentOrderTrackingScreen'
 import { ParentProfileScreen } from './ParentProfileScreen'
+import { ParentHomeScreen } from './ParentHomeScreen'
 import { ParentTxnHistoryScreen } from './ParentTxnHistoryScreen'
 import { ParentWalletScreen } from './ParentWalletScreen'
 import { ParentWalletTopUpScreen } from './ParentWalletTopUpScreen'
-import { PlaceholderDashboard } from './PlaceholderDashboard'
 import { PlatformDashboardScreen } from './PlatformDashboardScreen'
 import { ProductFormScreen } from './ProductFormScreen'
 import { ProductSalesScreen } from './ProductSalesScreen'
@@ -659,7 +659,7 @@ export const routes: RouteObject[] = [
     path: '/parent',
     element: (
       <RequireRole allow={['parent']}>
-        <PlaceholderDashboard />
+        <ParentHomeScreen />
       </RequireRole>
     ),
   },

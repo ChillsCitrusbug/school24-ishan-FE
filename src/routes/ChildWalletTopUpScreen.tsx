@@ -19,6 +19,7 @@ import { getActiveContext, type ActiveChild } from '@/features/child-selection/a
 import * as walletTopUpApi from '@/features/wallet-topup/api'
 import { extractErrorMessage } from '@/lib/api-error'
 import { PaymentStep, ResultStep } from './WalletTopUpScreen'
+import { parentNavGroups, parentTabs } from './parentNav'
 
 const QUICK_AMOUNTS = [5, 10, 15, 20, 30, 50, 75, 100]
 const POLL_INTERVAL_MS = 1500
@@ -116,9 +117,9 @@ export function ChildWalletTopUpScreen() {
 
   return (
     <AppShell
-      sidebar={<Sidebar brandTitle="School24" groups={[]} user={{ initials: '', name: '', role: 'Parent' }} />}
+      sidebar={<Sidebar brandTitle="School24" groups={parentNavGroups('children')} user={{ initials: '', name: '', role: 'Parent' }} />}
       topbar={<Topbar />}
-      mobileNav={<MobileTabBar items={[]} />}
+      mobileNav={<MobileTabBar items={parentTabs('children')} />}
     >
       <div className="mx-auto max-w-lg">
         {step !== 'result' && (

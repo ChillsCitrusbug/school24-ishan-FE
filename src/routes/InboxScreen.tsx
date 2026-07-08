@@ -2,6 +2,9 @@ import { useEffect, useState } from 'react'
 import { AppShell, Card, EmptyState, ErrorState, Icon, MobileTabBar, Sidebar, Spinner, Topbar } from '@/components'
 import { listMyNotifications, type InboxNotification } from '@/features/notifications/api'
 import { extractErrorMessage } from '@/lib/api-error'
+import { parentNavGroups, parentTabs } from './parentNav'
+import { staffNavGroups, staffTabs } from './staffNav'
+import { studentNavGroups, studentTabs } from './studentNav'
 
 /**
  * Sc091Inbox.tsx — a recipient (Parent/Staff/Student) sees every
@@ -23,11 +26,12 @@ import { extractErrorMessage } from '@/lib/api-error'
  * passes its own identity through.
  */
 export interface InboxScreenProps {
+  role: 'parent' | 'staff' | 'student'
   displayName: string
   roleLabel: string
 }
 
-export function InboxScreen({ displayName, roleLabel }: InboxScreenProps) {
+export function InboxScreen({ role, displayName, roleLabel }: InboxScreenProps) {
   const [notifications, setNotifications] = useState<InboxNotification[] | null>(null)
   const [error, setError] = useState<string | null>(null)
 
@@ -39,17 +43,21 @@ export function InboxScreen({ displayName, roleLabel }: InboxScreenProps) {
       })
   }, [])
 
+  const navGroups =
+    role === 'parent' ? parentNavGroups() : role === 'staff' ? staffNavGroups('notifications') : studentNavGroups()
+  const tabs = role === 'parent' ? parentTabs() : role === 'staff' ? staffTabs('notifications') : studentTabs()
+
   return (
     <AppShell
       sidebar={
         <Sidebar
           brandTitle="School24"
-          groups={[]}
+          groups={navGroups}
           user={{ initials: displayName.slice(0, 1).toUpperCase(), name: displayName, role: roleLabel }}
         />
       }
       topbar={<Topbar />}
-      mobileNav={<MobileTabBar items={[]} />}
+      mobileNav={<MobileTabBar items={tabs} />}
     >
       <div className="mx-auto max-w-2xl">
         <h1 className="text-2xl font-bold text-ink">Notifications</h1>

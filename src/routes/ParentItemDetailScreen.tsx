@@ -20,6 +20,7 @@ import { getChildMenuProduct, getChildMenuCombo } from '@/features/child-menu-br
 import type { MenuProductDetail, MenuComboDetail } from '@/features/menu-browse/api'
 import { addCartItem } from '@/features/cart/api'
 import { extractErrorMessage } from '@/lib/api-error'
+import { parentNavGroups, parentTabs } from './parentNav'
 
 type Detail = MenuProductDetail | MenuComboDetail
 
@@ -67,9 +68,9 @@ export function ParentItemDetailScreen({ itemType }: { itemType: 'product' | 'co
   if (loadError) {
     return (
       <AppShell
-        sidebar={<Sidebar brandTitle="School24" groups={[]} user={{ initials: '', name: user?.full_name ?? '', role: 'Parent' }} />}
+        sidebar={<Sidebar brandTitle="School24" groups={parentNavGroups('order')} user={{ initials: '', name: user?.full_name ?? '', role: 'Parent' }} />}
         topbar={<Topbar />}
-        mobileNav={<MobileTabBar items={[]} />}
+        mobileNav={<MobileTabBar items={parentTabs('order')} />}
       >
         <div className="mx-auto max-w-2xl">
           <Card className="p-6">
@@ -83,9 +84,9 @@ export function ParentItemDetailScreen({ itemType }: { itemType: 'product' | 'co
   if (!detail) {
     return (
       <AppShell
-        sidebar={<Sidebar brandTitle="School24" groups={[]} user={{ initials: '', name: user?.full_name ?? '', role: 'Parent' }} />}
+        sidebar={<Sidebar brandTitle="School24" groups={parentNavGroups('order')} user={{ initials: '', name: user?.full_name ?? '', role: 'Parent' }} />}
         topbar={<Topbar />}
-        mobileNav={<MobileTabBar items={[]} />}
+        mobileNav={<MobileTabBar items={parentTabs('order')} />}
       >
         <div role="status" aria-label="Loading item" className="mt-10 flex justify-center text-muted">
           <Spinner className="h-6 w-6" />
@@ -126,12 +127,12 @@ export function ParentItemDetailScreen({ itemType }: { itemType: 'product' | 'co
       sidebar={
         <Sidebar
           brandTitle="School24"
-          groups={[]}
+          groups={parentNavGroups('order')}
           user={{ initials: '', name: user?.full_name ?? '', role: 'Parent' }}
         />
       }
       topbar={<Topbar searchPlaceholder="Search the menu…" />}
-      mobileNav={<MobileTabBar items={[]} />}
+      mobileNav={<MobileTabBar items={parentTabs('order')} />}
     >
       <div className="mx-auto max-w-2xl">
         <Button
