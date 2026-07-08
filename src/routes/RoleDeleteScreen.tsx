@@ -64,7 +64,7 @@ export function RoleDeleteScreen() {
         <Sidebar
           brandTitle="School24"
           brandSubtitle={user?.school_name ?? undefined}
-          groups={schoolAdminNavGroups()}
+          groups={schoolAdminNavGroups('roles')}
           user={{
             initials: user ? initialsOf(user.full_name) : '',
             name: user?.full_name ?? '',
@@ -78,7 +78,7 @@ export function RoleDeleteScreen() {
           right={<IconButton icon="bell" label="Notifications" />}
         />
       }
-      mobileNav={<MobileTabBar items={schoolAdminTabs()} />}
+      mobileNav={<MobileTabBar items={schoolAdminTabs('roles')} />}
     >
       <div className="mx-auto max-w-md pt-6">
         <Card className="p-8">

@@ -79,7 +79,7 @@ export function AssignRoleScreen() {
         <Sidebar
           brandTitle="School24"
           brandSubtitle={user?.school_name ?? undefined}
-          groups={schoolAdminNavGroups()}
+          groups={schoolAdminNavGroups('staff')}
           user={{
             initials: user ? initialsOf(user.full_name) : '',
             name: user?.full_name ?? '',
@@ -93,7 +93,7 @@ export function AssignRoleScreen() {
           right={<IconButton icon="bell" label="Notifications" />}
         />
       }
-      mobileNav={<MobileTabBar items={schoolAdminTabs()} />}
+      mobileNav={<MobileTabBar items={schoolAdminTabs('staff')} />}
     >
       <div className="mx-auto max-w-lg">
         <Button

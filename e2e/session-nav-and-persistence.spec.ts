@@ -110,3 +110,18 @@ test('the sidebar collapses to icon-only, and the choice survives a real refresh
   await sidebarAfterReload.getByRole('button', { name: /expand sidebar/i }).click()
   await expect(sidebarAfterReload.getByText('Students')).toBeVisible()
 })
+
+test('the sidebar\'s "Roles" link navigates to the real roles list (direct user bug report — was unreachable from any UI element)', async ({
+  page,
+}) => {
+  await page.goto('/login')
+  await page.getByLabel('Email').fill(SA_EMAIL)
+  await page.getByLabel('Password').fill(SA_PASSWORD)
+  await page.getByRole('button', { name: /sign in/i }).click()
+  await page.waitForURL('**/school-admin')
+
+  await page.getByRole('complementary').getByRole('link', { name: /roles/i }).click()
+
+  await page.waitForURL('**/school-admin/roles')
+  await expect(page.getByRole('heading', { name: 'Roles & permissions' })).toBeVisible()
+})

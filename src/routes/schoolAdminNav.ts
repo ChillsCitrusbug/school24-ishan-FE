@@ -5,6 +5,7 @@ type SchoolAdminSection =
   | 'students'
   | 'classes'
   | 'staff'
+  | 'roles'
   | 'approvals'
   | 'menu'
   | 'orders'
@@ -29,6 +30,14 @@ type SchoolAdminSection =
  * `active` defaults to `'dashboard'` so every existing caller (which
  * never passed an argument) keeps its exact current highlighting
  * unchanged; FR-011's own Classes screens pass `'classes'`.
+ *
+ * "Roles" addition (2026-07-08, direct user bug report — "Where is
+ * roles in sidebar of school admin sidebar?"): `/school-admin/roles`
+ * and its own create/edit/delete/assign screens were already fully
+ * built and working, but had zero entry point anywhere in the UI — not
+ * this nav, not a link from the Staff screens, nothing. Desktop
+ * sidebar only, same precedent as "All orders" — `schoolAdminTabs()`'s
+ * own mobile bar is already at its documented 5-item cap.
  */
 export function schoolAdminNavGroups(active: SchoolAdminSection = 'dashboard'): NavGroup[] {
   return [
@@ -39,6 +48,12 @@ export function schoolAdminNavGroups(active: SchoolAdminSection = 'dashboard'): 
         { icon: 'children', label: 'Students', active: active === 'students', href: '/school-admin/students' },
         { icon: 'grid', label: 'Classes', active: active === 'classes', href: '/school-admin/classes' },
         { icon: 'user', label: 'Staff', active: active === 'staff', href: '/school-admin/staff' },
+        {
+          icon: 'shield',
+          label: 'Roles',
+          active: active === 'roles',
+          href: '/school-admin/roles',
+        },
         {
           icon: 'check',
           label: 'Approvals',
