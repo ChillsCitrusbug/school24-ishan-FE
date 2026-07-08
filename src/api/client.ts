@@ -1,5 +1,5 @@
 import axios, { type AxiosError } from 'axios'
-import { clearAccessToken, getAccessToken } from '@/lib/auth-token'
+import { clearAccessToken, getAccessToken, isRehydratingSession } from '@/lib/auth-token'
 
 /**
  * Centralized Axios client.
@@ -53,6 +53,12 @@ apiClient.interceptors.request.use((config) => {
  * A full page navigation (not a router push) is deliberate: this runs
  * outside the React tree, and a hard reload also guarantees no stale
  * in-memory state/query cache survives into the re-authenticated session.
+ *
+ * Session-persistence addition: a 401 while `isRehydratingSession()` is
+ * true is ALSO not a real session-expiry — it's the expected outcome
+ * of AuthProvider/StudentAuthProvider's own boot-time "who am I" check
+ * against a persisted token that turns out to belong to the OTHER auth
+ * system's own role. See `lib/auth-token.ts`'s own docstring.
  */
 const CREDENTIAL_FLOW_PATHS = [
   '/auth/login',
@@ -67,7 +73,11 @@ apiClient.interceptors.response.use(
   (error: AxiosError) => {
     const url = error.config?.url ?? ''
     const isCredentialFlowRequest = CREDENTIAL_FLOW_PATHS.some((path) => url.endsWith(path))
-    if (error.response?.status === 401 && !isCredentialFlowRequest) {
+    if (
+      error.response?.status === 401 &&
+      !isCredentialFlowRequest &&
+      !isRehydratingSession()
+    ) {
       clearAccessToken()
       if (typeof window !== 'undefined' && window.location.pathname !== '/session-expired') {
         window.location.assign('/session-expired')

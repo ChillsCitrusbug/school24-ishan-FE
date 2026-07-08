@@ -176,4 +176,42 @@ describe('apiClient response interceptor (EC-034)', () => {
     expect(authToken.clearAccessToken).toHaveBeenCalledTimes(1)
     expect(assignMock).toHaveBeenCalledWith('/session-expired')
   })
+
+  // Session-persistence addition (2026-07-08): AuthProvider and
+  // StudentAuthProvider each try their own "who am I" call against a
+  // persisted token on boot — at most one succeeds (a Student token
+  // 401s against the User "me" endpoint and vice versa). That expected
+  // 401 must NOT be treated as a real session-expiry while the OTHER
+  // provider's own attempt might still be resolving successfully.
+  it('does NOT clear the token or redirect on a 401 while a boot-time rehydration attempt is in flight', async () => {
+    vi.mocked(authToken.isRehydratingSession).mockReturnValue(true)
+    const client = await loadClient()
+    const rejected = responseRejectedInterceptor(client)
+
+    await expect(
+      rejected({
+        response: { status: 401 },
+        config: { url: '/api/v1/auth/me' },
+      }),
+    ).rejects.toBeDefined()
+
+    expect(authToken.clearAccessToken).not.toHaveBeenCalled()
+    expect(assignMock).not.toHaveBeenCalled()
+  })
+
+  it('redirects normally once rehydration has settled (isRehydratingSession false)', async () => {
+    vi.mocked(authToken.isRehydratingSession).mockReturnValue(false)
+    const client = await loadClient()
+    const rejected = responseRejectedInterceptor(client)
+
+    await expect(
+      rejected({
+        response: { status: 401 },
+        config: { url: '/api/v1/auth/me' },
+      }),
+    ).rejects.toBeDefined()
+
+    expect(authToken.clearAccessToken).toHaveBeenCalledTimes(1)
+    expect(assignMock).toHaveBeenCalledWith('/session-expired')
+  })
 })

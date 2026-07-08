@@ -152,3 +152,102 @@ describe('RootRedirect', () => {
     )
   })
 })
+
+describe('Logout (session-persistence addition, 2026-07-08)', () => {
+  it('a signed-in user can log out from any authenticated screen and lands back on /login', async () => {
+    await loginAs('school_admin')
+    await waitFor(() => expect(screen.getByText(/let.s set up your school/i)).toBeInTheDocument())
+
+    fireEvent.click(screen.getByRole('button', { name: /log out/i }))
+
+    await waitFor(() => expect(screen.getByText('Welcome back')).toBeInTheDocument())
+    // A genuinely cleared session, not just a navigated-away screen —
+    // going back to a protected route redirects to /login again.
+    expect(sessionStorage.getItem('school24_access_token')).toBeNull()
+  })
+
+  it('a signed-in student can log out and lands back on /student-login', async () => {
+    await loginAsStudent()
+    await waitFor(() =>
+      expect(screen.getByText(/grab your usual in a tap/i)).toBeInTheDocument(),
+    )
+
+    fireEvent.click(screen.getByRole('button', { name: /log out/i }))
+
+    await waitFor(() => expect(screen.getByText('Student sign in')).toBeInTheDocument())
+  })
+})
+
+describe('Sidebar brand title (clickable-home addition, 2026-07-08)', () => {
+  it('navigates back to the role home from a nested screen', async () => {
+    const { router } = await loginAs('school_admin')
+    await waitFor(() => expect(screen.getByText(/let.s set up your school/i)).toBeInTheDocument())
+
+    await act(async () => {
+      await router.navigate('/school-admin/reports')
+    })
+    await waitFor(() => expect(screen.getByText('Operational reports')).toBeInTheDocument())
+
+    fireEvent.click(screen.getByRole('link', { name: /school24/i }))
+
+    await waitFor(() => expect(screen.getByText(/let.s set up your school/i)).toBeInTheDocument())
+  })
+})
+
+describe('Session persistence across a refresh (2026-07-08)', () => {
+  it('a persisted user token rehydrates the session without a login redirect', async () => {
+    sessionStorage.setItem('school24_access_token', 'a-persisted-jwt')
+    vi.mocked(authApi.getMe).mockResolvedValue({
+      id: 'u1',
+      full_name: 'Test User',
+      email: 'test@example.com',
+      role: 'school_admin',
+      school_id: 's1',
+      school_name: 'Greenvale Primary',
+    })
+    // The token belongs to this User session — StudentAuthProvider's
+    // own concurrent boot check against the SAME token must 401 (a
+    // real backend would reject a User token here), matching the
+    // "at most one succeeds" contract this whole feature relies on.
+    vi.mocked(studentAuthApi.getMe).mockRejectedValue({ response: { status: 401 } })
+
+    renderRouterAt('/school-admin')
+
+    // Never flashes the login screen while rehydration is in flight.
+    expect(screen.queryByText('Welcome back')).not.toBeInTheDocument()
+    await waitFor(() =>
+      expect(screen.getByText(/let.s set up your school/i)).toBeInTheDocument(),
+    )
+    expect(authApi.getMe).toHaveBeenCalled()
+  })
+
+  it('a persisted student token rehydrates the session without a login redirect', async () => {
+    sessionStorage.setItem('school24_access_token', 'a-persisted-jwt')
+    vi.mocked(studentAuthApi.getMe).mockResolvedValue({
+      id: 's1',
+      full_name: 'Noah Thompson',
+      student_id: 'S-41880',
+      school_id: 'sc1',
+    })
+    // The token belongs to this Student session — AuthProvider's own
+    // concurrent boot check against the SAME token must 401.
+    vi.mocked(authApi.getMe).mockRejectedValue({ response: { status: 401 } })
+
+    renderRouterAt('/student')
+
+    expect(screen.queryByText('Student sign in')).not.toBeInTheDocument()
+    await waitFor(() =>
+      expect(screen.getByText(/grab your usual in a tap/i)).toBeInTheDocument(),
+    )
+  })
+
+  it('an invalid/expired persisted token falls back to the login screen, not an infinite spinner', async () => {
+    sessionStorage.setItem('school24_access_token', 'a-stale-jwt')
+    vi.mocked(authApi.getMe).mockRejectedValue({ response: { status: 401 } })
+    vi.mocked(studentAuthApi.getMe).mockRejectedValue({ response: { status: 401 } })
+
+    renderRouterAt('/school-admin')
+
+    await waitFor(() => expect(screen.getByText('Welcome back')).toBeInTheDocument())
+  })
+})

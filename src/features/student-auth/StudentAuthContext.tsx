@@ -1,7 +1,14 @@
-import { useCallback, useRef, useState, type ReactNode } from 'react'
-import { clearAccessToken, setAccessToken } from '@/lib/auth-token'
+import { useCallback, useEffect, useRef, useState, type ReactNode } from 'react'
+import {
+  beginRehydration,
+  clearAccessToken,
+  endRehydration,
+  getAccessToken,
+  setAccessToken,
+} from '@/lib/auth-token'
 import {
   changePassword as changePasswordRequest,
+  getMe,
   login as loginRequest,
   type StudentSummary,
 } from './api'
@@ -18,12 +25,36 @@ import { StudentAuthContext } from './context'
  * `hasPendingPasswordChange` is the state twin that IS exposed, so the
  * first-login screen can guard itself without the token leaking into
  * anything that renders it.
+ *
+ * `isBootstrapping` mirrors `AuthProvider`'s own identical field — see
+ * that provider's docstring for the full reasoning (a page refresh
+ * must not flash-redirect `RequireStudent` to `/student-login` before
+ * the boot-time "who am I" check below has resolved).
  */
 export function StudentAuthProvider({ children }: { children: ReactNode }) {
   const [student, setStudent] = useState<StudentSummary | null>(null)
   const [isAuthenticating, setIsAuthenticating] = useState(false)
+  const [isBootstrapping, setIsBootstrapping] = useState(() => getAccessToken() !== null)
   const [hasPendingPasswordChange, setHasPendingPasswordChange] = useState(false)
   const pendingChangeToken = useRef<string | null>(null)
+
+  useEffect(() => {
+    const token = getAccessToken()
+    if (!token) return
+    beginRehydration()
+    getMe()
+      .then(setStudent)
+      .catch(() => {
+        // Either a genuinely expired/invalid token, or this persisted
+        // token actually belongs to a User (Parent/SA/Staff/PA) session
+        // — AuthProvider's own boot check handles that case; this
+        // provider silently stays signed-out, no token cleared here.
+      })
+      .finally(() => {
+        endRehydration()
+        setIsBootstrapping(false)
+      })
+  }, [])
 
   const login = useCallback(async (studentId: string, password: string) => {
     setIsAuthenticating(true)
@@ -81,6 +112,7 @@ export function StudentAuthProvider({ children }: { children: ReactNode }) {
         login,
         completePasswordChange,
         logout,
+        isBootstrapping,
       }}
     >
       {children}

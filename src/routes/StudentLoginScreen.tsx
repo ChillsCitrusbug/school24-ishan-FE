@@ -1,5 +1,5 @@
 import { useState, type FormEvent } from 'react'
-import { useLocation, useNavigate } from 'react-router-dom'
+import { Link, useLocation, useNavigate } from 'react-router-dom'
 import { AuthLayout, Field, Input, Button, Banner } from '@/components'
 import { useStudentAuth } from '@/features/student-auth/useStudentAuth'
 import { extractErrorMessage } from '@/lib/api-error'
@@ -63,12 +63,9 @@ export function StudentLoginScreen() {
   return (
     <AuthLayout
       footer={
-        <>
-          Parent or staff?{' '}
-          <a href="#" className="font-semibold text-brand-deep hover:text-brand">
-            Sign in here
-          </a>
-        </>
+        <Link to="/login" className="font-semibold text-brand-deep hover:text-brand">
+          If you are a parent, login here.
+        </Link>
       }
     >
       <h1 className="text-2xl font-bold text-ink">Student sign in</h1>

@@ -2,6 +2,9 @@ import { Link } from 'react-router-dom'
 import { cn } from '@/lib/cn'
 import { Icon, type IconName } from '../atoms/Icon'
 import { Avatar } from '../atoms/Avatar'
+import { useAuth } from '@/features/auth/useAuth'
+import { useStudentAuth } from '@/features/student-auth/useStudentAuth'
+import { ROLE_HOME_PATH } from '@/routes/roleHome'
 
 export interface NavItem {
   icon: IconName
@@ -33,9 +36,17 @@ export function Sidebar({
   groups: NavGroup[]
   user: SidebarUser
 }) {
+  // Clickable-brand addition (2026-07-08): always navigates back to the
+  // signed-in identity's own home, regardless of which screen is
+  // currently open — resolved from whichever auth context is active,
+  // same self-sufficient pattern as Topbar's own Logout button.
+  const { user: authUser } = useAuth()
+  const { student } = useStudentAuth()
+  const homeHref = student ? '/student' : authUser ? ROLE_HOME_PATH[authUser.role] : '/'
+
   return (
     <aside className="hidden w-64 shrink-0 flex-col border-r border-line bg-white md:flex">
-      <div className="flex h-16 items-center gap-2.5 border-b border-line px-5">
+      <Link to={homeHref} className="flex h-16 items-center gap-2.5 border-b border-line px-5">
         <span className="grid h-9 w-9 place-items-center rounded-card bg-brand text-white">
           <Icon name="logo" />
         </span>
@@ -43,7 +54,7 @@ export function Sidebar({
           <div className="font-bold text-ink">{brandTitle}</div>
           {brandSubtitle && <div className="text-[11px] text-muted">{brandSubtitle}</div>}
         </div>
-      </div>
+      </Link>
 
       <nav className="flex-1 overflow-y-auto p-3 text-sm">
         {groups.map((group, gi) => (

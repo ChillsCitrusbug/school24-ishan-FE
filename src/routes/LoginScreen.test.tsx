@@ -190,4 +190,12 @@ describe('LoginScreen', () => {
     expect(await screen.findByText('Two-factor authentication')).toBeInTheDocument()
     expect(screen.queryByText('Dashboard coming soon')).not.toBeInTheDocument()
   })
+
+  it('the "If you are a student, login here" link navigates to the real Student login', async () => {
+    renderAt('/login')
+
+    fireEvent.click(screen.getByRole('link', { name: /if you are a student, login here/i }))
+
+    expect(await screen.findByText('Student sign in')).toBeInTheDocument()
+  })
 })

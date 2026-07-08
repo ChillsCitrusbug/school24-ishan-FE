@@ -49,3 +49,14 @@ export async function changePassword(
   )
   return response.data.data
 }
+
+/** Session-persistence addition: the student-side "who am I" check,
+ * mirroring `features/auth/api.ts`'s own `getMe()` — reuses the
+ * existing FR-048 profile endpoint (which already returns everything
+ * `StudentSummary` needs) rather than adding a new one. Used only by
+ * `StudentAuthContext`'s own boot-time rehydration attempt against a
+ * persisted token. */
+export async function getMe(): Promise<StudentSummary> {
+  const response = await apiClient.get<Envelope<StudentSummary>>('/api/v1/student-profile')
+  return response.data.data
+}

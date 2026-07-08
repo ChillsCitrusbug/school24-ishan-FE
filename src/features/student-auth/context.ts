@@ -18,6 +18,10 @@ export interface StudentAuthContextValue {
    * screen can't accidentally submit against a stale/wrong token. */
   completePasswordChange: (newPassword: string, confirmPassword: string) => Promise<StudentSummary>
   logout: () => void
+  /** Session-persistence addition: `true` only while a persisted
+   * token's own boot-time "who am I" check is still in flight — see
+   * `AuthContextValue`'s own identical field for the full reasoning. */
+  isBootstrapping: boolean
 }
 
 export const StudentAuthContext = createContext<StudentAuthContextValue | null>(null)

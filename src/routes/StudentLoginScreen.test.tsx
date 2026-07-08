@@ -103,4 +103,12 @@ describe('StudentLoginScreen', () => {
 
     expect(await screen.findByText('School access suspended')).toBeInTheDocument()
   })
+
+  it('the "If you are a parent, login here" link navigates to the real Parent/Admin login', async () => {
+    renderAt('/student-login')
+
+    fireEvent.click(screen.getByRole('link', { name: /if you are a parent, login here/i }))
+
+    expect(await screen.findByText('Welcome back')).toBeInTheDocument()
+  })
 })

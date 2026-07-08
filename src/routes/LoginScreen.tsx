@@ -77,12 +77,19 @@ export function LoginScreen() {
   return (
     <AuthLayout
       footer={
-        <>
-          New parent?{' '}
-          <Link to="/register" className="font-semibold text-brand-deep hover:text-brand">
-            Create an account
-          </Link>
-        </>
+        <div className="space-y-1.5">
+          <div>
+            New parent?{' '}
+            <Link to="/register" className="font-semibold text-brand-deep hover:text-brand">
+              Create an account
+            </Link>
+          </div>
+          <div>
+            <Link to="/student-login" className="font-semibold text-brand-deep hover:text-brand">
+              If you are a student, login here.
+            </Link>
+          </div>
+        </div>
       }
     >
       <h1 className="text-2xl font-bold text-ink">Welcome back</h1>

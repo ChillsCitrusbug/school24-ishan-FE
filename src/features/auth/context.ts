@@ -41,6 +41,12 @@ export interface AuthContextValue {
    * changes something on `user` itself without reissuing a token. */
   refreshUser: () => Promise<void>
   logout: () => void
+  /** Session-persistence addition: `true` only while a persisted
+   * token's own boot-time "who am I" check is still in flight —
+   * `RequireRole` must treat this as "not yet known" rather than
+   * "signed out", or a page refresh would flash-redirect to `/login`
+   * before this check even resolves. */
+  isBootstrapping: boolean
 }
 
 export const AuthContext = createContext<AuthContextValue | null>(null)

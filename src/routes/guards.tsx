@@ -1,8 +1,20 @@
 import type { ReactNode } from 'react'
 import { Navigate } from 'react-router-dom'
+import { Spinner } from '@/components'
 import { useAuth } from '@/features/auth/useAuth'
 import { useStudentAuth } from '@/features/student-auth/useStudentAuth'
 import { ROLE_HOME_PATH } from './roleHome'
+
+/** Session-persistence addition: shown only while a persisted token's
+ * own boot-time "who am I" check is still in flight — see
+ * `AuthContextValue.isBootstrapping`'s own docstring. */
+function BootstrappingIndicator() {
+  return (
+    <div role="status" aria-label="Loading your session" className="flex h-screen items-center justify-center">
+      <Spinner className="h-6 w-6" />
+    </div>
+  )
+}
 
 /**
  * Route guard (FR-001). Per agents/frontend.md, Admin and Staff
@@ -25,7 +37,15 @@ interface RequireRoleProps {
 }
 
 export function RequireRole({ allow, children }: RequireRoleProps) {
-  const { user } = useAuth()
+  const { user, isBootstrapping } = useAuth()
+
+  // Session-persistence addition: a page refresh's own boot-time "who
+  // am I" check against a persisted token hasn't resolved yet — `user`
+  // is still `null` here regardless of whether the session is actually
+  // valid. Redirecting now would flash to /login on every refresh.
+  if (isBootstrapping) {
+    return <BootstrappingIndicator />
+  }
 
   if (!user) {
     return <Navigate to="/login" replace />
@@ -44,7 +64,11 @@ export function RequireRole({ allow, children }: RequireRoleProps) {
  * `RequireRole` above (students are not `users` rows), so a separate
  * context/guard rather than folding a 5th value into `Role`. */
 export function RequireStudent({ children }: { children: ReactNode }) {
-  const { student } = useStudentAuth()
+  const { student, isBootstrapping } = useStudentAuth()
+
+  if (isBootstrapping) {
+    return <BootstrappingIndicator />
+  }
 
   if (!student) {
     return <Navigate to="/student-login" replace />
