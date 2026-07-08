@@ -67,9 +67,19 @@ const REPORT: SpendingReport = {
       order_count: 1,
     },
   ],
-  monthly_summary: [
-    { month: '2026-07', total_spent: '6.50', order_count: 1 },
-    { month: '2026-06', total_spent: '4.25', order_count: 1 },
+  total_spent: '10.75',
+  total_order_count: 2,
+  average_order: '5.38',
+  previous_period_total_spent: '8.00',
+  percent_change_vs_previous_period: 34.4,
+  top_category: { label: 'Hot Food', total_spent: '6.50', percent_of_total: 60.5 },
+  by_category: [
+    { label: 'Hot Food', total_spent: '6.50' },
+    { label: 'Snacks', total_spent: '4.25' },
+  ],
+  by_week: [
+    { week_label: 'Wk 1', children: [{ student_name: 'Liam Carter', total_spent: '6.50' }] },
+    { week_label: 'Wk 2', children: [{ student_name: 'Ava Carter', total_spent: '4.25' }] },
   ],
   orders: [
     {
@@ -81,30 +91,50 @@ const REPORT: SpendingReport = {
       total_amount: '6.50',
       placed_at: '2026-07-07T09:00:00Z',
       item_count: 1,
+      items_summary: 'Chicken Wrap',
+      category: 'Hot Food',
     },
   ],
 }
 
 describe('SpendingReportScreen (FR-046)', () => {
-  it('shows total spent, orders, average order, and the parents own wallet balance', async () => {
+  it('shows total spent, orders, average order, and a "vs previous period" comparison', async () => {
     vi.mocked(reportsApi.getSpendingReport).mockResolvedValue(REPORT)
 
     await loginAsParentAt('/parent/spending-report')
 
-    expect(await screen.findByText('$10.75')).toBeInTheDocument() // total spent
-    expect(screen.getByText('2')).toBeInTheDocument() // orders
-    expect(screen.getByText('$5.38')).toBeInTheDocument() // average order (10.75 / 2)
-    expect(screen.getByText('$15.00')).toBeInTheDocument() // parent's own wallet
+    expect((await screen.findAllByText('$10.75')).length).toBeGreaterThan(0)
+    expect(screen.getByText('2')).toBeInTheDocument()
+    expect(screen.getByText('$5.38')).toBeInTheDocument()
+    expect(screen.getByText(/▲ 34.4% vs previous period/)).toBeInTheDocument()
   })
 
-  it('shows a per-child breakdown with wallet balance and spend', async () => {
+  it('shows the top-category stat card', async () => {
+    vi.mocked(reportsApi.getSpendingReport).mockResolvedValue(REPORT)
+
+    await loginAsParentAt('/parent/spending-report')
+
+    expect((await screen.findAllByText('Hot Food')).length).toBeGreaterThan(0)
+    expect(screen.getByText(/\$6.50 · 60.5% of spend/)).toBeInTheDocument()
+  })
+
+  it('shows the by-category donut and by-week bar chart legends', async () => {
     vi.mocked(reportsApi.getSpendingReport).mockResolvedValue(REPORT)
 
     await loginAsParentAt('/parent/spending-report')
 
     await waitFor(() => expect(screen.getAllByText('Liam Carter').length).toBeGreaterThan(0))
     expect(screen.getAllByText('Ava Carter').length).toBeGreaterThan(0)
-    expect(screen.getByText('$6.50 spent')).toBeInTheDocument()
+    expect(screen.getAllByText('Snacks').length).toBeGreaterThan(0)
+  })
+
+  it('shows the transactions table with real item names and category', async () => {
+    vi.mocked(reportsApi.getSpendingReport).mockResolvedValue(REPORT)
+
+    await loginAsParentAt('/parent/spending-report')
+
+    expect(await screen.findByText('Chicken Wrap')).toBeInTheDocument()
+    expect(screen.getAllByText('Hot Food').length).toBeGreaterThan(0)
   })
 
   it('filtering to one child re-fetches scoped to that childs own id', async () => {
@@ -114,29 +144,73 @@ describe('SpendingReportScreen (FR-046)', () => {
     await screen.findByRole('button', { name: 'Liam Carter' })
     fireEvent.click(screen.getByRole('button', { name: 'Liam Carter' }))
 
+    await waitFor(() => {
+      const lastCall = vi.mocked(reportsApi.getSpendingReport).mock.calls.at(-1)
+      expect(lastCall?.[1]?.childId).toBe('s1')
+    })
+  })
+
+  it('re-fetches with the selected preset date range', async () => {
+    vi.mocked(reportsApi.getSpendingReport).mockResolvedValue(REPORT)
+
+    await loginAsParentAt('/parent/spending-report')
+    await screen.findAllByText('$10.75')
+    const callsBefore = vi.mocked(reportsApi.getSpendingReport).mock.calls.length
+
+    fireEvent.click(screen.getByRole('button', { name: /\d{4}/ }))
+    fireEvent.click(await screen.findByRole('button', { name: /^last 7 days$/i }))
+
     await waitFor(() =>
-      expect(reportsApi.getSpendingReport).toHaveBeenCalledWith(PARENT_USER.id, 's1'),
+      expect(vi.mocked(reportsApi.getSpendingReport).mock.calls.length).toBeGreaterThan(
+        callsBefore,
+      ),
     )
+    const lastCall = vi.mocked(reportsApi.getSpendingReport).mock.calls.at(-1)
+    expect(lastCall?.[1]?.dateFrom).toBeDefined()
+  })
+
+  it('downloads a CSV export when "Export" is clicked', async () => {
+    vi.mocked(reportsApi.getSpendingReport).mockResolvedValue(REPORT)
+    vi.mocked(reportsApi.exportSpendingReport).mockResolvedValue(new Blob(['csv,data']))
+    const createObjectURL = vi.fn().mockReturnValue('blob:mock')
+    const revokeObjectURL = vi.fn()
+    window.URL.createObjectURL = createObjectURL
+    window.URL.revokeObjectURL = revokeObjectURL
+
+    await loginAsParentAt('/parent/spending-report')
+    await screen.findAllByText('$10.75')
+    fireEvent.click(screen.getByRole('button', { name: /^export$/i }))
+
+    await waitFor(() => expect(reportsApi.exportSpendingReport).toHaveBeenCalled())
+    expect(createObjectURL).toHaveBeenCalled()
   })
 
   it('shows an empty state with no orders yet', async () => {
     vi.mocked(reportsApi.getSpendingReport).mockResolvedValue({
       ...REPORT,
       orders: [],
-      monthly_summary: [],
+      by_category: [],
+      by_week: [],
+      top_category: null,
     })
 
     await loginAsParentAt('/parent/spending-report')
 
     expect(await screen.findByText('No orders yet')).toBeInTheDocument()
-    expect(screen.getByText('No spending yet')).toBeInTheDocument()
   })
 
   it('shows a "No approved children" empty state for a parent with zero approved links (EC-036)', async () => {
     vi.mocked(reportsApi.getSpendingReport).mockResolvedValue({
       parent_wallet: { id: 'pw1', balance: '0.00' },
       children: [],
-      monthly_summary: [],
+      total_spent: '0.00',
+      total_order_count: 0,
+      average_order: '0.00',
+      previous_period_total_spent: null,
+      percent_change_vs_previous_period: null,
+      top_category: null,
+      by_category: [],
+      by_week: [],
       orders: [],
     })
 

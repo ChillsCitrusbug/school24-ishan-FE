@@ -12,30 +12,35 @@ import {
   EmptyState,
   ErrorState,
   Spinner,
+  DateRangeButton,
 } from '@/components'
 import { useAuth } from '@/features/auth/useAuth'
 import { getProductSalesReport, type ProductSalesRow } from '@/features/reports/api'
 import { extractErrorMessage } from '@/lib/api-error'
+import type { DateRangeSelection } from '@/lib/date-range-presets'
 import { schoolAdminNavGroups, schoolAdminTabs } from './schoolAdminNav'
 
 /**
  * SC-087 · Product Sales Report (ranked by popularity) — School Admin
- * (FR-045). Reuses the approved Sc087ProductSales.tsx structure.
+ * (FR-045). Reuses the approved Sc087ProductSales.tsx structure,
+ * including its own date-range button (`DateRangeButton`, a preset
+ * picker — see that component's own docstring for why).
  */
 export function ProductSalesScreen() {
   const { user } = useAuth()
   const navigate = useNavigate()
   const [rows, setRows] = useState<ProductSalesRow[] | null>(null)
   const [error, setError] = useState<string | null>(null)
+  const [range, setRange] = useState<DateRangeSelection>({ label: 'All time' })
 
   const load = useCallback(() => {
     if (!user?.school_id) return
     setError(null)
     setRows(null)
-    getProductSalesReport(user.school_id)
+    getProductSalesReport(user.school_id, { date_from: range.date_from, date_to: range.date_to })
       .then(setRows)
       .catch((err: unknown) => setError(extractErrorMessage(err, 'Product sales could not be loaded.')))
-  }, [user])
+  }, [user, range])
 
   useEffect(() => {
     load()
@@ -67,9 +72,12 @@ export function ProductSalesScreen() {
             <h1 className="text-2xl font-bold text-ink">Product sales</h1>
             <p className="mt-0.5 text-sm text-muted">Most popular items by quantity sold.</p>
           </div>
-          <Button variant="ghost" onClick={() => navigate('/school-admin/reports')}>
-            Back to reports
-          </Button>
+          <div className="flex items-center gap-2">
+            <DateRangeButton label={range.label} onSelect={setRange} />
+            <Button variant="ghost" onClick={() => navigate('/school-admin/reports')}>
+              Back to reports
+            </Button>
+          </div>
         </div>
 
         {error ? (

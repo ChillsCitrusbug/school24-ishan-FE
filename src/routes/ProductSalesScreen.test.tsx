@@ -83,6 +83,23 @@ describe('ProductSalesScreen (FR-045)', () => {
     expect(await screen.findByText('Product sales could not be loaded.')).toBeInTheDocument()
   })
 
+  it('re-fetches product sales with the selected preset date range', async () => {
+    vi.mocked(reportsApi.getProductSalesReport).mockResolvedValue(ROWS)
+
+    await renderAuthenticatedAt('/school-admin/reports/products')
+    await screen.findByText('Apple Slices')
+
+    fireEvent.click(screen.getByRole('button', { name: /all time/i }))
+    fireEvent.click(await screen.findByRole('button', { name: /^last 7 days$/i }))
+
+    await waitFor(() => {
+      const lastCall = vi.mocked(reportsApi.getProductSalesReport).mock.calls.at(-1)
+      expect(lastCall?.[1]?.date_from).toBeDefined()
+      expect(lastCall?.[1]?.date_to).toBeDefined()
+    })
+    expect(screen.getByRole('button', { name: /\d{4}-\d{2}-\d{2}/ })).toBeInTheDocument()
+  })
+
   it('"Back to reports" navigates to the main reports screen', async () => {
     vi.mocked(reportsApi.getProductSalesReport).mockResolvedValue(ROWS)
     vi.mocked(reportsApi.getDailyOrdersReport).mockResolvedValue({
@@ -97,6 +114,8 @@ describe('ProductSalesScreen (FR-045)', () => {
       average_order: '0.00',
       refunds_total: '0.00',
       refunds_count: 0,
+      previous_period_revenue: null,
+      percent_change_vs_previous_period: null,
     })
 
     await renderAuthenticatedAt('/school-admin/reports/products')

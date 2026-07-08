@@ -24,6 +24,8 @@ export interface RevenueSummaryReport {
   average_order: string
   refunds_total: string
   refunds_count: number
+  previous_period_revenue: string | null
+  percent_change_vs_previous_period: number | null
 }
 
 export interface ProductSalesRow {

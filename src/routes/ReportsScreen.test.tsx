@@ -64,6 +64,8 @@ const REVENUE_REPORT: reportsApi.RevenueSummaryReport = {
   average_order: '6.50',
   refunds_total: '9.99',
   refunds_count: 1,
+  previous_period_revenue: '20.00',
+  percent_change_vs_previous_period: 30,
 }
 
 afterEach(() => {
@@ -83,6 +85,37 @@ describe('ReportsScreen (FR-045)', () => {
     expect(screen.getByText('$9.99')).toBeInTheDocument()
     expect(screen.getByText('Completed')).toBeInTheDocument()
     expect(screen.getByText('Cancelled')).toBeInTheDocument()
+    expect(screen.getByText(/▲ 30% vs previous period/)).toBeInTheDocument()
+  })
+
+  it('shows a down-arrow comparison hint when revenue fell vs the previous period', async () => {
+    vi.mocked(reportsApi.getDailyOrdersReport).mockResolvedValue(DAILY_REPORT)
+    vi.mocked(reportsApi.getRevenueSummaryReport).mockResolvedValue({
+      ...REVENUE_REPORT,
+      percent_change_vs_previous_period: -12,
+    })
+
+    await renderAuthenticatedAt('/school-admin/reports')
+
+    expect(await screen.findByText(/▼ 12% vs previous period/)).toBeInTheDocument()
+  })
+
+  it('re-fetches both reports with the selected preset date range', async () => {
+    vi.mocked(reportsApi.getDailyOrdersReport).mockResolvedValue(DAILY_REPORT)
+    vi.mocked(reportsApi.getRevenueSummaryReport).mockResolvedValue(REVENUE_REPORT)
+
+    await renderAuthenticatedAt('/school-admin/reports')
+    await screen.findByText('$26.00')
+
+    fireEvent.click(screen.getByRole('button', { name: /all time/i }))
+    fireEvent.click(await screen.findByRole('button', { name: /^last 7 days$/i }))
+
+    await waitFor(() => {
+      const lastCall = vi.mocked(reportsApi.getRevenueSummaryReport).mock.calls.at(-1)
+      expect(lastCall?.[1]?.date_from).toBeDefined()
+      expect(lastCall?.[1]?.date_to).toBeDefined()
+    })
+    expect(screen.getByRole('button', { name: /\d{4}-\d{2}-\d{2}/ })).toBeInTheDocument()
   })
 
   it('shows an empty state when there are no orders in range', async () => {
@@ -98,6 +131,8 @@ describe('ReportsScreen (FR-045)', () => {
       average_order: '0.00',
       refunds_total: '0.00',
       refunds_count: 0,
+      previous_period_revenue: null,
+      percent_change_vs_previous_period: null,
     })
 
     await renderAuthenticatedAt('/school-admin/reports')

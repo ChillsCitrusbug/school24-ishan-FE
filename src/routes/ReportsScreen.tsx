@@ -14,6 +14,7 @@ import {
   EmptyState,
   ErrorState,
   Spinner,
+  DateRangeButton,
 } from '@/components'
 import { useAuth } from '@/features/auth/useAuth'
 import {
@@ -23,6 +24,7 @@ import {
   type RevenueSummaryReport,
 } from '@/features/reports/api'
 import { extractErrorMessage } from '@/lib/api-error'
+import type { DateRangeSelection } from '@/lib/date-range-presets'
 import { schoolAdminNavGroups, schoolAdminTabs } from './schoolAdminNav'
 
 const STATUS_LABEL: Record<string, string> = {
@@ -48,9 +50,11 @@ const STATUS_DOT: Record<string, string> = {
  * School Admin (FR-045). Reuses the approved Sc086Reports.tsx
  * structure, combining the `daily-orders` and `revenue-summary`
  * endpoints (the ticket's own DoD names them as 2 separate endpoints;
- * the mock shows both on one screen). The mock's own week-over-week
- * "▲ 7% vs May" comparison is not built — no prior-period baseline is
- * named anywhere in the ticket's own DoD.
+ * the mock shows both on one screen). Mock parity: the date-range
+ * button (`DateRangeButton`, a preset picker — no calendar-grid
+ * component exists in the design system to build a real one) and the
+ * "▲ 7% vs [previous period]" revenue comparison hint are both wired
+ * up to real backend data.
  */
 export function ReportsScreen() {
   const { user } = useAuth()
@@ -58,22 +62,24 @@ export function ReportsScreen() {
   const [daily, setDaily] = useState<DailyOrdersReport | null>(null)
   const [revenue, setRevenue] = useState<RevenueSummaryReport | null>(null)
   const [error, setError] = useState<string | null>(null)
+  const [range, setRange] = useState<DateRangeSelection>({ label: 'All time' })
 
   const load = useCallback(() => {
     if (!user?.school_id) return
     setError(null)
     setDaily(null)
     setRevenue(null)
+    const params = { date_from: range.date_from, date_to: range.date_to }
     Promise.all([
-      getDailyOrdersReport(user.school_id),
-      getRevenueSummaryReport(user.school_id),
+      getDailyOrdersReport(user.school_id, params),
+      getRevenueSummaryReport(user.school_id, params),
     ])
       .then(([dailyResult, revenueResult]) => {
         setDaily(dailyResult)
         setRevenue(revenueResult)
       })
       .catch((err: unknown) => setError(extractErrorMessage(err, 'Reports could not be loaded.')))
-  }, [user])
+  }, [user, range])
 
   useEffect(() => {
     load()
@@ -105,9 +111,12 @@ export function ReportsScreen() {
             <h1 className="text-2xl font-bold text-ink">Operational reports</h1>
             <p className="mt-0.5 text-sm text-muted">Orders and revenue across the canteen.</p>
           </div>
-          <Button variant="secondary" onClick={() => navigate('/school-admin/reports/products')}>
-            Product sales
-          </Button>
+          <div className="flex items-center gap-2">
+            <DateRangeButton label={range.label} onSelect={setRange} />
+            <Button variant="secondary" onClick={() => navigate('/school-admin/reports/products')}>
+              Product sales
+            </Button>
+          </div>
         </div>
 
         {error ? (
@@ -130,7 +139,21 @@ export function ReportsScreen() {
           <>
             <div className="mt-5 grid grid-cols-1 gap-4 sm:grid-cols-2 xl:grid-cols-4">
               <StatCard label="Orders" value={daily.total_order_count} icon="order" />
-              <StatCard label="Revenue" value={`$${revenue.total_revenue}`} icon="wallet" />
+              <StatCard
+                label="Revenue"
+                value={`$${revenue.total_revenue}`}
+                icon="wallet"
+                hint={
+                  revenue.percent_change_vs_previous_period === null ? undefined : (
+                    <span
+                      className={`font-medium ${revenue.percent_change_vs_previous_period >= 0 ? 'text-success' : 'text-danger'}`}
+                    >
+                      {revenue.percent_change_vs_previous_period >= 0 ? '▲' : '▼'}{' '}
+                      {Math.abs(revenue.percent_change_vs_previous_period)}% vs previous period
+                    </span>
+                  )
+                }
+              />
               <StatCard label="Average order" value={`$${revenue.average_order}`} icon="chart" />
               <StatCard
                 label="Refunds"

@@ -35,6 +35,10 @@ export { OrderTimeline, type TimelineStep } from './molecules/OrderTimeline'
 export { Field } from './molecules/Field'
 export { Banner } from './molecules/Banner'
 
+// App-local addition (no design-repo equivalent — the mock's own date-range
+// button was never given a real interaction; see the component's own docstring).
+export { DateRangeButton } from './molecules/DateRangeButton'
+
 // Organisms
 export { ChildCard, type ChildCardProps } from './organisms/ChildCard'
 export { FoodItemCard, type FoodItemCardProps } from './organisms/FoodItemCard'
