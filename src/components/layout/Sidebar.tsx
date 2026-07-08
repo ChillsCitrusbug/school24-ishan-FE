@@ -1,11 +1,11 @@
 import { useState } from 'react'
-import { Link } from 'react-router-dom'
+import { Link, useNavigate } from 'react-router-dom'
 import { cn } from '@/lib/cn'
 import { Icon, type IconName } from '../atoms/Icon'
 import { Avatar } from '../atoms/Avatar'
 import { useAuth } from '@/features/auth/useAuth'
 import { useStudentAuth } from '@/features/student-auth/useStudentAuth'
-import { ROLE_HOME_PATH } from '@/routes/roleHome'
+import { ROLE_HOME_PATH, ROLE_PROFILE_PATH } from '@/routes/roleHome'
 import { getSidebarCollapsed, setSidebarCollapsed } from '@/lib/sidebar-collapse'
 
 export interface NavItem {
@@ -45,6 +45,13 @@ export function Sidebar({
   const { user: authUser } = useAuth()
   const { student } = useStudentAuth()
   const homeHref = student ? '/student' : authUser ? ROLE_HOME_PATH[authUser.role] : '/'
+  // Account-menu addition (2026-07-08, direct user bug report — "you
+  // are showing 3 dots button, but it isn't doing anything"): every
+  // role's own profile screen already existed and worked, just had no
+  // entry point from this button. Same self-sufficient auth-context
+  // resolution as homeHref above.
+  const navigate = useNavigate()
+  const profileHref = student ? '/student/profile' : authUser ? ROLE_PROFILE_PATH[authUser.role] : null
 
   // Collapse addition (2026-07-08): no calendar-grid-style precedent
   // exists for this in either the design source of truth or the real
@@ -171,7 +178,13 @@ export function Sidebar({
               <div className="truncate text-sm font-semibold text-ink">{user.name}</div>
               <div className="text-xs text-muted">{user.role}</div>
             </div>
-            <button className="ml-auto text-muted hover:text-ink" aria-label="Account menu">
+            <button
+              type="button"
+              onClick={() => profileHref && navigate(profileHref)}
+              className="ml-auto text-muted hover:text-ink"
+              aria-label="View profile"
+              title="View profile"
+            >
               <Icon name="dots" />
             </button>
           </>

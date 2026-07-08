@@ -240,6 +240,28 @@ describe('Sidebar collapse/expand toggle (2026-07-08)', () => {
   })
 })
 
+describe('Sidebar account menu (2026-07-08, direct user bug report — the 3-dots button "isn\'t doing anything")', () => {
+  it('navigates a signed-in user to their own role\'s profile screen', async () => {
+    await loginAs('school_admin')
+    await waitFor(() => expect(screen.getByText(/good morning/i)).toBeInTheDocument())
+
+    fireEvent.click(screen.getByRole('button', { name: /view profile/i }))
+
+    expect(await screen.findByRole('heading', { name: 'Profile & settings' })).toBeInTheDocument()
+  })
+
+  it('navigates a signed-in student to their own profile screen', async () => {
+    await loginAsStudent()
+    await waitFor(() =>
+      expect(screen.getByText(/grab your usual in a tap/i)).toBeInTheDocument(),
+    )
+
+    fireEvent.click(screen.getByRole('button', { name: /view profile/i }))
+
+    expect(await screen.findByRole('heading', { name: 'My account' })).toBeInTheDocument()
+  })
+})
+
 describe('Session persistence across a refresh (2026-07-08)', () => {
   it('a persisted user token rehydrates the session without a login redirect', async () => {
     sessionStorage.setItem('school24_access_token', 'a-persisted-jwt')

@@ -125,3 +125,18 @@ test('the sidebar\'s "Roles" link navigates to the real roles list (direct user 
   await page.waitForURL('**/school-admin/roles')
   await expect(page.getByRole('heading', { name: 'Roles & permissions' })).toBeVisible()
 })
+
+test('the sidebar\'s 3-dots "account menu" button now navigates to the real profile screen (direct user bug report — it "isn\'t doing anything")', async ({
+  page,
+}) => {
+  await page.goto('/login')
+  await page.getByLabel('Email').fill(SA_EMAIL)
+  await page.getByLabel('Password').fill(SA_PASSWORD)
+  await page.getByRole('button', { name: /sign in/i }).click()
+  await page.waitForURL('**/school-admin')
+
+  await page.getByRole('button', { name: /view profile/i }).click()
+
+  await page.waitForURL('**/school-admin/profile')
+  await expect(page.getByRole('heading', { name: 'Profile & settings' })).toBeVisible()
+})

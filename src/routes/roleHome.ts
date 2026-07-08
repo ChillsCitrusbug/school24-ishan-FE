@@ -16,3 +16,16 @@ export const ROLE_HOME_PATH: Record<Role, string> = {
   staff: '/staff',
   parent: '/parent',
 }
+
+/**
+ * Role -> own profile screen. Direct user bug report (2026-07-08):
+ * the sidebar's own "Account menu" (3-dots) button had no destination
+ * at all — every role's own profile screen already existed and
+ * worked, just unreachable from this button.
+ */
+export const ROLE_PROFILE_PATH: Record<Role, string> = {
+  platform_admin: '/platform-admin/profile',
+  school_admin: '/school-admin/profile',
+  staff: '/staff/profile',
+  parent: '/parent/profile',
+}
