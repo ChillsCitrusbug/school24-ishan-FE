@@ -107,7 +107,7 @@ describe('StudentLoginScreen', () => {
   it('the "Login" link navigates to the real Parent/Admin login', async () => {
     renderAt('/student-login')
 
-    fireEvent.click(screen.getByRole('link', { name: /Login/i }))
+    fireEvent.click(screen.getByRole('link', { name: /Platform Login/i }))
 
     expect(await screen.findByText('Welcome back')).toBeInTheDocument()
   })
